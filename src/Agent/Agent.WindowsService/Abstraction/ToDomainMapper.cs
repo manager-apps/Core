@@ -1,4 +1,4 @@
-using Agent.WindowsService.Common;
+using Common.Messages;
 
 namespace Agent.WindowsService.Abstraction;
 

@@ -74,7 +74,7 @@ public sealed class JsonConfigurationStore : IConfigurationStore
   {
     var defaultConfig = new Configuration
     {
-      AgentId = $"{Environment.MachineName}_{Guid.NewGuid()}",
+      AgentName = $"{Environment.MachineName}_{Guid.NewGuid()}",
       ServerUrl = "http://localhost:5140",
     };
 

@@ -1,8 +1,8 @@
 using System.Text;
 using Agent.WindowsService.Abstraction;
-using Agent.WindowsService.Common;
 using Agent.WindowsService.Config;
 using Agent.WindowsService.Domain;
+using Common.Messages;
 
 namespace Agent.WindowsService.Application;
 public partial class StateMachine
@@ -36,7 +36,7 @@ public partial class StateMachine
         ),
         metadata: new RequestMetadata(
           AuthToken: authToken,
-          AgentId: config.AgentId),
+          AgentName: config.AgentName),
         cancellationToken: CancellationToken.None);
 
       if(response is null)

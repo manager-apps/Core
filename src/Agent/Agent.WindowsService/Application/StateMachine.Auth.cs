@@ -1,7 +1,7 @@
 using System.Text;
-using Agent.WindowsService.Common;
 using Agent.WindowsService.Config;
 using Agent.WindowsService.Domain;
+using Common.Messages;
 
 namespace Agent.WindowsService.Application;
 
@@ -18,8 +18,8 @@ public partial class StateMachine
       var authResponse = await _serverClient.Post<LoginMessageResponse, LoginMessageRequest>(
         url: UrlConfig.PostAuthUrl(config.ServerUrl),
         data: new LoginMessageRequest(
-          AgentId: config.AgentId,
-          ClientSecretKey: clientSecret),
+          AgentName: config.AgentName,
+          SecretKey: clientSecret),
         metadata: new RequestMetadata(),
         cancellationToken: CancellationToken.None);
 

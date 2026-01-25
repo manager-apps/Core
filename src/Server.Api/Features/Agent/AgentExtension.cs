@@ -1,11 +1,22 @@
+using Server.Api.Features.Agent.Auth;
+using Server.Api.Features.Agent.Report;
+
 namespace Server.Api.Features.Agent;
 
 public static class AgentExtension
 {
-
-
-  public static void MapAgentFeatures(this IEndpointRouteBuilder app)
+  public static void AddAgentServices(this IServiceCollection services)
   {
-    app.MapAgentLoginEndpoint();
+    services.AddScoped<IAgentAuthHandler, AgentAuthHandler>();
+    services.AddScoped<IAgentReportHandler, AgentReportHandler>();
+  }
+
+  public static void MapAgentEndpoints(this IEndpointRouteBuilder app)
+  {
+    var group = app.MapGroup("/agent/api")
+      .WithTags("Agent");
+
+    group.MapAgentAuthEndpoint();
+    group.MapAgentReportEndpoint();
   }
 }

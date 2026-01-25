@@ -5,7 +5,7 @@ public record Configuration
   /// <summary>
   /// Unique identifier for the agent
   /// </summary>
-  public string AgentId { get; set;  } = string.Empty;
+  public string AgentName { get; set;  } = string.Empty;
 
   /// <summary>
   /// URL of the server the agent communicates with

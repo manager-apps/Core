@@ -7,102 +7,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432" # PostgreSQL port
+      - "5432:5432" 
     volumes:
       - db_data:/var/lib/postgresql/data
 
-  clickhouse:
-    container_name: clickhouse
-    image: clickhouse/clickhouse-server:24.8
-    environment:
-      CLICKHOUSE_DB: Manager
-      CLICKHOUSE_USER: admin
-      CLICKHOUSE_PASSWORD: admin123
-    ports:
-      - "8123:8123" # HTTP port
-    ulimits:
-      nofile:
-        soft: 262144
-        hard: 262144
-    volumes:
-      - clickhouse_data:/var/lib/clickhouse
-      - ./src/Server/Server.Infrastructure/Migrations/Clickhouse:/docker-entrypoint-initdb.d
-
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.7.0
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
-
-  kafka:
-    image: confluentinc/cp-kafka:7.7.0
-    container_name: kafka
-    depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-      - "29092:29092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: |
-        PLAINTEXT://localhost:9092,
-        PLAINTEXT_INTERNAL://kafka:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: |
-        PLAINTEXT:PLAINTEXT,
-        PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-    healthcheck:
-      test: [ "CMD", "bash", "-c", "nc -z localhost 9092" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: kafka-ui
-    ports:
-      - "8080:8080"
-    depends_on:
-      - kafka
-    environment:
-      KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
-
-  server.api:
-    container_name: server-api
-    build:
-      context: .
-      dockerfile: src/Server/Server.Api/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=database;Port=5432;Database=Manager;Username=postgres;Password=postgres
-    ports:
-      - "8080:8080" # API port
-    depends_on:
-      - postgres
-      - clickhouse
-
-  server.ui:
-    container_name: server-ui
-    build:
-      context: .
-      dockerfile: src/Server/Server.Ui/Dockerfile
-    ports:
-      - "5000:80" # UI port
-    depends_on:
-      - server.api
-
 volumes:
   db_data:
-  clickhouse_data:
 
 

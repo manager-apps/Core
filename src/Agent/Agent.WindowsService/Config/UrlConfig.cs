@@ -11,7 +11,7 @@ public static class UrlConfig
   /// Constructs the URL for posting authentication requests to the agent API.
   /// </summary>
   public static string PostAuthUrl(string baseUrl)
-    => $"{baseUrl.TrimEnd('/')}/agent/api/{Version}/authenticate";
+    => $"{baseUrl.TrimEnd('/')}/agent/api/{Version}/auth";
 
   /// <summary>
   /// Constructs the URL for posting reports to the agent API.
@@ -23,8 +23,8 @@ public static class UrlConfig
 /// <summary>
 /// Metadata for requests sent by the agent.
 /// </summary>
-/// <param name="AgentId"></param>
+/// <param name="AgentName"></param>
 /// <param name="AuthToken"></param>
 public record RequestMetadata(
-  string? AgentId = null,
+  string? AgentName = null,
   string? AuthToken = null);

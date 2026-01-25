@@ -1,0 +1,27 @@
+using Common.Messages;
+using Microsoft.AspNetCore.Mvc;
+using Server.Api.Common.Result;
+
+namespace Server.Api.Features.Agent.Auth;
+
+internal static class AgentAuthEndpoint
+{
+  internal static void MapAgentAuthEndpoint(this IEndpointRouteBuilder app)
+    => app.MapPost("/v1/auth",
+        async (
+          [FromBody] LoginMessageRequest request,
+          [FromServices] IAgentAuthHandler handler,
+          CancellationToken ct)
+          => (await handler.AuthenticateAsync(request, ct)).ToApiResult())
+        .WithTags("Agent")
+        .WithName("Login")
+        .WithSummary(
+         @"
+            Authenticate an agent and issue a token. If the agent does not exist,
+            a new agent record will be created, with Inactive status, and an administrator
+            must activate the agent before it can be used. While the agent is inactive,
+            authentication will fail.
+         ")
+        .Produces<LoginMessageResponse>()
+        .ProducesProblem(StatusCodes.Status401Unauthorized);
+}

@@ -15,10 +15,10 @@ public class HttpServerClient (ILogger<HttpServerClient> logger, HttpClient http
     if (!string.IsNullOrEmpty(metadata.AuthToken))
       request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", metadata.AuthToken);
 
-    if (!string.IsNullOrEmpty(metadata.AgentId))
-      request.Headers.Add("X-Agent-Id", metadata.AgentId);
+    if (!string.IsNullOrEmpty(metadata.AgentName))
+      request.Headers.Add("X-Agent-Id", metadata.AgentName);
 
-    logger.LogDebug("Sending POST request to {Url} with AgentId: {AgentId}", url, metadata.AgentId);
+    logger.LogDebug("Sending POST request to {Url} with AgentName: {AgentName}", url, metadata.AgentName);
 
     HttpResponseMessage response;
     try
@@ -39,22 +39,22 @@ public class HttpServerClient (ILogger<HttpServerClient> logger, HttpClient http
     if (!response.IsSuccessStatusCode)
     {
       var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-      
+
       logger.LogError(
-        "Request to {Url} failed with status {StatusCode}. Response: {Response}", 
+        "Request to {Url} failed with status {StatusCode}. Response: {Response}",
         url, response.StatusCode, errorContent);
 
       throw response.StatusCode switch
       {
-        HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden => 
+        HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden =>
           new HttpRequestException("Authentication failed", null, response.StatusCode),
-        HttpStatusCode.BadRequest => 
+        HttpStatusCode.BadRequest =>
           new HttpRequestException($"Bad request: {errorContent}", null, response.StatusCode),
-        HttpStatusCode.NotFound => 
+        HttpStatusCode.NotFound =>
           new HttpRequestException($"Endpoint not found: {url}", null, response.StatusCode),
-        HttpStatusCode.ServiceUnavailable => 
+        HttpStatusCode.ServiceUnavailable =>
           new HttpRequestException("Server is unavailable", null, response.StatusCode),
-        _ when ((int)response.StatusCode >= 500) => 
+        _ when ((int)response.StatusCode >= 500) =>
           new HttpRequestException($"Server error: {response.StatusCode}", null, response.StatusCode),
         _ => new HttpRequestException($"Request failed with status {response.StatusCode}", null, response.StatusCode)
       };
@@ -73,10 +73,10 @@ public class HttpServerClient (ILogger<HttpServerClient> logger, HttpClient http
     if (!string.IsNullOrEmpty(metadata.AuthToken))
       request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", metadata.AuthToken);
 
-    if (!string.IsNullOrEmpty(metadata.AgentId))
-      request.Headers.Add("X-Agent-Id", metadata.AgentId);
+    if (!string.IsNullOrEmpty(metadata.AgentName))
+      request.Headers.Add("X-Agent-Id", metadata.AgentName);
 
-    logger.LogDebug("Sending GET request to {Url} with AgentId: {AgentId}", url, metadata.AgentId);
+    logger.LogDebug("Sending GET request to {Url} with AgentName: {AgentName}", url, metadata.AgentName);
 
     HttpResponseMessage response;
     try
@@ -97,22 +97,22 @@ public class HttpServerClient (ILogger<HttpServerClient> logger, HttpClient http
     if (!response.IsSuccessStatusCode)
     {
       var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-      
+
       logger.LogError(
-        "Request to {Url} failed with status {StatusCode}. Response: {Response}", 
+        "Request to {Url} failed with status {StatusCode}. Response: {Response}",
         url, response.StatusCode, errorContent);
 
       throw response.StatusCode switch
       {
-        HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden => 
+        HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden =>
           new HttpRequestException("Authentication failed", null, response.StatusCode),
-        HttpStatusCode.BadRequest => 
+        HttpStatusCode.BadRequest =>
           new HttpRequestException($"Bad request: {errorContent}", null, response.StatusCode),
-        HttpStatusCode.NotFound => 
+        HttpStatusCode.NotFound =>
           new HttpRequestException($"Endpoint not found: {url}", null, response.StatusCode),
-        HttpStatusCode.ServiceUnavailable => 
+        HttpStatusCode.ServiceUnavailable =>
           new HttpRequestException("Server is unavailable", null, response.StatusCode),
-        _ when ((int)response.StatusCode >= 500) => 
+        _ when ((int)response.StatusCode >= 500) =>
           new HttpRequestException($"Server error: {response.StatusCode}", null, response.StatusCode),
         _ => new HttpRequestException($"Request failed with status {response.StatusCode}", null, response.StatusCode)
       };
