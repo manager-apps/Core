@@ -2,18 +2,18 @@ namespace Agent.WindowsService.Domain;
 
 public enum InstructionType
 {
-  PolicyUpdate = 1,
-  PolicyDelete = 2,
-  PolicyAdd = 3,
-  ShellCommand = 4,
+  GpoSet = 1,
+  ShellCommand = 2,
 }
 
 public class Instruction
 {
+  public long Id { get; set; }
+
   /// <summary>
   /// Unique identifier for the instruction
   /// </summary>
-  public Guid AssociativeId { get; set; }
+  public long AssociativeId { get; set; }
 
   /// <summary>
   /// Type of instruction
@@ -31,7 +31,7 @@ public class InstructionResult
   /// <summary>
   /// Identifier of the instruction
   /// </summary>
-  public required Guid AssociativeId { get; set; }
+  public required long AssociativeId { get; set; }
 
   /// <summary>
   /// Success status of the instruction execution

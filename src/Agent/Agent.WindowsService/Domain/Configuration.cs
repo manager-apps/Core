@@ -1,9 +1,14 @@
 namespace Agent.WindowsService.Domain;
 
-public class Configuration
+public record Configuration
 {
   /// <summary>
   /// Unique identifier for the agent
   /// </summary>
-  public Guid AgentId { get; set;  }
+  public string AgentId { get; set;  } = string.Empty;
+
+  /// <summary>
+  /// URL of the server the agent communicates with
+  /// </summary>
+  public string ServerUrl { get; set; } = string.Empty;
 }

@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Agent.WindowsService.Abstraction;
 using Agent.WindowsService.Config;
@@ -17,13 +18,21 @@ public class DpapiSecretStore : ISecretStore
     WriteIndented = true
   };
 
+  public async Task<string> GetAsync(string key, Encoding encoding, CancellationToken cancellationToken = default)
+  {
+    var data = await GetAsync(key, cancellationToken);
+    if (data == null)
+      return string.Empty;
+
+    return encoding.GetString(data.Value.Span);
+  }
+
   public async Task<ReadOnlyMemory<byte>?> GetAsync(string key, CancellationToken cancellationToken = default)
   {
     await _lock.WaitAsync(cancellationToken);
     try
     {
       await EnsureLoadedAsync(cancellationToken);
-
       return _cache.GetValueOrDefault(key);
     }
     finally
@@ -38,7 +47,6 @@ public class DpapiSecretStore : ISecretStore
     try
     {
       await EnsureLoadedAsync(cancellationToken);
-
       _cache[key] = value.ToArray();
       await PersistAsync(cancellationToken);
     }
@@ -78,7 +86,6 @@ public class DpapiSecretStore : ISecretStore
     var encrypted = ProtectedData.Protect(json, SecretConfig.Entropy, DataProtectionScope.CurrentUser);
 
     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-
     await File.WriteAllBytesAsync(path, encrypted, ct);
   }
 }

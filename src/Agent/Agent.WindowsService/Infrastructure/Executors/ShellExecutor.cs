@@ -52,15 +52,7 @@ public class ShellExecutor(IValidator<Instruction> validator) : IInstructionExec
     var exited = await Task.Run(() => process.WaitForExit(timeout), cancellationToken);
     if (!exited)
     {
-      try
-      {
-        process.Kill(entireProcessTree: true);
-      }
-      catch
-      {
-        // ignored
-      }
-
+      try { process.Kill(entireProcessTree: true); } catch { /*ignored*/ }
       return new InstructionResult
       {
         AssociativeId = instruction.AssociativeId,

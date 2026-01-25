@@ -10,6 +10,8 @@ public enum MetricType
 
 public class Metric
 {
+  public long Id { get; set; }
+
   /// <summary>
   /// Metric type
   /// </summary>

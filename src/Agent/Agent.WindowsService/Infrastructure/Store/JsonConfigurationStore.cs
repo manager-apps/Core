@@ -15,22 +15,34 @@ public sealed class JsonConfigurationStore : IConfigurationStore
     WriteIndented = true
   };
 
+  private Configuration? _cachedConfiguration;
+
   public async Task<Configuration> GetAsync(CancellationToken cancellationToken = default)
   {
+    if (_cachedConfiguration is not null)
+      return _cachedConfiguration;
+
     await _lock.WaitAsync(cancellationToken);
     try
     {
-      var path = PathConfig.ConfigFilePath;
+      if (_cachedConfiguration is not null)
+        return _cachedConfiguration;
 
+      var path = PathConfig.ConfigFilePath;
       if (!File.Exists(path))
-        throw new FileNotFoundException("Configuration file not found", path);
+      {
+        var config = await CreateDefaultConfigFileAsync(cancellationToken);
+        _cachedConfiguration = config;
+        return config;
+      }
 
       var json = await File.ReadAllTextAsync(path, cancellationToken);
       var configuration = JsonSerializer.Deserialize<Configuration>(json, JsonOptions);
 
       if (configuration is null)
-        throw new InvalidOperationException("Failed to deserialize configuration");
+        throw new InvalidDataException("Configuration file is invalid.");
 
+      _cachedConfiguration = configuration;
       return configuration;
     }
     finally
@@ -49,10 +61,28 @@ public sealed class JsonConfigurationStore : IConfigurationStore
 
       Directory.CreateDirectory(Path.GetDirectoryName(path)!);
       await File.WriteAllTextAsync(path, json, cancellationToken);
+
+      _cachedConfiguration = configuration;
     }
     finally
     {
       _lock.Release();
     }
+  }
+
+  private async Task<Configuration> CreateDefaultConfigFileAsync(CancellationToken cancellationToken)
+  {
+    var defaultConfig = new Configuration
+    {
+      AgentId = $"{Environment.MachineName}_{Guid.NewGuid()}",
+      ServerUrl = "http://localhost:5140",
+    };
+
+    var path = PathConfig.ConfigFilePath;
+    var json = JsonSerializer.Serialize(defaultConfig, JsonOptions);
+
+    Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+    await File.WriteAllTextAsync(path, json, cancellationToken);
+    return defaultConfig;
   }
 }

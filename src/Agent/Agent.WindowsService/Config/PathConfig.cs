@@ -2,7 +2,10 @@ namespace Agent.WindowsService.Config;
 
 public static class PathConfig
 {
-  private static readonly string BaseDirectory
+  /// <summary>
+  /// Base directory in the common application data directory.
+  /// </summary>
+  public static readonly string BaseDirectory
     = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Manager");
 
   /// <summary>
@@ -12,10 +15,16 @@ public static class PathConfig
     = Path.Combine(BaseDirectory, "metrics");
 
   /// <summary>
+  /// Instructions directory in the common application data directory.
+  /// </summary>
+  public static readonly string InstructionsDirectory
+    = Path.Combine(BaseDirectory, "instructions");
+
+  /// <summary>
   /// Instruction results directory in the common application data directory.
   /// </summary>
   public static readonly string InstructionResultsDirectory
-    = Path.Combine(BaseDirectory, "instructions");
+    = Path.Combine(InstructionsDirectory, "results");
 
   /// <summary>
   /// Log file path in the common application data directory.
@@ -35,6 +44,18 @@ public static class PathConfig
   public static readonly string SecretFilePath
     = Path.Combine(BaseDirectory, "secrets.dat");
 
+  /// <summary>
+  /// SQLite metrics database connection string.
+  /// </summary>
+  public static readonly string MetricsConnectionString
+    = $"Data Source={Path.Combine(BaseDirectory, "metrics.db")};Mode=ReadWriteCreate;Cache=Shared";
+
+  /// <summary>
+  /// SQLite instructions database connection string.
+  /// </summary>
+  public static readonly string InstructionsConnectionString
+    = $"Data Source={Path.Combine(BaseDirectory, "instructions.db")};Mode=ReadWriteCreate;Cache=Shared";
+
   #region Fabrics
 
   /// <summary>
@@ -48,6 +69,12 @@ public static class PathConfig
   /// </summary>
   public static string CreateInstructionResultFilePath
     => Path.Combine(InstructionResultsDirectory, $"instruction-result-{DateTime.UtcNow:yyyyMMdd-HHmmss-fff}.json");
+
+  /// <summary>
+  /// Creates a new instruction file path with a timestamp in the instructions directory.
+  /// </summary>
+  public static string CreateInstructionFilePath
+    => Path.Combine(InstructionsDirectory, $"instruction-{DateTime.UtcNow:yyyyMMdd-HHmmss-fff}.json");
 
   #endregion
 }

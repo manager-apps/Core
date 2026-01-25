@@ -3,8 +3,16 @@ namespace Agent.WindowsService.Domain;
 public enum Triggers
 {
   Start,
-  Success,
-  Failed,
+  Stop,
   Retry,
-  Stop
+  AuthSuccess,
+  AuthFailure,
+  SyncSuccess,
+  SyncFailure,
+  RunSuccess,
+  RunFailure,
+  ExecutionSuccess,
+  ExecutionFailure,
+  DelaySuccess,
+  DelayFailure
 }

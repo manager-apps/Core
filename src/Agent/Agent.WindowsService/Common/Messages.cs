@@ -1,5 +1,12 @@
 namespace Agent.WindowsService.Common;
 
+public record LoginMessageRequest(
+  string AgentId,
+  string ClientSecretKey);
+
+public record LoginMessageResponse(
+    string AuthToken,
+    string RefreshToken);
 
 public record MetricMessage(
   int Type,
@@ -10,16 +17,19 @@ public record MetricMessage(
   Dictionary<string, object>? Metadata);
 
 public record InstructionResultMessage(
-  Guid AssociatedId,
+  long AssociatedId,
   bool Success,
   string? Output,
   string? Error);
 
 public record InstructionMessage(
-  Guid AssociatedId,
+  long AssociatedId,
   int Type,
   IReadOnlyDictionary<string, string> Payload);
 
-public record ReportMessage (
+public record ReportMessageRequest (
   IEnumerable<MetricMessage> Metrics,
   IEnumerable<InstructionResultMessage> InstructionResults);
+
+public record ReportMessageResponse (
+  IEnumerable<InstructionMessage> Instructions);
