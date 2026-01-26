@@ -1,0 +1,33 @@
+apiVersion: 1
+
+#datasources:
+#  - name: ClickHouse
+#    type: grafana-clickhouse-datasource
+#    access: proxy
+#    url: clickhouse
+#    isDefault: false
+#    uid: clickhouse
+#    jsonData:
+#      defaultDatabase: Manager
+#      httpHeaderName1: X-ClickHouse-User
+#      httpHeaderName2: X-ClickHouse-Key
+#    secureJsonData:
+#      httpHeaderValue1: admin
+#      httpHeaderValue2: admin123
+#    editable: true
+
+datasources:
+  - name: ClickHouse
+    uid: clickhouse
+    type: grafana-clickhouse-datasource
+    access: proxy
+    editable: true
+    version: 1
+    jsonData:
+      host: clickhouse
+      port: 8123
+      protocol: http
+      defaultDatabase: Manager
+      username: default
+    secureJsonData:
+      password: ""
