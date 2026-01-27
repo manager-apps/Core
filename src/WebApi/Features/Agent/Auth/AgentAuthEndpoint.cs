@@ -7,9 +7,9 @@ namespace WebApi.Features.Agent.Auth;
 internal static class AgentAuthEndpoint
 {
   internal static void MapAgentAuthEndpoint(this IEndpointRouteBuilder app)
-    => app.MapPost("/v1/auth",
+    => app.MapPost("auth",
         async (
-          [FromBody] LoginMessageRequest request,
+          [FromBody] AuthMessageRequest request,
           [FromServices] IAgentAuthHandler handler,
           CancellationToken ct)
           => (await handler.AuthenticateAsync(request, ct)).ToApiResult())
@@ -23,6 +23,6 @@ internal static class AgentAuthEndpoint
             must activate the agent before it can be used. While the agent is inactive,
             authentication will fail.
          ")
-        .Produces<LoginMessageResponse>()
+        .Produces<AuthMessageResponse>()
         .ProducesProblem(StatusCodes.Status401Unauthorized);
 }

@@ -4,7 +4,7 @@ namespace WebApi.Features.Agent;
 
 public static class AgentMapper
 {
-  extension(LoginMessageRequest request)
+  extension(AuthMessageRequest request)
   {
     public Domain.Agent ToDomain(
       byte[] secretKeyHash,

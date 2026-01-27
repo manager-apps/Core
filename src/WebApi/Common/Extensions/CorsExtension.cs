@@ -4,12 +4,12 @@ public static class CorsExtension
 {
   public static void AddCors(this IServiceCollection services, IConfiguration configuration)
   {
+    var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
     services.AddCors(options =>
     {
       options.AddDefaultPolicy(policy =>
       {
-        // todo: replace from configuration
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins(allowedOrigins)
           .AllowAnyHeader()
           .AllowAnyMethod()
           .AllowCredentials();

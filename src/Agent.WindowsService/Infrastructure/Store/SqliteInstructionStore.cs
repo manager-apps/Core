@@ -21,7 +21,8 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
     WriteIndented = false
   };
 
-  public SqliteInstructionStore(ILogger<SqliteInstructionStore> logger)
+  public SqliteInstructionStore(
+    ILogger<SqliteInstructionStore> logger)
   {
     _connectionString = PathConfig.InstructionsConnectionString;
     _logger = logger;
@@ -97,7 +98,7 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
 
         command.Parameters.AddWithValue("@associativeId", instruction.AssociativeId);
         command.Parameters.AddWithValue("@type", (int)instruction.Type);
-        command.Parameters.AddWithValue("@payload", JsonSerializer.Serialize(instruction.Payload, JsonOptions));
+        command.Parameters.AddWithValue("@payload", Instruction.SerializePayload(instruction.Payload));
 
         await command.ExecuteNonQueryAsync(cancellationToken);
       }
@@ -124,7 +125,6 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
     command.CommandText = "SELECT AssociativeId, Type, Payload FROM Instructions ORDER BY CreatedAt";
 
     var instructions = new List<Instruction>();
-
     try
     {
       await using var reader = await command.ExecuteReaderAsync(cancellationToken);
@@ -134,7 +134,7 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
         var type = (InstructionType)reader.GetInt32(1);
         var payloadJson = reader.GetString(2);
 
-        var payload = DeserializePayload(type, payloadJson);
+        var payload = Instruction.DeserializePayload(type, payloadJson);
 
         instructions.Add(new Instruction
         {
@@ -203,6 +203,7 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
       foreach (var result in resultList)
       {
         var command = connection.CreateCommand();
+
         command.CommandText = @"
           INSERT OR REPLACE INTO InstructionResults (AssociativeId, Success, Output, Error)
           VALUES (@associativeId, @success, @output, @error)
@@ -212,8 +213,10 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
         command.Parameters.AddWithValue("@success", result.Success ? 1 : 0);
         command.Parameters.AddWithValue("@output", result.Output ?? (object)DBNull.Value);
         command.Parameters.AddWithValue("@error", result.Error ?? (object)DBNull.Value);
+
         await command.ExecuteNonQueryAsync(cancellationToken);
       }
+
       await transaction.CommitAsync(cancellationToken);
       _logger.LogInformation("Saved {Count} instruction results to SQLite", resultList.Count);
     }
@@ -236,7 +239,6 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
     command.CommandText = "SELECT AssociativeId, Success, Output, Error FROM InstructionResults ORDER BY CreatedAt";
 
     var results = new List<InstructionResult>();
-
     try
     {
       await using var reader = await command.ExecuteReaderAsync(cancellationToken);
@@ -313,17 +315,5 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
     _disposed = true;
 
     GC.SuppressFinalize(this);
-  }
-
-  private static InstructionPayload DeserializePayload(InstructionType type, string json)
-  {
-    return type switch
-    {
-      InstructionType.ShellCommand => JsonSerializer.Deserialize<ShellCommandPayload>(json, JsonOptions)
-        ?? throw new InvalidOperationException($"Failed to deserialize {nameof(ShellCommandPayload)}"),
-      InstructionType.GpoSet => JsonSerializer.Deserialize<GpoSetPayload>(json, JsonOptions)
-        ?? throw new InvalidOperationException($"Failed to deserialize {nameof(GpoSetPayload)}"),
-      _ => throw new ArgumentException($"Unknown instruction type: {type}")
-    };
   }
 }

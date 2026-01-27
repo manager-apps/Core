@@ -1,9 +1,9 @@
 namespace Common.Messages;
 
-public record LoginMessageResponse(
+public record AuthMessageResponse(
   string AuthToken,
   string RefreshToken);
 
-public record LoginMessageRequest(
+public record AuthMessageRequest(
   string AgentName,
   string SecretKey);

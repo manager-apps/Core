@@ -13,7 +13,8 @@ public static class AgentExtension
 
   public static void MapAgentEndpoints(this IEndpointRouteBuilder app)
   {
-    var group = app.MapGroup("/agent/api")
+    var group = app
+      .MapGroup("/agent")
       .WithTags("Agent");
 
     group.MapAgentAuthEndpoint();

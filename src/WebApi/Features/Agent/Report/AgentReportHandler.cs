@@ -13,6 +13,7 @@ internal interface IAgentReportHandler
   /// <summary>
   /// Handles reporting a message from an agent, and returns the instructions to execute.
   /// </summary>
+  /// <param name="agent"></param>
   /// <param name="request"></param>
   /// <param name="cancellationToken"></param>
   /// <returns></returns>
@@ -74,7 +75,7 @@ internal class AgentReportHandler(
       .Select(i => new InstructionMessage(
         AssociatedId: i.Id,
         Type: (int)i.Type,
-        Payload: DeserializePayload(i.Type, i.Payload)))
+        Payload: DeserializePayload(i.Type, i.PayloadJson)))
       .ToListAsync(cancellationToken: cancellationToken);
 
     logger.LogInformation("Returning {InstructionCount} instructions to agent.", pendingInstructions.Count);

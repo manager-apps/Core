@@ -15,9 +15,9 @@ public partial class StateMachine
       var config = await _configStore.GetAsync(CancellationToken.None);
       var clientSecret = await _secretStore.GetAsync(SecretConfig.ClientSecretKey, Encoding.UTF8);
 
-      var authResponse = await _serverClient.Post<LoginMessageResponse, LoginMessageRequest>(
+      var authResponse = await _serverClient.Post<AuthMessageResponse, AuthMessageRequest>(
         url: UrlConfig.PostAuthUrl(config.ServerUrl),
-        data: new LoginMessageRequest(
+        data: new AuthMessageRequest(
           AgentName: config.AgentName,
           SecretKey: clientSecret),
         metadata: new RequestMetadata(),

@@ -14,8 +14,8 @@ internal interface IAgentAuthHandler
   /// <param name="request"></param>
   /// <param name="cancellationToken"></param>
   /// <returns></returns>
-  Task<Result<LoginMessageResponse>> AuthenticateAsync(
-    LoginMessageRequest request,
+  Task<Result<AuthMessageResponse>> AuthenticateAsync(
+    AuthMessageRequest request,
     CancellationToken cancellationToken);
 }
 
@@ -25,8 +25,8 @@ internal class AgentAuthHandler(
   IJwtProvider jwtProvider,
   AppDbContext dbContext) : IAgentAuthHandler
 {
-  public async Task<Result<LoginMessageResponse>> AuthenticateAsync(
-    LoginMessageRequest request,
+  public async Task<Result<AuthMessageResponse>> AuthenticateAsync(
+    AuthMessageRequest request,
     CancellationToken cancellationToken)
   {
     logger.LogInformation("Authenticating agent: {AgentName}", request.AgentName);
@@ -51,13 +51,13 @@ internal class AgentAuthHandler(
 
     logger.LogInformation("Authenticated agent: {AgentName}", agent.Name);
 
-    return new LoginMessageResponse(
+    return new AuthMessageResponse(
       AuthToken: token,
       RefreshToken: "refresh-token-placeholder");
   }
 
   private async Task<Domain.Agent> GetOrCreateAgentAsync(
-    LoginMessageRequest request,
+    AuthMessageRequest request,
     CancellationToken cancellationToken)
   {
     var agent = await dbContext.Agents

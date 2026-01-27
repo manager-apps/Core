@@ -27,7 +27,7 @@ public class Instruction
 
   [Required]
   [MaxLength(4000)]
-  public string Payload { get; private init; } = null!;
+  public string PayloadJson { get; private init; } = null!;
 
   [Required]
   public InstructionState State { get; private set; }
@@ -58,13 +58,14 @@ public class Instruction
   public static Instruction Create(
     long agentId,
     InstructionType type,
-    string payload)
+    string payloadJson)
   {
     return new Instruction
     {
       AgentId = agentId,
       Type = type,
-      Payload = payload,
+      PayloadJson = payloadJson,
+      State = InstructionState.Pending,
       CreatedAt = DateTime.UtcNow
     };
   }

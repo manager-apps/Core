@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 internal static class AgentReportEndpoint
 {
   internal static void MapAgentReportEndpoint(this IEndpointRouteBuilder app)
-    => app.MapPost("/v1/report", async (
+    => app.MapPost("report", async (
         [FromBody] ReportMessageRequest request,
         [FromServices] IAgentReportHandler handler,
         HttpContext context,

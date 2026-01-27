@@ -1,11 +1,10 @@
 using WebApi.Common.Extensions;
 using WebApi.Features.Agent;
+using WebApi.Features.Instruction;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
-builder.Services.AddSwaggerGen();
-
+builder.Services.AddSwagger();
 builder.Services.AddPsqlDatabase(builder.Configuration);
 builder.Services.AddClickHouseDatabase(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);
@@ -14,28 +13,22 @@ builder.Services.AddCors(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 builder.Services.AddAgentServices();
+builder.Services.AddInstructionServices();
 
 var app = builder.Build();
 await app.ApplyMigrationsAsync();
 
-// todo: move to extension folder
-if (app.Environment.IsDevelopment())
-{
-  app.MapOpenApi();
-  app.UseSwagger();
-  app.UseSwaggerUI(options =>
-  {
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-    options.RoutePrefix = string.Empty;
-  });
-}
-
+app.UseSwaggerUI();
 app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapAgentEndpoints();
+var group = app.MapGroup("/api/v1");
+
+group.MapAgentEndpoints();
+group.MapInstructionEndpoints();
+
 app.UseHttpsRedirection();
 
 app.Run();

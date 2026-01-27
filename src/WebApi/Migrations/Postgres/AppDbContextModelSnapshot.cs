@@ -8,7 +8,7 @@ using WebApi.Infrastructure;
 
 #nullable disable
 
-namespace WebApi.Migrations
+namespace WebApi.Migrations.Postgres
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -85,7 +85,7 @@ namespace WebApi.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
 
-                    b.Property<string>("Payload")
+                    b.Property<string>("PayloadJson")
                         .IsRequired()
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");

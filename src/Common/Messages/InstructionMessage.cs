@@ -30,6 +30,9 @@ public record GpoSetPayload(
   string Name,
   string Value) : InstructionPayload;
 
+/// <summary>
+/// Message representing an instruction sent to an agent.
+/// </summary>
 public record InstructionMessage(
   long AssociatedId,
   int Type,

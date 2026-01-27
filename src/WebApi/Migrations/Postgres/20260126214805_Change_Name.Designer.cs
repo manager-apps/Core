@@ -9,11 +9,11 @@ using WebApi.Infrastructure;
 
 #nullable disable
 
-namespace WebApi.Migrations
+namespace WebApi.Migrations.Postgres
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260125204900_Init")]
-    partial class Init
+    [Migration("20260126214805_Change_Name")]
+    partial class Change_Name
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -88,7 +88,7 @@ namespace WebApi.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
 
-                    b.Property<string>("Payload")
+                    b.Property<string>("PayloadJson")
                         .IsRequired()
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");

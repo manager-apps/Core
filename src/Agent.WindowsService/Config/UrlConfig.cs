@@ -11,13 +11,13 @@ public static class UrlConfig
   /// Constructs the URL for posting authentication requests to the agent API.
   /// </summary>
   public static string PostAuthUrl(string baseUrl)
-    => $"{baseUrl.TrimEnd('/')}/agent/api/{Version}/auth";
+    => $"{baseUrl.TrimEnd('/')}/api/{Version}/agent/auth";
 
   /// <summary>
   /// Constructs the URL for posting reports to the agent API.
   /// </summary>
   public static string PostReportUrl(string baseUrl)
-    => $"{baseUrl.TrimEnd('/')}/agent/api/{Version}/report";
+    => $"{baseUrl.TrimEnd('/')}/api/{Version}/agent/report";
 }
 
 /// <summary>
