@@ -11,3 +11,4 @@ CREATE TABLE IF NOT EXISTS agent_metrics (
 ) ENGINE = MergeTree()
 PARTITION BY toYYYYMM(TimestampUtc)
 ORDER BY (AgentName, Type, TimestampUtc);
+
