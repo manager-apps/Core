@@ -13,9 +13,6 @@ internal static class AgentAuthEndpoint
           [FromServices] IAgentAuthHandler handler,
           CancellationToken ct)
           => (await handler.AuthenticateAsync(request, ct)).ToApiResult())
-        .WithTags("Agent")
-        .WithName("Authenticate")
-        .WithSummary("Authenticate an agent and issue a token.")
         .WithDescription(
          @"
             Authenticate an agent and issue a token. If the agent does not exist,

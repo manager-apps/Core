@@ -1,33 +1,33 @@
 using Microsoft.EntityFrameworkCore;
-using WebApi.Common.Result;
+using WebApi.Features.Instruction;
 using WebApi.Infrastructure;
 
-namespace WebApi.Features.Instruction.GetAll;
+namespace WebApi.Features.Agent.Instruction.GetAll;
 
 internal interface IGetAllInstructionsHandler
 {
-  /// <summary>
-  /// Handles the retrieval of all instructions.
-  /// </summary>
-  /// <param name="cancellationToken"></param>
-  /// <returns></returns>
   Task<IEnumerable<InstructionResponse>> HandleAsync(
+    long agentId,
     CancellationToken cancellationToken);
 }
 
-internal class GetAllInstructionsHandler(
+public class GetAllInstructionsHandler(
   ILogger<GetAllInstructionsHandler> logger,
-  AppDbContext dbContext
+  AppDbContext context
 ) : IGetAllInstructionsHandler
 {
   public async Task<IEnumerable<InstructionResponse>> HandleAsync(
+    long agentId,
     CancellationToken cancellationToken)
   {
-    var instructions = await dbContext.Instructions
+    var instructions = await context.Instructions
       .AsNoTracking()
+      .Where(i => i.AgentId == agentId)
       .ToListAsync(cancellationToken);
 
-    logger.LogInformation("Retrieved {InstructionCount} instructions", instructions.Count);
+    logger.LogInformation("Retrieved {InstructionCount} instructions for agent {AgentId}",
+      instructions.Count, agentId);
+
     return instructions.Select(i => i.ToResponse());
   }
 }

@@ -3,7 +3,7 @@ using WebApi.Infrastructure;
 
 namespace WebApi.Features.Instruction.Create;
 
-public interface ICreateInstructionHandler
+internal interface ICreateInstructionHandler
 {
   /// <summary>
   /// Create a new instruction
@@ -16,7 +16,7 @@ public interface ICreateInstructionHandler
     CancellationToken cancellationToken);
 }
 
-public class CreateInstructionHandler(
+internal class CreateInstructionHandler(
   ILogger<CreateInstructionHandler> logger,
   AppDbContext dbContext
 ): ICreateInstructionHandler
@@ -30,7 +30,9 @@ public class CreateInstructionHandler(
     dbContext.Instructions.Add(domain);
     await dbContext.SaveChangesAsync(cancellationToken);
 
-    logger.LogInformation("Created instruction {InstructionId} for agent {AgentId}", domain.Id, domain.AgentId);
+    logger.LogInformation("Created instruction {InstructionId} for agent {AgentId}",
+      domain.Id, domain.AgentId);
+
     return domain.ToResponse();
   }
 }

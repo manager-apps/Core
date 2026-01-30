@@ -5,8 +5,8 @@ namespace WebApi.Domain;
 
 public enum AgentState
 {
-  Active = 1,
-  Inactive
+  Inactive = 1,
+  Active
 }
 
 [Index(nameof(Name), IsUnique = true)]
@@ -50,6 +50,20 @@ public class Agent
       CreatedAt = DateTimeOffset.UtcNow,
       LastSeenAt = DateTimeOffset.UtcNow
     };
+  }
+
+  #endregion
+
+  #region Domain methods
+
+  /// <summary>
+  /// Patch update
+  /// </summary>
+  public void Update(
+    AgentState? state = null)
+  {
+    State = state ?? State;
+    UpdatedAt = DateTimeOffset.UtcNow;
   }
 
   /// <summary>

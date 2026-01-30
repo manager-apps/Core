@@ -17,5 +17,13 @@ public static class AgentMapper
 
   extension(Domain.Agent agent)
   {
+    public AgentResponse ToResponse()
+      => new(
+        Id: agent.Id,
+        Name: agent.Name,
+        State: agent.State,
+        CreatedAt: agent.CreatedAt,
+        LastUpdatedAt: agent.LastSeenAt,
+        UpdatedAt: agent.UpdatedAt);
   }
 }

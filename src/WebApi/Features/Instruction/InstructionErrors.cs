@@ -6,5 +6,4 @@ public class InstructionErrors
 {
   public static Error NotFound()
     => Error.NotFound("Instruction not found.");
-
 }

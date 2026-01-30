@@ -14,9 +14,6 @@ internal static class AgentReportEndpoint
         CancellationToken cancellationToken)
         => (await handler.HandleAsync(context.User, request, cancellationToken)).ToApiResult())
       .RequireAuthorization()
-      .WithTags("Agent")
-      .WithName("Report")
-      .WithSummary("Report instruction results and receive new instructions.")
       .WithDescription(
       @"
         This endpoint allows an agent to report the results of executed instructions

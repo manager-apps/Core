@@ -5,7 +5,8 @@ namespace WebApi.Domain;
 public enum InstructionType
 {
   GpoSet = 1,
-  ShellCommand
+  ShellCommand,
+  ConfigUpdate,
 }
 
 public enum InstructionState
@@ -37,7 +38,6 @@ public class Instruction
 
   [MaxLength(4000)]
   public string? Error { get; private set; }
-
   public DateTime CreatedAt { get; private init; }
   public DateTime? UpdatedAt { get; private set; }
 

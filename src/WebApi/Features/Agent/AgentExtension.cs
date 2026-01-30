@@ -1,5 +1,9 @@
 using WebApi.Features.Agent.Auth;
+using WebApi.Features.Agent.GetAll;
+using WebApi.Features.Agent.GetById;
+using WebApi.Features.Agent.Instruction.GetAll;
 using WebApi.Features.Agent.Report;
+using WebApi.Features.Agent.Status;
 
 namespace WebApi.Features.Agent;
 
@@ -9,6 +13,10 @@ public static class AgentExtension
   {
     services.AddScoped<IAgentAuthHandler, AgentAuthHandler>();
     services.AddScoped<IAgentReportHandler, AgentReportHandler>();
+    services.AddScoped<IGetAllAgentsHandler, GetAllAgentsHandler>();
+    services.AddScoped<IUpdateStatusHandler, UpdateStateHandler>();
+    services.AddScoped<IGetByIdAgentHandler, GetByIdAgentHandler>();
+    services.AddScoped<IGetAllInstructionsHandler, GetAllInstructionsHandler>();
   }
 
   public static void MapAgentEndpoints(this IEndpointRouteBuilder app)
@@ -19,5 +27,9 @@ public static class AgentExtension
 
     group.MapAgentAuthEndpoint();
     group.MapAgentReportEndpoint();
+    group.MapGetAllAgentsEndpoint();
+    group.MapUpdateStatusEndpoint();
+    group.MapGetByIdAgentEndpoint();
+    group.MapGetAllInstructionsEndpoint();
   }
 }
