@@ -1,4 +1,3 @@
--- Agent Metrics Table
 CREATE TABLE IF NOT EXISTS agent_metrics (
     AgentName String,
     Type String,
