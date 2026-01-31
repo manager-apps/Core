@@ -64,15 +64,6 @@ jobs:
     - name: Install Inno Setup
       run: choco install innosetup -y
     
-    - name: Check Published Files
-      run: |
-        Write-Host "Checking publish directory structure:"
-        if (Test-Path "./publish") {
-          Get-ChildItem -Path "./publish" -Recurse | Select-Object FullName | Format-Table
-        } else {
-          Write-Host "ERROR: ./publish directory does not exist!"
-        }
-    
     - name: Update Installer Version
       working-directory: ./src/Agent.WindowsService
       run: |
