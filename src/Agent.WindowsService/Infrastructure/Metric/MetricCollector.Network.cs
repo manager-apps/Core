@@ -19,19 +19,21 @@ public partial class MetricCollector
     foreach (var ni in interfaces)
     {
       var stats = ni.GetIPv4Statistics();
-      var value = stats.BytesReceived / (1024.0 * 1024);
+      var valueMb = stats.BytesReceived / (1024.0 * 1024);
       var metric = new Domain.Metric
       {
-        Type = "network_usage",
-        Name = MetricConfig.Network.Name,
+        Type = "network_traffic",
+        Name = ni.Name,
         Unit = MetricConfig.Network.Unit,
         Metadata = new Dictionary<string, object>
         {
           { "bytesSent", stats.BytesSent },
           { "bytesReceived", stats.BytesReceived },
-          { "speed", ni.Speed }
+          { "speed", ni.Speed },
+          { "interfaceType", ni.NetworkInterfaceType.ToString() }
         },
-        Value = value,
+        TimestampUtc = DateTime.UtcNow,
+        Value = Math.Round(valueMb, 2),
       };
 
       yield return metric;

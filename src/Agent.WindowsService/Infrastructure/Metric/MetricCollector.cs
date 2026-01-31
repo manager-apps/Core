@@ -1,27 +1,53 @@
-using System.Diagnostics;
 using Agent.WindowsService.Abstraction;
-using Agent.WindowsService.Config;
 
 namespace Agent.WindowsService.Infrastructure.Metric;
 
 public partial class MetricCollector : IMetricCollector
 {
-  private readonly PerformanceCounter? _cpuCounter
-    = new(MetricConfig.Cpu.CounterCategoryName, MetricConfig.Cpu.CounterName, MetricConfig.Cpu.CounterInstanceName);
-
-  private readonly PerformanceCounter? _memoryCounter
-    = new(MetricConfig.Memory.CounterCategoryName, MetricConfig.Memory.CounterName);
-
   public Task<IReadOnlyList<Domain.Metric>> CollectAsync(CancellationToken cancellationToken)
   {
     var metrics = new List<Domain.Metric>();
 
-    _cpuCounter?.NextValue();
+    InitializeCpuCounter();
+    InitializeMemoryCounter();
+    InitializeDiskIoCounters();
+
+    // _cpuCounter?.NextValue();
 
     metrics.Add(CollectCpu());
     metrics.Add(CollectDisk());
     metrics.Add(CollectMemory());
-    // metrics.AddRange(CollectNetwork());
+
+    metrics.Add(CollectDiskReadSpeed());
+    metrics.Add(CollectDiskWriteSpeed());
+    metrics.AddRange(CollectDiskSpacePerDrive());
+
+    metrics.AddRange(CollectNetwork());
+
+    metrics.Add(CollectProcessCount());
+    metrics.Add(CollectTotalHandleCount());
+    metrics.Add(CollectTotalThreadCount());
+    metrics.AddRange(CollectTopProcessesByCpu(5));
+    metrics.AddRange(CollectTopProcessesByMemory(5));
+
+    metrics.Add(CollectSystemUptime());
+    metrics.Add(CollectAvailablePhysicalMemory());
+    metrics.Add(CollectSystemTimestamp());
+
+    metrics.Add(CollectTotalTcpConnections());
+    metrics.Add(CollectEstablishedTcpConnections());
+    metrics.Add(CollectTimeWaitConnections());
+    metrics.Add(CollectCloseWaitConnections());
+    metrics.Add(CollectSynConnections());
+    metrics.Add(CollectTcpResets());
+    metrics.AddRange(CollectTcpConnectionsByState());
+
+    metrics.Add(CollectApplicationErrors());
+    metrics.Add(CollectApplicationWarnings());
+    metrics.Add(CollectCriticalEvents());
+    metrics.Add(CollectInformationEvents());
+    metrics.Add(CollectTotalEventLogEntries());
+    metrics.Add(CollectHealthScore());
 
     return Task.FromResult<IReadOnlyList<Domain.Metric>>(metrics);
   }

@@ -42,20 +42,38 @@ Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "sc.exe"; Parameters: "create AgentWindowsService binPath= ""{app}\{#MyAppExeName}"" start= auto DisplayName= ""Agent Windows Service"""; Flags: runhidden waituntilterminated runascurrentuser
-Filename: "sc.exe"; Parameters: "description AgentWindowsService ""Agent for remote management and monitoring"""; Flags: runhidden waituntilterminated runascurrentuser
-Filename: "sc.exe"; Parameters: "start AgentWindowsService"; Flags: runhidden waituntilterminated runascurrentuser
+Filename: "sc.exe"; Parameters: "create AgentWindowsService binPath= ""{app}\{#MyAppExeName}"" start= auto DisplayName= ""Agent Windows Service"" obj= LocalSystem"; Flags: runhidden waituntilterminated
+Filename: "sc.exe"; Parameters: "description AgentWindowsService ""Agent for remote management and monitoring"""; Flags: runhidden waituntilterminated
+Filename: "sc.exe"; Parameters: "failure AgentWindowsService reset= 60 actions= restart/5000"; Flags: runhidden waituntilterminated
+Filename: "sc.exe"; Parameters: "start AgentWindowsService"; Flags: runhidden waituntilterminated
 
 [UninstallRun]
 Filename: "sc.exe"; Parameters: "stop AgentWindowsService"; Flags: runhidden waituntilterminated
 Filename: "sc.exe"; Parameters: "delete AgentWindowsService"; Flags: runhidden waituntilterminated
 
 [Code]
+function IsAdmin: Boolean;
+begin
+  Result := IsAdminLoggedOn;
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
+  if CurStep = ssStart then
+  begin
+    if not IsAdmin then
+    begin
+      MsgBox('Інсталяція цього сервісу вимагає адміністраторських прав.' + #13 +
+             'Будь ласка, запустіть інсталяцію від імені адміністратора.', mbCriticalError, MB_OK);
+      Abort;
+    end;
+  end;
+  
   if CurStep = ssPostInstall then
   begin
-    MsgBox('Agent Windows Service has been installed successfully!', mbInformation, MB_OK);
+    MsgBox('Agent Windows Service успішно встановлено!' + #13 + #13 +
+           'Сервіс запущено від імені LocalSystem і має повні права для моніторингу.' + #13 + #13 +
+           'Статус сервісу можна перевірити в Services (services.msc).', mbInformation, MB_OK);
   end;
 end;
 
@@ -63,6 +81,6 @@ procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep = usPostUninstall then
   begin
-    MsgBox('Agent Windows Service has been uninstalled.', mbInformation, MB_OK);
+    MsgBox('Agent Windows Service успішно видалено.', mbInformation, MB_OK);
   end;
 end;

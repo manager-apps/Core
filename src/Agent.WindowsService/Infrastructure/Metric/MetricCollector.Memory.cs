@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Agent.WindowsService.Abstraction;
 using Agent.WindowsService.Config;
 using Agent.WindowsService.Domain;
@@ -6,6 +7,25 @@ namespace Agent.WindowsService.Infrastructure.Metric;
 
 public partial class MetricCollector
 {
+  private PerformanceCounter? _memoryCounter;
+
+  /// <summary>
+  /// Initialize Memory counter
+  /// </summary>
+  private void InitializeMemoryCounter()
+  {
+    try
+    {
+      _memoryCounter = new PerformanceCounter(
+        MetricConfig.Memory.CounterCategoryName,
+        MetricConfig.Memory.CounterName);
+    }
+    catch
+    {
+      // Performance counters may not be available
+    }
+  }
+
   /// <summary>
   /// Collect Memory usage metric in percentage
   /// </summary>
