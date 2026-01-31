@@ -1,0 +1,105 @@
+name: Build Windows Service Installer
+
+on:
+  push:
+    branches: [ main, feature/*, release/* ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: false
+        default: '1.0.0'
+      release:
+        description: 'Create GitHub Release'
+        required: false
+        type: boolean
+        default: false
+  release:
+    types: [ published ]
+
+env:
+  DOTNET_VERSION: '10.0.x'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Determine Version
+      id: version
+      run: |
+        if ("${{ github.event.inputs.version }}" -ne "") {
+          $version = "${{ github.event.inputs.version }}"
+        } elseif ("${{ github.ref }}" -like "refs/tags/*") {
+          $version = "${{ github.ref }}".Replace("refs/tags/v", "")
+        } else {
+          $version = "1.0.0"
+        }
+        echo "version=$version" >> $env:GITHUB_OUTPUT
+        echo "Installer Version: $version"
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Restore dependencies
+      run: dotnet restore Manager.sln
+    
+    - name: Build
+      run: dotnet build Manager.sln --configuration Release --no-restore
+    
+    - name: Publish Agent Service
+      run: |
+        dotnet publish src/Agent.WindowsService/Agent.WindowsService.csproj `
+          -c Release `
+          -o ./publish `
+          --self-contained `
+          --runtime win-x64
+    
+    - name: Install Inno Setup
+      run: choco install innosetup -y
+    
+    - name: Update Installer Version
+      working-directory: ./src/Agent.WindowsService
+      run: |
+        $issFile = "Agent.WindowsService.iss"
+        $version = "${{ steps.version.outputs.version }}"
+        
+        (Get-Content $issFile) -replace '#define MyAppVersion ".*?"', "#define MyAppVersion `"$version`"" | Set-Content $issFile
+        Write-Host "Updated version to: $version"
+        
+    - name: Build Installer
+      run: |
+        & "C:\Program Files (x86)\Inno Setup 6\iscc.exe" src/Agent.WindowsService/Agent.WindowsService.iss
+    
+    - name: Upload Installer Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: AgentWindowsServiceInstaller
+        path: installer-output/
+        retention-days: 30
+    
+    - name: Create Release Assets
+      if: github.event_name == 'release'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: installer-output/*.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        prerelease: false
+    
+    - name: Upload Release Asset
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: installer-output/AgentWindowsService-${{ steps.version.outputs.version }}-Setup.exe
+        asset_name: AgentWindowsService-${{ steps.version.outputs.version }}-Setup.exe
+        asset_content_type: application/octet-stream
