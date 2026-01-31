@@ -5,6 +5,7 @@
 #define MyAppURL "https://yourcompany.com"
 #define MyAppExeName "Agent.WindowsService.exe"
 #define SourceDir "..\..\publish"
+#define OutputDir "..\..\installer-output"
 
 [Setup]
 AppId={{12345678-1234-1234-1234-123456789012}}
@@ -16,7 +17,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-OutputDir=..\..\..\installer-output
+OutputDir={#OutputDir}
 OutputBaseFilename=AgentWindowsService-{#MyAppVersion}-Setup
 SolidCompression=yes
 PrivilegesRequired=admin
