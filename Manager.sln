@@ -1,11 +1,5 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{A8FC149F-D1FA-4776-8699-795732200090}"
-	ProjectSection(SolutionItems) = preProject
-		docker-compose.yaml = docker-compose.yaml
-		.editorconfig = .editorconfig
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agent.WindowsService", "src\Agent.WindowsService\Agent.WindowsService.csproj", "{AE957F8E-9B37-4BA1-A223-F43B0FD14B1A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "New", "New", "{196A871C-8ACE-48D5-B7E6-9AD30959FB51}"
@@ -22,7 +16,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{AE957F8E-9B37-4BA1-A223-F43B0FD14B1A} = {196A871C-8ACE-48D5-B7E6-9AD30959FB51}
 		{8CEFAA01-7D79-4EF1-B541-9F6135EBD297} = {196A871C-8ACE-48D5-B7E6-9AD30959FB51}
-		{A8FC149F-D1FA-4776-8699-795732200090} = {196A871C-8ACE-48D5-B7E6-9AD30959FB51}
 		{F7219C52-59C4-4E33-9A88-5CD99F080213} = {196A871C-8ACE-48D5-B7E6-9AD30959FB51}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
