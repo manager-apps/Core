@@ -41,6 +41,7 @@ public static class DatabaseExtension
     }
   }
 
+  // todo: to be improved
   private static async Task ApplyClickHouseMigrationsAsync(WebApplication app)
   {
     try

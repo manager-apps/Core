@@ -2,18 +2,18 @@ namespace WebApi.Common.Extensions;
 
 public static class CorsExtension
 {
-  public static void AddCors(this IServiceCollection services, IConfiguration configuration)
+  extension(IServiceCollection services)
   {
-    var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-    services.AddCors(options =>
-    {
-      options.AddDefaultPolicy(policy =>
-      {
-        policy.WithOrigins(allowedOrigins)
-          .AllowAnyHeader()
-          .AllowAnyMethod()
-          .AllowCredentials();
-      });
-    });
+    public void AddCors(IConfiguration configuration)
+     => services.AddCors(options =>
+        options.AddDefaultPolicy(policy =>
+        {
+          policy.WithOrigins(configuration
+              .GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [])
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+        }));
   }
 }
+

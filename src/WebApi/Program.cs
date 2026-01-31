@@ -4,7 +4,7 @@ using WebApi.Features.Instruction;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSwagger();
+builder.Services.AddSwagger(builder.Configuration);
 builder.Services.AddPsqlDatabase(builder.Configuration);
 builder.Services.AddClickHouseDatabase(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);
@@ -18,7 +18,7 @@ builder.Services.AddInstructionServices();
 var app = builder.Build();
 await app.ApplyMigrationsAsync();
 
-app.UseSwaggerUI();
+app.UseSwaggerDocs();
 app.UseCors();
 
 app.UseAuthentication();
