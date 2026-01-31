@@ -7,7 +7,7 @@ namespace WebApi.Features.Agent.Instruction.Create;
 public static class CreateInstructionEndpoint
 {
   public static void MapCreateInstructionEndpoint(this IEndpointRouteBuilder app)
-   => app.MapPost("{agentId}/instruction", async (
+   => app.MapPost("{agentId}/instructions", async (
       [FromRoute] long agentId,
       [FromBody] CreateAgentInstructionRequest request,
       [FromServices] ICreateInstructionHandler handler,

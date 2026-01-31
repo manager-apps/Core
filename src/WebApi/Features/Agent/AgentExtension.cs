@@ -1,10 +1,10 @@
 using WebApi.Features.Agent.Auth;
 using WebApi.Features.Agent.GetAll;
 using WebApi.Features.Agent.GetById;
+using WebApi.Features.Agent.Instruction.Create;
 using WebApi.Features.Agent.Instruction.GetAll;
 using WebApi.Features.Agent.Report;
 using WebApi.Features.Agent.Status;
-using WebApi.Features.Instruction.Create;
 
 namespace WebApi.Features.Agent;
 
