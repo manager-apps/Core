@@ -25,4 +25,13 @@ public static class InstructionMapper
         type: request.Type,
         payloadJson: request.PayloadJson);
   }
+
+  extension(CreateAgentInstructionRequest request)
+  {
+    public Domain.Instruction ToDomain(long agentId) =>
+      Domain.Instruction.Create(
+        agentId: agentId,
+        type: request.Type,
+        payloadJson: request.PayloadJson);
+  }
 }

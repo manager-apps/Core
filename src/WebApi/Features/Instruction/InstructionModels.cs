@@ -7,6 +7,10 @@ public record CreateInstructionRequest(
   InstructionType Type,
   string PayloadJson);
 
+public record CreateAgentInstructionRequest(
+  InstructionType Type,
+  string PayloadJson);
+
 public record InstructionResponse(
   long Id,
   long AgentId,

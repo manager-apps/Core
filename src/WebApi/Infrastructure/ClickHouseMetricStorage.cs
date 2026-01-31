@@ -30,7 +30,9 @@ public class ClickHouseMetricStorage(
       command.AddParameter("Value", metric.Value);
       command.AddParameter("Unit", metric.Unit);
       command.AddParameter("TimestampUtc", metric.TimestampUtc);
-      command.AddParameter("Metadata", System.Text.Json.JsonSerializer.Serialize(metric.Metadata ?? new Dictionary<string, object>()));
+      command.AddParameter("Metadata", System.Text.Json.JsonSerializer.Serialize(metric.Metadata
+        ?? new Dictionary<string, object>()));
+
       await command.ExecuteNonQueryAsync(cancellationToken);
     }
   }
