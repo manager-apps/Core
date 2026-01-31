@@ -74,7 +74,6 @@ jobs:
         Write-Host "Updated version to: $version"
         
     - name: Build Installer
-      working-directory: ${{ github.workspace }}/Core
       run: |
         & "C:\Program Files (x86)\Inno Setup 6\iscc.exe" src/Agent.WindowsService/Agent.WindowsService.iss
     
