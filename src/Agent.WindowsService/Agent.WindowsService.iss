@@ -63,17 +63,17 @@ begin
   begin
     if not IsAdmin then
     begin
-      MsgBox('Інсталяція цього сервісу вимагає адміністраторських прав.' + #13 +
-             'Будь ласка, запустіть інсталяцію від імені адміністратора.', mbCriticalError, MB_OK);
+      MsgBox('This service installation requires administrator privileges.' + #13 +
+             'Please run the installer as administrator.', mbCriticalError, MB_OK);
       Abort;
     end;
   end;
   
   if CurStep = ssPostInstall then
   begin
-    MsgBox('Agent Windows Service успішно встановлено!' + #13 + #13 +
-           'Сервіс запущено від імені LocalSystem і має повні права для моніторингу.' + #13 + #13 +
-           'Статус сервісу можна перевірити в Services (services.msc).', mbInformation, MB_OK);
+    MsgBox('Agent Windows Service has been installed successfully!' + #13 + #13 +
+           'The service is running under LocalSystem account with full permissions for monitoring.' + #13 + #13 +
+           'You can check the service status in Services (services.msc).', mbInformation, MB_OK);
   end;
 end;
 
@@ -81,6 +81,6 @@ procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep = usPostUninstall then
   begin
-    MsgBox('Agent Windows Service успішно видалено.', mbInformation, MB_OK);
+    MsgBox('Agent Windows Service has been uninstalled.', mbInformation, MB_OK);
   end;
 end;
