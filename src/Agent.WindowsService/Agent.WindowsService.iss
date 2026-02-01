@@ -59,7 +59,7 @@ end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
-  if CurStep = ssStart then
+  if CurStep = ssInstall then
   begin
     if not IsAdmin then
     begin
@@ -68,7 +68,7 @@ begin
       Abort;
     end;
   end;
-  
+
   if CurStep = ssPostInstall then
   begin
     MsgBox('Agent Windows Service has been installed successfully!' + #13 + #13 +

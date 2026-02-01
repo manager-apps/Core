@@ -5,7 +5,10 @@ using Agent.WindowsService.Config;
 
 namespace Agent.WindowsService.Infrastructure.Communication;
 
-public class HttpServerClient (ILogger<HttpServerClient> logger, HttpClient httpClient) : IServerClient
+public class HttpServerClient (
+  ILogger<HttpServerClient> logger,
+  HttpClient httpClient
+) : IServerClient
 {
   public async Task<TResponse?> Post<TResponse, TRequest>(string url, TRequest data, RequestMetadata metadata, CancellationToken cancellationToken)
   {
