@@ -4,6 +4,7 @@ using Common.Messages;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Common.Interfaces;
 using WebApi.Common.Result;
+using WebApi.Features.Instruction;
 using WebApi.Infrastructure;
 
 namespace WebApi.Features.Agent.Report;
@@ -28,11 +29,7 @@ internal class AgentReportHandler(
   IMetricStorage metricStorage,
   AppDbContext dbContext) : IAgentReportHandler
 {
-  private static readonly JsonSerializerOptions JsonOptions = new()
-  {
-    PropertyNameCaseInsensitive = true,
-    WriteIndented = false
-  };
+
 
   public async Task<Result<ReportMessageResponse>> HandleAsync(
     ClaimsPrincipal agent,
@@ -75,29 +72,11 @@ internal class AgentReportHandler(
       .Select(i => new InstructionMessage(
         AssociatedId: i.Id,
         Type: (int)i.Type,
-        Payload: DeserializePayload(i.Type, i.PayloadJson)))
+        Payload: InstructionUtils.DeserializePayload(i.Type, i.PayloadJson)))
       .ToListAsync(cancellationToken: cancellationToken);
 
     logger.LogInformation("Returning {InstructionCount} instructions to agent.", pendingInstructions.Count);
 
     return new ReportMessageResponse(Instructions: pendingInstructions);
-  }
-
-  /// <summary>
-  /// Deserializes JSON payload to typed InstructionPayload.
-  /// </summary>
-  private static InstructionPayload DeserializePayload(Domain.InstructionType type, string json)
-  {
-    return type switch
-    {
-      Domain.InstructionType.ShellCommand =>
-        JsonSerializer.Deserialize<ShellCommandPayload>(json, JsonOptions)
-          ?? throw new InvalidOperationException($"Failed to deserialize {nameof(ShellCommandPayload)}"),
-
-      Domain.InstructionType.GpoSet =>
-        JsonSerializer.Deserialize<GpoSetPayload>(json, JsonOptions)
-          ?? throw new InvalidOperationException($"Failed to deserialize {nameof(GpoSetPayload)}"),
-      _ => throw new ArgumentException($"Unknown instruction type: {type}")
-    };
   }
 }

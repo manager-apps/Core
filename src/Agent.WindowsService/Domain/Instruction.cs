@@ -5,54 +5,38 @@ namespace Agent.WindowsService.Domain;
 
 public enum InstructionType
 {
+  /// <summary>
+  /// Group Policy Object setting instruction
+  /// </summary>
   GpoSet = 1,
+
+  /// <summary>
+  /// Shell command execution instruction
+  /// </summary>
   ShellCommand = 2,
 }
 
 public class Instruction
 {
-  private static readonly JsonSerializerOptions JsonOptions = new()
-  {
-    WriteIndented = false
-  };
-
+  /// <summary>
+  /// Database identifier
+  /// </summary>
   public long Id { get; set; }
 
   /// <summary>
   /// Unique identifier for the instruction
   /// </summary>
-  public long AssociativeId { get; set; }
+  public long AssociativeId { get; init; }
 
   /// <summary>
   /// Type of instruction
   /// </summary>
-  public required InstructionType Type { get; set; }
+  public required InstructionType Type { get; init; }
 
   /// <summary>
   /// Typed payload containing instruction details
   /// </summary>
-  public required InstructionPayload Payload { get; set; }
-
-  /// <summary>
-  /// Deserializes the instruction payload from a JSON string based on the instruction type.
-  /// </summary>
-  public static InstructionPayload DeserializePayload(InstructionType type, string json)
-  {
-    return type switch
-    {
-      InstructionType.ShellCommand => JsonSerializer.Deserialize<ShellCommandPayload>(json, JsonOptions)
-                                      ?? throw new InvalidOperationException($"Failed to deserialize {nameof(ShellCommandPayload)}"),
-      InstructionType.GpoSet => JsonSerializer.Deserialize<GpoSetPayload>(json, JsonOptions)
-                                ?? throw new InvalidOperationException($"Failed to deserialize {nameof(GpoSetPayload)}"),
-      _ => throw new ArgumentException($"Unknown instruction type: {type}")
-    };
-  }
-
-  /// <summary>
-  /// Serializes the instruction payload to a JSON string.
-  /// </summary>
-  public static string SerializePayload(InstructionPayload payload)
-    => JsonSerializer.Serialize(payload, JsonOptions);
+  public required InstructionPayload Payload { get; init; }
 }
 
 public class InstructionResult
@@ -60,22 +44,22 @@ public class InstructionResult
   /// <summary>
   /// Identifier of the instruction
   /// </summary>
-  public required long AssociativeId { get; set; }
+  public required long AssociativeId { get; init; }
 
   /// <summary>
   /// Success status of the instruction execution
   /// </summary>
-  public required bool Success { get; set; }
+  public required bool Success { get; init; }
 
   /// <summary>
   /// Message or output from the instruction execution
   /// </summary>
-  public string? Output { get; set; }
+  public string? Output { get; init; }
 
   /// <summary>
   /// Message or output from the instruction execution
   /// </summary>
-  public string? Error { get; set; }
+  public string? Error { get; init; }
 }
 
 
