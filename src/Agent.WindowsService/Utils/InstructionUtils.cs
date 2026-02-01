@@ -11,6 +11,9 @@ public static class InstructionUtils
     WriteIndented = false
   };
 
+  /// <summary>
+  /// Deserializes the instruction payload based on the instruction type.
+  /// </summary>
   public static InstructionPayload DeserializePayload(InstructionType type, string json)
   {
     return type switch
@@ -25,6 +28,9 @@ public static class InstructionUtils
     };
   }
 
+  /// <summary>
+  /// Serializes the instruction payload to a JSON string.
+  /// </summary>
   public static string SerializePayload(InstructionPayload payload)
     => JsonSerializer.Serialize(payload, JsonOptions);
 }
