@@ -17,6 +17,7 @@ builder.Services.AddInstructionServices();
 
 var app = builder.Build();
 await app.ApplyMigrationsAsync();
+await app.SeedLoadTestDataAsync();
 
 app.UseSwaggerDocs();
 app.UseCors();

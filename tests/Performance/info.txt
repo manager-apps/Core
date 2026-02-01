@@ -1,0 +1,1 @@
+﻿locust -f locustfile.py --html=quick_test_report.html

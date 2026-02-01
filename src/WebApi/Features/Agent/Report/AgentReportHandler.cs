@@ -36,13 +36,24 @@ internal class AgentReportHandler(
     ReportMessageRequest request,
     CancellationToken cancellationToken)
   {
+    var agentInDb = await dbContext.Agents
+      .FirstOrDefaultAsync(
+        a => a.Name == agent.Identity!.Name!,
+        cancellationToken: cancellationToken);
+    if (agentInDb is null)
+    {
+      logger.LogWarning("Agent '{AgentName}' not found in database.", agent.Identity!.Name!);
+      return AgentErrors.NotFound();
+    }
+
+
     var metricsToProcess = request.Metrics.ToList();
     if (metricsToProcess.Count > 0)
     {
-      logger.LogInformation("Agent '{AgentName}' sent {MetricCount} metrics", agent.Identity!.Name!, metricsToProcess.Count);
+      logger.LogInformation("Agent '{AgentName}' sent {MetricCount} metrics", agentInDb.Name, metricsToProcess.Count);
 
       await metricStorage.StoreMetricsAsync(
-        agent.Identity!.Name!,
+        agentInDb.Name,
         metricsToProcess,
         cancellationToken);
     }
@@ -67,7 +78,8 @@ internal class AgentReportHandler(
 
     var pendingInstructions = await dbContext.Instructions
       .AsNoTracking()
-      .Where(i => i.State == Domain.InstructionState.Pending)
+      .Where(i => i.State == Domain.InstructionState.Pending &&
+                  i.AgentId == agentInDb.Id)
       .Take(10)
       .Select(i => new InstructionMessage(
         AssociatedId: i.Id,
