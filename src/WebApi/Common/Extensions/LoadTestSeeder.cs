@@ -67,7 +67,7 @@ public static class LoadTestSeeder
     int agents = 1000,
     int instructionsPerAgent = 200)
   {
-    var seedLoadTestData = app.Configuration.GetValue("SeedLoadTestData", false);
+    var seedLoadTestData = app.Configuration.GetValue("Database:Postgres:SeedLoadTestData", false);
 
     if (!seedLoadTestData) return;
 
