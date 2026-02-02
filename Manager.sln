@@ -4,13 +4,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agent.WindowsService", "src
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "New", "New", "{196A871C-8ACE-48D5-B7E6-9AD30959FB51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi", "src\WebApi\WebApi.csproj", "{8CEFAA01-7D79-4EF1-B541-9F6135EBD297}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server.Api", "src\Server.Api\Server.Api.csproj", "{8CEFAA01-7D79-4EF1-B541-9F6135EBD297}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "src\Common\Common.csproj", "{F7219C52-59C4-4E33-9A88-5CD99F080213}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstructionWorker", "src\InstructionWorker\InstructionWorker.csproj", "{18747A5D-3484-48E6-836B-483D95E29CD0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server.InstructionWorker", "src\Server.InstructionWorker\Server.InstructionWorker.csproj", "{18747A5D-3484-48E6-836B-483D95E29CD0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetricWorker", "src\MetricWorker\MetricWorker.csproj", "{AB67581C-D6F9-4854-BA35-CCA8BDBD9FDA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server.MetricWorker", "src\Server.MetricWorker\Server.MetricWorker.csproj", "{AB67581C-D6F9-4854-BA35-CCA8BDBD9FDA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server.Domain", "src\Server.Domain\Server.Domain.csproj", "{36430F8F-58B2-41DF-949C-88F2E9B2D948}"
 EndProject
