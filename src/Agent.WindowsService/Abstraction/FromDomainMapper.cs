@@ -4,20 +4,26 @@ namespace Agent.WindowsService.Abstraction;
 
 public static class FromDomainMapper
 {
-  public static MetricMessage ToMessage(this Domain.Metric metric)
-    => new(
-      Type: metric.Type,
-      Name: metric.Name,
-      Value: metric.Value,
-      Unit: metric.Unit,
-      TimestampUtc: metric.TimestampUtc,
-      Metadata: metric.Metadata);
+  extension(Domain.Metric message)
+  {
+    public MetricMessage ToMessage()
+      => new(
+        Type: message.Type,
+        Name: message.Name,
+        Value: message.Value,
+        Unit: message.Unit,
+        TimestampUtc: message.TimestampUtc,
+        Metadata: message.Metadata);
+  }
 
-  public static InstructionResultMessage ToMessage(this Domain.InstructionResult instruction)
-    => new(
-      AssociatedId: instruction.AssociativeId,
-      Success: instruction.Success,
-      Output: instruction.Output,
-      Error: instruction.Error);
+  extension(Domain.InstructionResult instruction)
+  {
+    public InstructionResultMessage ToMessage()
+      => new(
+        AssociatedId: instruction.AssociativeId,
+        Success: instruction.Success,
+        Output: instruction.Output,
+        Error: instruction.Error);
+  }
 }
 

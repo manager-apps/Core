@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Agent.WindowsService.Abstraction;
 using Agent.WindowsService.Config;
+using Common;
 using Microsoft.Data.Sqlite;
 
 namespace Agent.WindowsService.Infrastructure.Store;
@@ -14,10 +15,6 @@ public class SqliteMetricStore : IMetricStore, IDisposable
   private readonly ILogger<SqliteMetricStore> _logger;
   private bool _disposed;
 
-  private static readonly JsonSerializerOptions JsonOptions = new()
-  {
-    WriteIndented = false
-  };
 
   public SqliteMetricStore(ILogger<SqliteMetricStore> logger)
   {
@@ -63,7 +60,9 @@ public class SqliteMetricStore : IMetricStore, IDisposable
     }
   }
 
-  public async Task StoreAsync(IReadOnlyList<Domain.Metric> metrics, CancellationToken cancellationToken)
+  public async Task StoreAsync(
+    IReadOnlyList<Domain.Metric> metrics,
+    CancellationToken cancellationToken)
   {
     if (metrics.Count == 0)
     {
@@ -83,10 +82,11 @@ public class SqliteMetricStore : IMetricStore, IDisposable
       foreach (var metric in metrics)
       {
         var command = connection.CreateCommand();
-        command.CommandText = @"
+        command.CommandText =
+        """
           INSERT INTO Metrics (Type, Name, Value, Unit, TimestampUtc, Metadata)
           VALUES (@type, @name, @value, @unit, @timestamp, @metadata)
-        ";
+        """;
 
         command.Parameters.AddWithValue("@type", metric.Type);
         command.Parameters.AddWithValue("@name", metric.Name);
@@ -95,9 +95,8 @@ public class SqliteMetricStore : IMetricStore, IDisposable
         command.Parameters.AddWithValue("@timestamp", metric.TimestampUtc.ToString("O"));
         command.Parameters.AddWithValue("@metadata",
           metric.Metadata != null
-            ? JsonSerializer.Serialize(metric.Metadata, JsonOptions)
+            ? JsonSerializer.Serialize(metric.Metadata, JsonOptions.Default)
             : DBNull.Value);
-
         await command.ExecuteNonQueryAsync(cancellationToken);
       }
 
@@ -120,7 +119,10 @@ public class SqliteMetricStore : IMetricStore, IDisposable
     await connection.OpenAsync(cancellationToken);
 
     var command = connection.CreateCommand();
-    command.CommandText = "SELECT Type, Name, Value, Unit, TimestampUtc, Metadata FROM Metrics ORDER BY TimestampUtc";
+    command.CommandText =
+    """
+    SELECT Type, Name, Value, Unit, TimestampUtc, Metadata FROM Metrics ORDER BY TimestampUtc
+    """;
 
     var metrics = new List<Domain.Metric>();
 
@@ -138,7 +140,7 @@ public class SqliteMetricStore : IMetricStore, IDisposable
           TimestampUtc = DateTime.Parse(reader.GetString(4)),
           Metadata = reader.IsDBNull(5)
             ? null
-            : JsonSerializer.Deserialize<Dictionary<string, object>>(reader.GetString(5), JsonOptions)
+            : JsonSerializer.Deserialize<Dictionary<string, object>>(reader.GetString(5), JsonOptions.Default)
         });
       }
 
@@ -171,34 +173,6 @@ public class SqliteMetricStore : IMetricStore, IDisposable
     {
       _logger.LogError(ex, "Failed to delete metrics");
       throw;
-    }
-  }
-
-  /// <summary>
-  /// Cleanup old metrics older than specified age
-  /// </summary>
-  public async Task CleanupOldMetricsAsync(TimeSpan maxAge, CancellationToken cancellationToken)
-  {
-    ObjectDisposedException.ThrowIf(_disposed, this);
-
-    await using var connection = new SqliteConnection(_connectionString);
-    await connection.OpenAsync(cancellationToken);
-
-    var command = connection.CreateCommand();
-    command.CommandText = "DELETE FROM Metrics WHERE TimestampUtc < @cutoff";
-    command.Parameters.AddWithValue("@cutoff", DateTime.UtcNow.Subtract(maxAge).ToString("O"));
-
-    try
-    {
-      var deleted = await command.ExecuteNonQueryAsync(cancellationToken);
-      if (deleted > 0)
-      {
-        _logger.LogInformation("Cleaned up {Count} old metrics", deleted);
-      }
-    }
-    catch (Exception ex)
-    {
-      _logger.LogWarning(ex, "Failed to cleanup old metrics");
     }
   }
 

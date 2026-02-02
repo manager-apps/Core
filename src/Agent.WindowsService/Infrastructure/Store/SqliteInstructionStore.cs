@@ -2,6 +2,7 @@ using System.Text.Json;
 using Agent.WindowsService.Abstraction;
 using Agent.WindowsService.Config;
 using Agent.WindowsService.Domain;
+using Agent.WindowsService.Utils;
 using Common.Messages;
 using Microsoft.Data.Sqlite;
 
@@ -15,11 +16,6 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
   private readonly ILogger<SqliteInstructionStore> _logger;
   private readonly string _connectionString;
   private bool _disposed;
-
-  private static readonly JsonSerializerOptions JsonOptions = new()
-  {
-    WriteIndented = false
-  };
 
   public SqliteInstructionStore(
     ILogger<SqliteInstructionStore> logger)
@@ -98,7 +94,7 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
 
         command.Parameters.AddWithValue("@associativeId", instruction.AssociativeId);
         command.Parameters.AddWithValue("@type", (int)instruction.Type);
-        command.Parameters.AddWithValue("@payload", Instruction.SerializePayload(instruction.Payload));
+        command.Parameters.AddWithValue("@payload", InstructionUtils.SerializePayload(instruction.Payload));
 
         await command.ExecuteNonQueryAsync(cancellationToken);
       }
@@ -134,7 +130,7 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
         var type = (InstructionType)reader.GetInt32(1);
         var payloadJson = reader.GetString(2);
 
-        var payload = Instruction.DeserializePayload(type, payloadJson);
+        var payload = InstructionUtils.DeserializePayload(type, payloadJson);
 
         instructions.Add(new Instruction
         {

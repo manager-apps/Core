@@ -63,7 +63,7 @@ public partial class StateMachine
         }
       }
 
-      // Make it with pagination later if needed
+      // Make it with pagination
       await _instrStore.SaveResultsAsync(results, CancellationToken.None);
       await _instrStore.RemoveAllAsync(CancellationToken.None);
 

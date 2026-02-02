@@ -1,0 +1,30 @@
+﻿------------------------------------------------------------
+1) Baseline Load (50 agents, light load)
+------------------------------------------------------------
+$env:WAIT_INTERVAL="2"
+$env:METRICS_COUNT="20"
+locust -f locustfile.py --headless -u 50 -r 10 --run-time 1m --html=baseline_50u_20m_2s.html
+
+------------------------------------------------------------
+2) Wall Test (200 agents, mixed load)
+------------------------------------------------------------
+$env:WAIT_INTERVAL="2"
+$env:METRICS_COUNT="20"
+$env:SUCCESS_RATE="0.75"
+locust -f locustfile.py --headless -u 200 -r 50 --run-time 3m --csv=wall_200_mixed --html=wall_200_mixed.html
+
+------------------------------------------------------------
+3) Production-like Load (500 agents, expected failure)
+------------------------------------------------------------
+$env:WAIT_INTERVAL="2"
+$env:METRICS_COUNT="40"
+$env:SUCCESS_RATE="0.50"
+locust -f locustfile.py --headless -u 500 -r 100 --run-time 3m --csv=wall_500_prod --html=wall_500_prod.html
+
+------------------------------------------------------------
+4) Metrics-Only Stress Test (Ingestion bottleneck)
+------------------------------------------------------------
+$env:WAIT_INTERVAL="2"
+$env:METRICS_COUNT="40"
+$env:RESULTS_COUNT="0"
+locust -f locustfile.py --headless -u 200 -r 50 --run-time 2m --csv=metrics_only_200 --html=metrics_only_200.html
