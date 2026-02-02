@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
-namespace WebApi.Domain;
+namespace Server.Domain;
 
 public enum AgentState
 {

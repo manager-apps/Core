@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Agent.WindowsService.Abstraction;
 using Agent.WindowsService.Config;
+using Common;
 using Microsoft.Data.Sqlite;
 
 namespace Agent.WindowsService.Infrastructure.Store;
@@ -14,10 +15,6 @@ public class SqliteMetricStore : IMetricStore, IDisposable
   private readonly ILogger<SqliteMetricStore> _logger;
   private bool _disposed;
 
-  private static readonly JsonSerializerOptions JsonOptions = new()
-  {
-    WriteIndented = false
-  };
 
   public SqliteMetricStore(ILogger<SqliteMetricStore> logger)
   {
@@ -98,7 +95,7 @@ public class SqliteMetricStore : IMetricStore, IDisposable
         command.Parameters.AddWithValue("@timestamp", metric.TimestampUtc.ToString("O"));
         command.Parameters.AddWithValue("@metadata",
           metric.Metadata != null
-            ? JsonSerializer.Serialize(metric.Metadata, JsonOptions)
+            ? JsonSerializer.Serialize(metric.Metadata, JsonOptions.Default)
             : DBNull.Value);
         await command.ExecuteNonQueryAsync(cancellationToken);
       }
@@ -124,7 +121,7 @@ public class SqliteMetricStore : IMetricStore, IDisposable
     var command = connection.CreateCommand();
     command.CommandText =
     """
-    SELECT Type, Name, Value, Unit, TimestampUtc, Metadata FROM Metrics ORDER BY TimestampUtc";
+    SELECT Type, Name, Value, Unit, TimestampUtc, Metadata FROM Metrics ORDER BY TimestampUtc
     """;
 
     var metrics = new List<Domain.Metric>();
@@ -143,7 +140,7 @@ public class SqliteMetricStore : IMetricStore, IDisposable
           TimestampUtc = DateTime.Parse(reader.GetString(4)),
           Metadata = reader.IsDBNull(5)
             ? null
-            : JsonSerializer.Deserialize<Dictionary<string, object>>(reader.GetString(5), JsonOptions)
+            : JsonSerializer.Deserialize<Dictionary<string, object>>(reader.GetString(5), JsonOptions.Default)
         });
       }
 

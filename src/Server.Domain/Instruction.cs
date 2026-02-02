@@ -1,21 +1,26 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
-namespace WebApi.Domain;
+namespace Server.Domain;
 
 public enum InstructionType
 {
   GpoSet = 1,
+
   ShellCommand,
+
   ConfigUpdate,
 }
 
 public enum InstructionState
 {
   Pending = 1,
+  Dispatched,
   Completed,
   Failed,
 }
 
+[Index(nameof(AgentId)), Index(nameof(State))]
 public class Instruction
 {
   public long Id { get; init; }
@@ -73,6 +78,15 @@ public class Instruction
   #endregion
 
   #region Domain methods
+
+  /// <summary>
+  /// Marks the instruction as dispatched to the agent.
+  /// </summary>
+  public void MarkAsDispatched()
+  {
+    State = InstructionState.Dispatched;
+    UpdatedAt = DateTime.UtcNow;
+  }
 
   /// <summary>
   /// Marks the instruction as completed with the given output.

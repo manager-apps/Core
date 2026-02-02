@@ -56,7 +56,7 @@ internal class AgentAuthHandler(
       RefreshToken: "refresh-token-placeholder");
   }
 
-  private async Task<Domain.Agent> GetOrCreateAgentAsync(
+  private async Task<Server.Domain.Agent> GetOrCreateAgentAsync(
     AuthMessageRequest request,
     CancellationToken cancellationToken)
   {

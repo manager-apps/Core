@@ -14,15 +14,15 @@ public static class InstructionUtils
   /// <summary>
   /// Deserializes the instruction payload from the given JSON string based on the instruction type.
   /// </summary>
-  public static InstructionPayload DeserializePayload(Domain.InstructionType type, string json)
+  public static InstructionPayload DeserializePayload(Server.Domain.InstructionType type, string json)
   {
     return type switch
     {
-      Domain.InstructionType.ShellCommand =>
+      Server.Domain.InstructionType.ShellCommand =>
         JsonSerializer.Deserialize<ShellCommandPayload>(json, JsonOptions)
         ?? throw new InvalidOperationException($"Failed to deserialize {nameof(ShellCommandPayload)}"),
 
-      Domain.InstructionType.GpoSet =>
+      Server.Domain.InstructionType.GpoSet =>
         JsonSerializer.Deserialize<GpoSetPayload>(json, JsonOptions)
         ?? throw new InvalidOperationException($"Failed to deserialize {nameof(GpoSetPayload)}"),
       _ => throw new ArgumentException($"Unknown instruction type: {type}")

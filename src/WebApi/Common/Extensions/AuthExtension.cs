@@ -9,13 +9,11 @@ namespace WebApi.Common.Extensions;
 
 public static class AuthExtension
 {
-
   extension(IServiceCollection services)
   {
     public void AddAuth(IConfiguration configuration)
     {
-      var jwtSection = configuration.GetSection("Jwt")
-          ?? throw new InvalidOperationException("JWT configuration section is missing.");
+      var jwtSection = configuration.GetSection("Jwt");
 
       services.Configure<JwtOption>(jwtSection);
       services.AddSingleton<IDataHasher, HmacDataHasher>();

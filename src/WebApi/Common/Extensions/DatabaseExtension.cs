@@ -20,7 +20,6 @@ public static class DatabaseExtension
       var connectionString = configuration["Database:ClickHouse:ConnectionString"]!;
       services.AddSingleton<ClickHouse.Driver.ADO.ClickHouseConnection>(_ =>
         new ClickHouse.Driver.ADO.ClickHouseConnection(connectionString));
-      services.AddScoped<Interfaces.IMetricStorage, ClickHouseMetricStorage>();
     }
   }
 

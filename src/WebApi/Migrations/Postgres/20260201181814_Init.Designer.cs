@@ -12,8 +12,8 @@ using WebApi.Infrastructure;
 namespace WebApi.Migrations.Postgres
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260126214805_Change_Name")]
-    partial class Change_Name
+    [Migration("20260201181814_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace WebApi.Migrations.Postgres
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("WebApi.Domain.Agent", b =>
+            modelBuilder.Entity("Server.Domain.Agent", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,7 +66,7 @@ namespace WebApi.Migrations.Postgres
                     b.ToTable("Agents");
                 });
 
-            modelBuilder.Entity("WebApi.Domain.Instruction", b =>
+            modelBuilder.Entity("Server.Domain.Instruction", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -109,9 +109,9 @@ namespace WebApi.Migrations.Postgres
                     b.ToTable("Instructions");
                 });
 
-            modelBuilder.Entity("WebApi.Domain.Instruction", b =>
+            modelBuilder.Entity("Server.Domain.Instruction", b =>
                 {
-                    b.HasOne("WebApi.Domain.Agent", "Agent")
+                    b.HasOne("Server.Domain.Agent", "Agent")
                         .WithMany()
                         .HasForeignKey("AgentId")
                         .OnDelete(DeleteBehavior.Cascade)

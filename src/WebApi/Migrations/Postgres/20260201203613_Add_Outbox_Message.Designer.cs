@@ -12,8 +12,8 @@ using WebApi.Infrastructure;
 namespace WebApi.Migrations.Postgres
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260126162457_Init")]
-    partial class Init
+    [Migration("20260201203613_Add_Outbox_Message")]
+    partial class Add_Outbox_Message
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace WebApi.Migrations.Postgres
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("WebApi.Domain.Agent", b =>
+            modelBuilder.Entity("Server.Domain.Agent", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,7 +66,7 @@ namespace WebApi.Migrations.Postgres
                     b.ToTable("Agents");
                 });
 
-            modelBuilder.Entity("WebApi.Domain.Instruction", b =>
+            modelBuilder.Entity("Server.Domain.Instruction", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -88,7 +88,7 @@ namespace WebApi.Migrations.Postgres
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
 
-                    b.Property<string>("Payload")
+                    b.Property<string>("PayloadJson")
                         .IsRequired()
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
@@ -109,9 +109,46 @@ namespace WebApi.Migrations.Postgres
                     b.ToTable("Instructions");
                 });
 
-            modelBuilder.Entity("WebApi.Domain.Instruction", b =>
+            modelBuilder.Entity("Server.Domain.OutboxMessage", b =>
                 {
-                    b.HasOne("WebApi.Domain.Agent", "Agent")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PayloadJson")
+                        .IsRequired()
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("State")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OutboxMessages");
+                });
+
+            modelBuilder.Entity("Server.Domain.Instruction", b =>
+                {
+                    b.HasOne("Server.Domain.Agent", "Agent")
                         .WithMany()
                         .HasForeignKey("AgentId")
                         .OnDelete(DeleteBehavior.Cascade)

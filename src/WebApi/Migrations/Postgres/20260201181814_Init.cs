@@ -39,7 +39,7 @@ namespace WebApi.Migrations.Postgres
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     AgentId = table.Column<long>(type: "bigint", nullable: false),
                     Type = table.Column<int>(type: "integer", nullable: false),
-                    Payload = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
+                    PayloadJson = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
                     State = table.Column<int>(type: "integer", nullable: false),
                     Output = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
                     Error = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),

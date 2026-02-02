@@ -1,8 +1,10 @@
 using System.Security.Claims;
 using System.Text.Json;
+using Common;
+using Common.Events;
 using Common.Messages;
 using Microsoft.EntityFrameworkCore;
-using WebApi.Common.Interfaces;
+using Server.Domain;
 using WebApi.Common.Result;
 using WebApi.Features.Instruction;
 using WebApi.Infrastructure;
@@ -26,11 +28,8 @@ internal interface IAgentReportHandler
 
 internal class AgentReportHandler(
   ILogger<AgentReportHandler> logger,
-  IMetricStorage metricStorage,
   AppDbContext dbContext) : IAgentReportHandler
 {
-
-
   public async Task<Result<ReportMessageResponse>> HandleAsync(
     ClaimsPrincipal agent,
     ReportMessageRequest request,
@@ -46,49 +45,42 @@ internal class AgentReportHandler(
       return AgentErrors.NotFound();
     }
 
+    foreach (var metric in request.Metrics)
+      dbContext.OutboxMessages.Add(OutboxMessage.Create(
+        type: nameof(AgentMetricsEvent),
+        payloadJson: JsonSerializer.Serialize(
+          new AgentMetricsEvent(agentInDb.Name, metric),
+          JsonOptions.Default)));
 
-    var metricsToProcess = request.Metrics.ToList();
-    if (metricsToProcess.Count > 0)
-    {
-      logger.LogInformation("Agent '{AgentName}' sent {MetricCount} metrics", agentInDb.Name, metricsToProcess.Count);
+    foreach (var instructionResult in request.InstructionResults)
+      dbContext.OutboxMessages.Add(OutboxMessage.Create(
+        type: nameof(AgentInstructionResultEvent),
+        payloadJson: JsonSerializer.Serialize(
+          new AgentInstructionResultEvent(instructionResult),
+          JsonOptions.Default)));
 
-      await metricStorage.StoreMetricsAsync(
-        agentInDb.Name,
-        metricsToProcess,
-        cancellationToken);
-    }
+    await dbContext.SaveChangesAsync(cancellationToken);
+    logger.LogInformation("Fetching pending instructions for agent '{AgentName}'.", agentInDb.Name);
 
-    var instructionResults = request.InstructionResults;
-    foreach (var instructionResult in instructionResults)
-    {
-      var instruction = await dbContext.Instructions
-        .FirstOrDefaultAsync(
-          i => i.Id == instructionResult.AssociatedId,
-          cancellationToken: cancellationToken);
-      if (instruction is null)
-          continue;
+    var pendingInstructions = await dbContext.Instructions
+      .Where(i => i.State == InstructionState.Pending &&
+                  i.AgentId == agentInDb.Id)
+      .Take(10)
+      .ToListAsync(cancellationToken: cancellationToken);
 
-      if (instructionResult.Success)
-        instruction.MarkAsCompleted(instructionResult.Output!);
-      else
-        instruction.MarkAsFailed(instructionResult.Error!);
-    }
+    foreach (var instruction in pendingInstructions)
+      instruction.MarkAsDispatched();
 
     await dbContext.SaveChangesAsync(cancellationToken);
 
-    var pendingInstructions = await dbContext.Instructions
-      .AsNoTracking()
-      .Where(i => i.State == Domain.InstructionState.Pending &&
-                  i.AgentId == agentInDb.Id)
-      .Take(10)
+    var response = pendingInstructions
       .Select(i => new InstructionMessage(
         AssociatedId: i.Id,
         Type: (int)i.Type,
         Payload: InstructionUtils.DeserializePayload(i.Type, i.PayloadJson)))
-      .ToListAsync(cancellationToken: cancellationToken);
+      .ToList();
 
-    logger.LogInformation("Returning {InstructionCount} instructions to agent.", pendingInstructions.Count);
-
-    return new ReportMessageResponse(Instructions: pendingInstructions);
+    logger.LogInformation("Returning {InstructionCount} instructions to agent.", response.Count);
+    return new ReportMessageResponse(Instructions: response);
   }
 }

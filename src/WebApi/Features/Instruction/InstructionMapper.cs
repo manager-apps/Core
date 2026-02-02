@@ -2,7 +2,7 @@ namespace WebApi.Features.Instruction;
 
 public static class InstructionMapper
 {
-  extension(Domain.Instruction instruction)
+  extension(Server.Domain.Instruction instruction)
   {
     public InstructionResponse ToResponse() =>
       new(
@@ -19,8 +19,8 @@ public static class InstructionMapper
 
   extension(CreateInstructionRequest request)
   {
-    public Domain.Instruction ToDomain() =>
-      Domain.Instruction.Create(
+    public Server.Domain.Instruction ToDomain() =>
+      Server.Domain.Instruction.Create(
         agentId: request.AgentId,
         type: request.Type,
         payloadJson: request.PayloadJson);
@@ -28,8 +28,8 @@ public static class InstructionMapper
 
   extension(CreateAgentInstructionRequest request)
   {
-    public Domain.Instruction ToDomain(long agentId) =>
-      Domain.Instruction.Create(
+    public Server.Domain.Instruction ToDomain(long agentId) =>
+      Server.Domain.Instruction.Create(
         agentId: agentId,
         type: request.Type,
         payloadJson: request.PayloadJson);

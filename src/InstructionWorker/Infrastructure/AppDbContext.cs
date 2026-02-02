@@ -1,11 +1,10 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Server.Domain;
 
-namespace WebApi.Infrastructure;
+namespace InstructionWorker.Infrastructure;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-  public DbSet<Instruction> Instructions => Set<Instruction>();
-  public DbSet<Agent> Agents => Set<Agent>();
   public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+  public DbSet<Instruction> Instructions => Set<Instruction>();
 }

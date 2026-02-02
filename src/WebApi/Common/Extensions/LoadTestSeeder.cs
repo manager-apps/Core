@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WebApi.Domain;
+using Server.Domain;
 using WebApi.Infrastructure;
 
 namespace WebApi.Common.Extensions;
