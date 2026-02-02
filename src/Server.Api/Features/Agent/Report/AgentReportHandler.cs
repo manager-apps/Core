@@ -4,6 +4,7 @@ using Common;
 using Common.Events;
 using Common.Messages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
 using Server.Api.Common.Result;
 using Server.Api.Features.Instruction;
 using Server.Api.Infrastructure;
@@ -28,20 +29,26 @@ internal interface IAgentReportHandler
 
 internal class AgentReportHandler(
   ILogger<AgentReportHandler> logger,
-  AppDbContext dbContext) : IAgentReportHandler
+  AppDbContext dbContext,
+  HybridCache cache) : IAgentReportHandler
 {
+  private static string AgentCacheKey(string name) => $"agent:{name}";
+
   public async Task<Result<ReportMessageResponse>> HandleAsync(
     ClaimsPrincipal agent,
     ReportMessageRequest request,
     CancellationToken cancellationToken)
   {
-    var agentInDb = await dbContext.Agents
-      .FirstOrDefaultAsync(
-        a => a.Name == agent.Identity!.Name!,
-        cancellationToken: cancellationToken);
+    var agentName = agent.Identity!.Name!;
+    var agentInDb = await cache.GetOrCreateAsync(
+      AgentCacheKey(agentName),
+      async ct => await dbContext.Agents
+        .AsNoTracking()
+        .FirstOrDefaultAsync(a => a.Name == agentName, ct),
+      cancellationToken: cancellationToken);
     if (agentInDb is null)
     {
-      logger.LogWarning("Agent '{AgentName}' not found in database.", agent.Identity!.Name!);
+      logger.LogWarning("Agent '{AgentName}' not found in database.", agentName);
       return AgentErrors.NotFound();
     }
 
@@ -60,7 +67,7 @@ internal class AgentReportHandler(
           JsonOptions.Default)));
 
     await dbContext.SaveChangesAsync(cancellationToken);
-    logger.LogInformation("Fetching pending instructions for agent '{AgentName}'.", agentInDb.Name);
+    logger.LogInformation("Fetching pending instructions for agent '{AgentName}'.", agentName);
 
     var pendingInstructions = await dbContext.Instructions
       .Where(i => i.State == InstructionState.Pending &&

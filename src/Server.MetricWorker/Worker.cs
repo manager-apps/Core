@@ -2,6 +2,7 @@ using System.Text.Json;
 using Common;
 using Common.Events;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
 using Server.Domain;
 using Server.MetricWorker.Infrastructure;
 using Server.MetricWorker.Interfaces;
@@ -10,11 +11,14 @@ namespace Server.MetricWorker;
 
 public class Worker(
   IServiceScopeFactory scopeFactory,
+  HybridCache cache,
   ILogger<Worker> logger) : BackgroundService
 {
   private static readonly TimeSpan PollingInterval = TimeSpan.FromSeconds(10);
   private const int BatchSize = 20;
   private const int MaxRetryCount = 3;
+
+  private static string AgentCacheKey(string name) => $"agent:{name}";
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
@@ -98,9 +102,12 @@ public class Worker(
         return false;
       }
 
-      var agent = await dbContext.Agents
-        .AsNoTracking()
-        .FirstOrDefaultAsync(a => a.Name == @event.AgentName, ct);
+      var agent = await cache.GetOrCreateAsync(
+        AgentCacheKey(@event.AgentName),
+        async token => await dbContext.Agents
+          .AsNoTracking()
+          .FirstOrDefaultAsync(a => a.Name == @event.AgentName, token),
+        cancellationToken: ct);
 
       if (agent is null)
       {

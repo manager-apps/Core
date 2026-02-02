@@ -9,6 +9,7 @@ builder.Services.AddPsqlDatabase(builder.Configuration);
 builder.Services.AddClickHouseDatabase(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);
 builder.Services.AddCors(builder.Configuration);
+builder.Services.AddHybridCache(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
@@ -29,6 +30,7 @@ var group = app.MapGroup("/api/v1");
 
 group.MapAgentEndpoints();
 group.MapInstructionEndpoints();
+
 
 app.UseHttpsRedirection();
 
