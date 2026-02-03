@@ -1,11 +1,18 @@
-; Inno Setup Script for Agent Windows Service
-#define MyAppName "Agent Windows Service"
+; Inno Setup Script for DCI Agent Service
+
+#define MyAppName "DCI Agent Service"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "TUKE"
 #define MyAppURL "https://yourcompany.com"
 #define MyAppExeName "Agent.WindowsService.exe"
+
 #define SourceDir "..\..\publish"
 #define OutputDir "..\..\installer-output"
+
+; Service technical name (no spaces)
+#define ServiceName "DciAgentService"
+; Service display name (visible in services.msc)
+#define ServiceDisplayName "DCI Agent Service"
 
 [Setup]
 AppId={{12345678-1234-1234-1234-123456789012}}
@@ -18,62 +25,50 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 OutputDir={#OutputDir}
-OutputBaseFilename=AgentWindowsService-{#MyAppVersion}-Setup
+OutputBaseFilename=DciAgentService-{#MyAppVersion}-Setup
 SolidCompression=yes
 PrivilegesRequired=admin
 ArchitecturesInstallIn64BitMode=x64
 ArchitecturesAllowed=x64
+DisableProgramGroupPage=yes
+UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
-Name: "ukrainian"; MessagesFile: "compiler:Languages\Ukrainian.isl"
-
-[Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "{#SourceDir}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceDir}\*.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceDir}\*.json"; DestDir: "{app}"; Flags: ignoreversion
-
-[Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+; Copy the entire publish folder
+Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Run]
-Filename: "sc.exe"; Parameters: "create AgentWindowsService binPath= ""{app}\{#MyAppExeName}"" start= auto DisplayName= ""Agent Windows Service"" obj= LocalSystem"; Flags: runhidden waituntilterminated
-Filename: "sc.exe"; Parameters: "description AgentWindowsService ""Agent for remote management and monitoring"""; Flags: runhidden waituntilterminated
-Filename: "sc.exe"; Parameters: "failure AgentWindowsService reset= 60 actions= restart/5000"; Flags: runhidden waituntilterminated
-Filename: "sc.exe"; Parameters: "start AgentWindowsService"; Flags: runhidden waituntilterminated
+; Create or update service
+Filename: "sc.exe"; Parameters: "create {#ServiceName} binPath= ""{app}\{#MyAppExeName}"" start= auto DisplayName= ""{#ServiceDisplayName}"" obj= LocalSystem"; Flags: runhidden waituntilterminated; Check: not ServiceExists('{#ServiceName}')
+Filename: "sc.exe"; Parameters: "config {#ServiceName} binPath= ""{app}\{#MyAppExeName}"" start= auto obj= LocalSystem DisplayName= ""{#ServiceDisplayName}"""; Flags: runhidden waituntilterminated; Check: ServiceExists('{#ServiceName}')
+
+Filename: "sc.exe"; Parameters: "description {#ServiceName} ""Custom agent for remote management and monitoring"""; Flags: runhidden waituntilterminated
+Filename: "sc.exe"; Parameters: "failure {#ServiceName} reset= 60 actions= restart/5000"; Flags: runhidden waituntilterminated
+Filename: "sc.exe"; Parameters: "start {#ServiceName}"; Flags: runhidden waituntilterminated
 
 [UninstallRun]
-Filename: "sc.exe"; Parameters: "stop AgentWindowsService"; Flags: runhidden waituntilterminated
-Filename: "sc.exe"; Parameters: "delete AgentWindowsService"; Flags: runhidden waituntilterminated
+Filename: "sc.exe"; Parameters: "stop {#ServiceName}"; Flags: runhidden waituntilterminated; Check: ServiceExists('{#ServiceName}')
+Filename: "sc.exe"; Parameters: "delete {#ServiceName}"; Flags: runhidden waituntilterminated; Check: ServiceExists('{#ServiceName}')
 
 [Code]
-function IsAdmin: Boolean;
+function ServiceExists(const ServiceName: string): Boolean;
+var
+  ResultCode: Integer;
 begin
-  Result := IsAdminLoggedOn;
+  Result :=
+    Exec('sc.exe', 'query "' + ServiceName + '"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
+    and (ResultCode = 0);
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
-  if CurStep = ssInstall then
-  begin
-    if not IsAdmin then
-    begin
-      MsgBox('This service installation requires administrator privileges.' + #13 +
-             'Please run the installer as administrator.', mbCriticalError, MB_OK);
-      Abort;
-    end;
-  end;
-
   if CurStep = ssPostInstall then
   begin
-    MsgBox('Agent Windows Service has been installed successfully!' + #13 + #13 +
-           'The service is running under LocalSystem account with full permissions for monitoring.' + #13 + #13 +
-           'You can check the service status in Services (services.msc).', mbInformation, MB_OK);
+    if not WizardSilent then
+      MsgBox('{#MyAppName} has been installed successfully.', mbInformation, MB_OK);
   end;
 end;
 
@@ -81,6 +76,7 @@ procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep = usPostUninstall then
   begin
-    MsgBox('Agent Windows Service has been uninstalled.', mbInformation, MB_OK);
+    if not WizardSilent then
+      MsgBox('{#MyAppName} has been uninstalled.', mbInformation, MB_OK);
   end;
 end;
