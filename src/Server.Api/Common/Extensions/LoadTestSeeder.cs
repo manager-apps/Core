@@ -67,10 +67,6 @@ public static class LoadTestSeeder
     int agents = 1000,
     int instructionsPerAgent = 200)
   {
-    var seedLoadTestData = app.Configuration.GetValue("Database:Postgres:SeedLoadTestData", false);
-
-    if (!seedLoadTestData) return;
-
     app.Logger.LogInformation("Starting load test data seeding with {AgentCount} agents and {InstructionCount} instructions per agent...", agents, instructionsPerAgent);
     app.Logger.LogInformation("All test agents will use secret key: '{SecretKey}' and will be marked as ACTIVE", TestSecretKey);
 

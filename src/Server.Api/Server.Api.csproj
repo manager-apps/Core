@@ -36,12 +36,12 @@
       <EmbeddedResource Include="Migrations/Clickhouse/**/*.sql" />
     </ItemGroup>
     <ItemGroup>
+      <Folder Include="Migrations\Postgres\" />
+    </ItemGroup>
+    <ItemGroup>
       <Content Include="..\..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Migrations\Postgres\" />
     </ItemGroup>
 
 </Project>

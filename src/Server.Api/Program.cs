@@ -18,7 +18,9 @@ builder.Services.AddInstructionServices();
 
 var app = builder.Build();
 await app.ApplyMigrationsAsync();
-await app.SeedLoadTestDataAsync();
+
+// Only for load testing purposes
+// await app.SeedLoadTestDataAsync();
 
 app.UseSwaggerDocs();
 app.UseCors();
@@ -31,6 +33,7 @@ var group = app.MapGroup("/api/v1");
 group.MapAgentEndpoints();
 group.MapInstructionEndpoints();
 
+app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }));
 
 app.UseHttpsRedirection();
 
