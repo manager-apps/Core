@@ -1,7 +1,7 @@
 ; Inno Setup Script for DCI Agent Service
 
 #define MyAppName "DCI Agent Service"
-#define MyAppVersion "1.0.1"
+#define MyAppVersion "1.0.0"
 #define MyAppPublisher "TUKE"
 #define MyAppURL "https://yourcompany.com"
 #define MyAppExeName "Agent.WindowsService.exe"
