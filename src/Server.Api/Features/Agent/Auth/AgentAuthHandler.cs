@@ -44,7 +44,7 @@ internal class AgentAuthHandler(
           storedSalt: agent.SecretKeySalt))
       return AgentErrors.Unauthorized();
 
-    agent.UpdateLastSeen();
+    agent.UpdateLastSeen(request.Tag);
     await dbContext.SaveChangesAsync(cancellationToken);
 
     var token = jwtProvider.GenerateTokenForAgent(agent.Name);

@@ -19,6 +19,14 @@ public class Agent
   public string Name { get; private init; } = null!;
 
   [Required]
+  [MaxLength(100)]
+  public string SourceTag { get; private set; } = null!;
+
+  [Required]
+  [MaxLength(100)]
+  public string CurrentTag { get; private set; } = null!;
+
+  [Required]
   public byte[] SecretKeyHash { get; private init; } = null!;
 
   [Required]
@@ -38,11 +46,14 @@ public class Agent
   /// </summary>
   public static Agent Create(
     string name,
+    string tag,
     byte[] secretKeyHash,
     byte[] secretKeySalt)
   {
     return new Agent
     {
+      SourceTag = tag,
+      CurrentTag = tag,
       Name = name,
       SecretKeyHash = secretKeyHash,
       SecretKeySalt = secretKeySalt,
@@ -60,8 +71,10 @@ public class Agent
   /// Patch update
   /// </summary>
   public void Update(
+    string? sourceTag = null,
     AgentState? state = null)
   {
+    SourceTag = sourceTag ?? SourceTag;
     State = state ?? State;
     UpdatedAt = DateTimeOffset.UtcNow;
   }
@@ -69,8 +82,12 @@ public class Agent
   /// <summary>
   /// Updates the last seen timestamp to the current time.
   /// </summary>
-  public void UpdateLastSeen()
-    => LastSeenAt = DateTimeOffset.UtcNow;
+  public void UpdateLastSeen(
+    string currentTag)
+  {
+    CurrentTag = currentTag;
+    LastSeenAt = DateTimeOffset.UtcNow;
+  }
 
   /// <summary>
   /// Sets the state of the agent.

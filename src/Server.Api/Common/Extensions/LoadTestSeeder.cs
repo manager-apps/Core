@@ -23,6 +23,7 @@ public static class LoadTestSeeder
       {
         var agent = Agent.Create(
           name: $"agent-{i:D6}",
+          tag: "load-test",
           secretKeyHash: hash,
           secretKeySalt: salt);
         agent.MarkAsActive();

@@ -9,8 +9,9 @@ public static class AgentMapper
     public Server.Domain.Agent ToDomain(
       byte[] secretKeyHash,
       byte[] secretKeySalt)
-      => Server.Domain.Agent.Create(
+      => Domain.Agent.Create(
         name: request.AgentName,
+        tag: request.Tag,
         secretKeyHash: secretKeyHash,
         secretKeySalt: secretKeySalt);
   }
@@ -21,6 +22,8 @@ public static class AgentMapper
       => new(
         Id: agent.Id,
         Name: agent.Name,
+        SourceTag: agent.SourceTag,
+        CurrentTag: agent.CurrentTag,
         State: agent.State,
         CreatedAt: agent.CreatedAt,
         LastUpdatedAt: agent.LastSeenAt,
