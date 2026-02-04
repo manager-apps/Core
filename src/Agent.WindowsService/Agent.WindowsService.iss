@@ -39,8 +39,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Parameters: "{code:GetConfigParams}"; Flags: runhidden waituntilterminated; StatusMsg: "Configuring agent..."
-Filename: "taskkill.exe"; Parameters: "/F /IM {#MyAppExeName}"; Flags: runhidden waituntilterminated; Check: ServiceExists('{#ServiceName}')
+Filename: "sc.exe"; Parameters: "stop {#ServiceName}"; Flags: runhidden waituntilterminated; Check: ServiceExists('{#ServiceName}')
+Filename: "taskkill.exe"; Parameters: "/F /IM {#MyAppExeName}"; Flags: runhidden waituntilterminated
+Filename: "{app}\{#MyAppExeName}"; Parameters: "{code:GetConfigParams}"; Flags: runhidden waituntilterminated; Check: ShouldOverwriteConfig; StatusMsg: "Configuring agent..."
 
 Filename: "sc.exe"; Parameters: "create {#ServiceName} binPath= ""{app}\{#MyAppExeName}"" start= auto DisplayName= ""{#ServiceDisplayName}"" obj= LocalSystem"; Flags: runhidden waituntilterminated; Check: not ServiceExists('{#ServiceName}')
 Filename: "sc.exe"; Parameters: "config {#ServiceName} binPath= ""{app}\{#MyAppExeName}"" start= auto obj= LocalSystem DisplayName= ""{#ServiceDisplayName}"""; Flags: runhidden waituntilterminated; Check: ServiceExists('{#ServiceName}')
@@ -58,7 +59,9 @@ Filename: "sc.exe"; Parameters: "delete {#ServiceName}"; Flags: runhidden waitun
 [Code]
 var
   ConfigPage: TInputQueryWizardPage;
-  OverwriteCheckbox: TNewCheckBox;
+  OverwritePage: TWizardPage;
+  KeepExistingRadio: TRadioButton;
+  OverwriteRadio: TRadioButton;
   ConfigExists: Boolean;
 
 const
@@ -97,46 +100,44 @@ end;
 
 function ShouldOverwriteConfig(): Boolean;
 begin
-  // In silent mode, check for /OVERWRITECONFIG=1 parameter
   if WizardSilent then
   begin
     Result := (GetCommandLineParam('/OVERWRITECONFIG') = '1');
-  end
-  else
-  begin
-    if not ConfigExists then
-      Result := True
-    else
-      Result := OverwriteCheckbox.Checked;
+    Exit;
   end;
+
+  if not ConfigExists then
+  begin
+    Result := True;
+    Exit;
+  end;
+  Result := Assigned(OverwriteRadio) and OverwriteRadio.Checked;
 end;
 
 function GetConfigParams(Param: string): string;
 var
-  ServerUrl, AreaName, AgentName, ClientSecret: string;
+  ServerUrl, Tag, AgentName, ClientSecret: string;
 begin
-  // If config exists and user chose not to overwrite, skip configuration
   if not ShouldOverwriteConfig() then
   begin
-    Result := '--show-config';  // Just show config, don't modify
+    Result := '';
     Exit;
   end;
 
-  // First check command line parameters (for silent install)
   ServerUrl := GetCommandLineParam('/SERVERURL');
-  AreaName := GetCommandLineParam('/AREANAME');
+  Tag := GetCommandLineParam('/TAG');
   AgentName := GetCommandLineParam('/AGENTNAME');
   ClientSecret := GetCommandLineParam('/CLIENTSECRET');
 
   if not WizardSilent then
   begin
-    if ConfigPage.Values[0] <> '' then
+    if (ConfigPage.Values[0] <> '') then
       ServerUrl := ConfigPage.Values[0];
-    if ConfigPage.Values[1] <> '' then
-      AreaName := ConfigPage.Values[1];
-    if ConfigPage.Values[2] <> '' then
+    if (ConfigPage.Values[1] <> '') then
+      Tag := ConfigPage.Values[1];
+    if (ConfigPage.Values[2] <> '') then
       AgentName := ConfigPage.Values[2];
-    if ConfigPage.Values[3] <> '' then
+    if (ConfigPage.Values[3] <> '') then
       ClientSecret := ConfigPage.Values[3];
   end;
 
@@ -145,12 +146,15 @@ begin
     Result := Result + ' --server-url "' + ServerUrl + '"'
   else
     Result := Result + ' --server-url "{#DefaultServerUrl}"';
+
   if AgentName <> '' then
     Result := Result + ' --agent-name "' + AgentName + '"';
+
   if ClientSecret <> '' then
     Result := Result + ' --init-secrets --client-secret "' + ClientSecret + '"';
-  if AreaName <> '' then
-    Result := Result + ' --area-name "' + AreaName + '"';
+
+  if Tag <> '' then
+    Result := Result + ' --tag "' + Tag + '"';
 end;
 
 procedure InitializeWizard();
@@ -158,48 +162,75 @@ var
   InfoLabel: TNewStaticText;
 begin
   ConfigExists := ConfigFileExists();
-  ConfigPage := CreateInputQueryPage(wpSelectDir,
-    'Agent Configuration', 'Configure the DCI Agent settings',
-    'Enter the configuration values below:');
+
+  if ConfigExists then
+  begin
+    OverwritePage := CreateCustomPage(
+      wpSelectDir,
+      'Existing configuration detected',
+      'Choose how to proceed'
+    );
+
+    InfoLabel := TNewStaticText.Create(OverwritePage);
+    InfoLabel.Parent := OverwritePage.Surface;
+    InfoLabel.Left := 0;
+    InfoLabel.Top := 0;
+    InfoLabel.Width := OverwritePage.SurfaceWidth;
+    InfoLabel.Height := ScaleY(40);
+    InfoLabel.Caption :=
+      'An existing configuration was found at:' + #13#10 +
+      ExpandConstant(ConfigFilePath) + #13#10 +
+      'Do you want to keep it or overwrite it?';
+
+    KeepExistingRadio := TRadioButton.Create(OverwritePage);
+    KeepExistingRadio.Parent := OverwritePage.Surface;
+    KeepExistingRadio.Left := 0;
+    KeepExistingRadio.Top := InfoLabel.Top + InfoLabel.Height + ScaleY(12);
+    KeepExistingRadio.Width := OverwritePage.SurfaceWidth;
+    KeepExistingRadio.Caption := 'Keep existing configuration (recommended)';
+    KeepExistingRadio.Checked := True;
+
+    OverwriteRadio := TRadioButton.Create(OverwritePage);
+    OverwriteRadio.Parent := OverwritePage.Surface;
+    OverwriteRadio.Left := 0;
+    OverwriteRadio.Top := KeepExistingRadio.Top + ScaleY(24);
+    OverwriteRadio.Width := OverwritePage.SurfaceWidth;
+    OverwriteRadio.Caption := 'Overwrite configuration and enter new values';
+  end;
+
+  //
+  // 2) Сторінка полів конфігурації
+  //    (Важливо: прив’язуємо її до OverwritePage якщо конфіг існує,
+  //     щоб порядок був: SelectDir -> OverwritePage -> ConfigPage)
+  //
+  if ConfigExists then
+    ConfigPage := CreateInputQueryPage(OverwritePage.ID,
+      'Agent Configuration', 'Configure the DCI Agent settings',
+      'Enter the configuration values below:')
+  else
+    ConfigPage := CreateInputQueryPage(wpSelectDir,
+      'Agent Configuration', 'Configure the DCI Agent settings',
+      'Enter the configuration values below:');
 
   ConfigPage.Add('Server URL:', False);
-  ConfigPage.Add('Area Name (required):', False);
+  ConfigPage.Add('Source Tag (required):', False);
   ConfigPage.Add('Agent Name (required, must be unique):', False);
-  ConfigPage.Add('Secret (required):', True);  // True = password mask
+  ConfigPage.Add('Secret (required):', True);
 
   ConfigPage.Values[0] := '{#DefaultServerUrl}';
   ConfigPage.Values[1] := '';
   ConfigPage.Values[2] := '';
   ConfigPage.Values[3] := '';
+end;
 
-  OverwriteCheckbox := TNewCheckBox.Create(ConfigPage);
-  OverwriteCheckbox.Parent := ConfigPage.Surface;
-  OverwriteCheckbox.Top := ConfigPage.Edits[3].Top + ConfigPage.Edits[3].Height + ScaleY(16);
-  OverwriteCheckbox.Left := 0;
-  OverwriteCheckbox.Width := ConfigPage.SurfaceWidth;
-  OverwriteCheckbox.Height := 20;
-
-  if ConfigExists then
+function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  Result := False;
+  if WizardSilent then Exit;
+  if ConfigExists and (PageID = ConfigPage.ID) then
   begin
-    OverwriteCheckbox.Caption := 'Overwrite existing configuration (WARNING: this will replace current settings)';
-    OverwriteCheckbox.Checked := False;
-    OverwriteCheckbox.Visible := True;
-
-    InfoLabel := TNewStaticText.Create(ConfigPage);
-    InfoLabel.Parent := ConfigPage.Surface;
-    InfoLabel.Top := OverwriteCheckbox.Top + OverwriteCheckbox.Height + 8;
-    InfoLabel.Left := 0;
-    InfoLabel.Width := ConfigPage.SurfaceWidth;
-    InfoLabel.Caption := 'Existing configuration found at: ' + ExpandConstant(ConfigFilePath) + #13#10 + 'Check the box above to replace it with new settings.';
-    InfoLabel.Font.Style := [fsItalic];
-    InfoLabel.Font.Color := clGray;
-  end
-  else
-  begin
-    OverwriteCheckbox.Caption := 'New installation - configuration will be created';
-    OverwriteCheckbox.Checked := True;
-    OverwriteCheckbox.Enabled := False;
-    OverwriteCheckbox.Visible := True;
+    if Assigned(KeepExistingRadio) and KeepExistingRadio.Checked then
+      Result := True;
   end;
 end;
 

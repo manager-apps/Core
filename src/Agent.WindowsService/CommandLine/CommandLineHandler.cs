@@ -36,7 +36,7 @@ public static class CommandLineHandler
 
         if (options.InitConfig)
         {
-            await InitializeConfigurationAsync(options.ServerUrl, options.AgentName);
+            await InitializeConfigurationAsync(options.ServerUrl, options.AgentName, options.Tag);
         }
 
         if (options.InitSecrets)
@@ -75,14 +75,18 @@ public static class CommandLineHandler
         Console.WriteLine($"Secrets file exists: {File.Exists(PathConfig.SecretFilePath)}");
     }
 
-    private static async Task InitializeConfigurationAsync(string? serverUrl, string? agentName)
+    private static async Task InitializeConfigurationAsync(
+      string? serverUrl,
+      string? agentName,
+      string? tag)
     {
         Console.WriteLine("Initializing configuration...");
 
         var config = new Configuration
         {
             AgentName = agentName ?? $"{Environment.MachineName}_{Guid.NewGuid():N}",
-            ServerUrl = serverUrl ?? "http://147.232.52.190:5000"
+            ServerUrl = serverUrl ?? "http://147.232.52.190:5000",
+            Tag = tag
         };
 
         var path = PathConfig.ConfigFilePath;

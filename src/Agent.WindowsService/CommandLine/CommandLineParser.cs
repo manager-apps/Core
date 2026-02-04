@@ -58,10 +58,10 @@ public static class CommandLineParser
                     }
                     break;
 
-                case "--area-name":
+                case "--tag":
                     if (i + 1 < args.Length)
                     {
-                        options.AreaName = args[++i];
+                        options.Tag = args[++i];
                     }
                     break;
 

@@ -19,7 +19,7 @@ public partial class StateMachine
         url: UrlConfig.PostAuthUrl(config.ServerUrl),
         data: new AuthMessageRequest(
           AgentName: config.AgentName,
-          AreaName: config.AreaName,
+          Tag: config.Tag,
           SecretKey: clientSecret),
         metadata: new RequestMetadata(),
         cancellationToken: Token);

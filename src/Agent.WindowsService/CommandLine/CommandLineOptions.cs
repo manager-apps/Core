@@ -41,9 +41,9 @@ public class CommandLineOptions
     public string? ClientSecret { get; set; }
 
     /// <summary>
-    /// Area name to configure.
+    /// Tag to configure.
     /// </summary>
-    public string? AreaName { get; set; }
+    public string? Tag { get; set; }
 
     /// <summary>
     /// Run the service normally after configuration.

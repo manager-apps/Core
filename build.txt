@@ -23,6 +23,6 @@ DciAgentService-1.0.1-Setup.exe
   /NORESTART
   /OVERWRITECONFIG=1
   /SERVERURL="http://..."
-  /AREANAME="A"
+  /TAG="A"
   /AGENTNAME="X"
   /CLIENTSECRET="S"

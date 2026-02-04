@@ -12,10 +12,7 @@ using Agent.WindowsService.Validators;
 using FluentValidation;
 using Serilog;
 
-// Parse command line arguments
 var options = CommandLineParser.Parse(args);
-
-// Process command line options (init config, show config, etc.)
 var shouldRunService = await CommandLineHandler.ProcessAsync(options);
 
 if (!shouldRunService)
