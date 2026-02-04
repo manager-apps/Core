@@ -12,12 +12,4 @@ public interface IServerClient
     TRequest data,
     RequestMetadata metadata,
     CancellationToken cancellationToken);
-
-  /// <summary>
-  /// Get request from server
-  /// </summary>
-  Task<IEnumerable<TResponse>> Get<TResponse>(
-    string url,
-    RequestMetadata metadata,
-    CancellationToken cancellationToken);
 }

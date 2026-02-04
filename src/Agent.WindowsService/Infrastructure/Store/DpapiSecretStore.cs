@@ -27,7 +27,8 @@ public class DpapiSecretStore : ISecretStore
     return encoding.GetString(data.Value.Span);
   }
 
-  public async Task<ReadOnlyMemory<byte>?> GetAsync(string key, CancellationToken cancellationToken = default)
+  private async Task<ReadOnlyMemory<byte>?> GetAsync(
+    string key, CancellationToken cancellationToken = default)
   {
     await _lock.WaitAsync(cancellationToken);
     try

@@ -19,11 +19,6 @@ public enum InstructionType
 public class Instruction
 {
   /// <summary>
-  /// Database identifier
-  /// </summary>
-  public long Id { get; set; }
-
-  /// <summary>
   /// Unique identifier for the instruction
   /// </summary>
   public long AssociativeId { get; init; }

@@ -13,5 +13,6 @@ public interface IInstructionExecutor
   /// Run the instruction
   /// </summary>
   Task<InstructionResult> ExecuteAsync(
-    Instruction instruction, CancellationToken cancellationToken);
+    Instruction instruction,
+    CancellationToken cancellationToken);
 }

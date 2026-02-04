@@ -9,7 +9,7 @@ public partial class StateMachine
     _logger.LogInformation("Entering Execution state");
     try
     {
-      var instructions = await _instrStore.GetAllAsync(Token);
+      var instructions = await _instrStore.GetAsync(Token);
       if (instructions.Count == 0)
       {
         _logger.LogInformation("No instructions to execute");
@@ -70,11 +70,12 @@ public partial class StateMachine
       }
 
       await _instrStore.SaveResultsAsync(results, Token);
-      await _instrStore.RemoveAllAsync(Token);
+      await _instrStore.RemoveAsync(instructions.Select(x => x.AssociativeId), Token);
 
       _logger.LogInformation(
         "Execution completed: {Success}/{Total} instructions succeeded",
         results.Count(r => r.Success), results.Count);
+
       await _machine.FireAsync(Triggers.ExecutionSuccess);
     }
     catch (OperationCanceledException)

@@ -198,11 +198,6 @@ begin
     OverwriteRadio.Caption := 'Overwrite configuration and enter new values';
   end;
 
-  //
-  // 2) Сторінка полів конфігурації
-  //    (Важливо: прив’язуємо її до OverwritePage якщо конфіг існує,
-  //     щоб порядок був: SelectDir -> OverwritePage -> ConfigPage)
-  //
   if ConfigExists then
     ConfigPage := CreateInputQueryPage(OverwritePage.ID,
       'Agent Configuration', 'Configure the DCI Agent settings',

@@ -1,9 +1,7 @@
-using System.Text.Json;
 using Agent.WindowsService.Abstraction;
 using Agent.WindowsService.Config;
 using Agent.WindowsService.Domain;
 using Agent.WindowsService.Utils;
-using Common.Messages;
 using Microsoft.Data.Sqlite;
 
 namespace Agent.WindowsService.Infrastructure.Store;
@@ -38,8 +36,7 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
       var command = connection.CreateCommand();
       command.CommandText = @"
         CREATE TABLE IF NOT EXISTS Instructions (
-          Id INTEGER PRIMARY KEY AUTOINCREMENT,
-          AssociativeId INTEGER NOT NULL UNIQUE,
+          AssociativeId INTEGER PRIMARY KEY,
           Type INTEGER NOT NULL,
           Payload TEXT NOT NULL,
           CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP
@@ -67,7 +64,9 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
     }
   }
 
-  public async Task SaveAsync(IEnumerable<Instruction> instructions, CancellationToken cancellationToken)
+  public async Task SaveAsync(
+    IEnumerable<Instruction> instructions,
+    CancellationToken cancellationToken)
   {
     var instructionList = instructions.ToList();
     if (instructionList.Count == 0)
@@ -110,7 +109,9 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
     }
   }
 
-  public async Task<IReadOnlyList<Instruction>> GetAllAsync(CancellationToken cancellationToken)
+  public async Task<IReadOnlyList<InstructionResult>> GetResultsAsync(
+    CancellationToken cancellationToken,
+    int limit = 50)
   {
     ObjectDisposedException.ThrowIf(_disposed, this);
 
@@ -118,7 +119,56 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
     await connection.OpenAsync(cancellationToken);
 
     var command = connection.CreateCommand();
-    command.CommandText = "SELECT AssociativeId, Type, Payload FROM Instructions ORDER BY CreatedAt";
+    command.CommandText = @"
+      SELECT AssociativeId, Success, Output, Error
+      FROM InstructionResults
+      ORDER BY CreatedAt
+      LIMIT @limit
+    ";
+    command.Parameters.AddWithValue("@limit", limit);
+
+    var results = new List<InstructionResult>();
+    try
+    {
+      await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+      while (await reader.ReadAsync(cancellationToken))
+      {
+        results.Add(new InstructionResult
+        {
+          AssociativeId = reader.GetInt64(0),
+          Success = reader.GetInt32(1) == 1,
+          Output = reader.IsDBNull(2) ? null : reader.GetString(2),
+          Error = reader.IsDBNull(3) ? null : reader.GetString(3)
+        });
+      }
+
+      _logger.LogInformation("Retrieved {Count} instruction results from SQLite", results.Count);
+      return results;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Failed to retrieve instruction results");
+      throw;
+    }
+  }
+
+  public async Task<IReadOnlyList<Instruction>> GetAsync(
+    CancellationToken cancellationToken,
+    int limit = 50)
+  {
+    ObjectDisposedException.ThrowIf(_disposed, this);
+
+    await using var connection = new SqliteConnection(_connectionString);
+    await connection.OpenAsync(cancellationToken);
+
+    var command = connection.CreateCommand();
+    command.CommandText = @"
+      SELECT AssociativeId, Type, Payload
+      FROM Instructions
+      ORDER BY CreatedAt
+      LIMIT @limit
+    ";
+    command.Parameters.AddWithValue("@limit", limit);
 
     var instructions = new List<Instruction>();
     try
@@ -150,37 +200,9 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
     }
   }
 
-  public async Task SaveResultAsync(InstructionResult result, CancellationToken cancellationToken)
-  {
-    ObjectDisposedException.ThrowIf(_disposed, this);
-
-    await using var connection = new SqliteConnection(_connectionString);
-    await connection.OpenAsync(cancellationToken);
-
-    var command = connection.CreateCommand();
-    command.CommandText = @"
-      INSERT OR REPLACE INTO InstructionResults (AssociativeId, Success, Output, Error)
-      VALUES (@associativeId, @success, @output, @error)
-    ";
-
-    command.Parameters.AddWithValue("@associativeId", result.AssociativeId);
-    command.Parameters.AddWithValue("@success", result.Success ? 1 : 0);
-    command.Parameters.AddWithValue("@output", result.Output ?? (object)DBNull.Value);
-    command.Parameters.AddWithValue("@error", result.Error ?? (object)DBNull.Value);
-
-    try
-    {
-      await command.ExecuteNonQueryAsync(cancellationToken);
-      _logger.LogDebug("Saved instruction result for {Id}", result.AssociativeId);
-    }
-    catch (Exception ex)
-    {
-      _logger.LogError(ex, "Failed to save instruction result");
-      throw;
-    }
-  }
-
-  public async Task SaveResultsAsync(IEnumerable<InstructionResult> results, CancellationToken cancellationToken)
+  public async Task SaveResultsAsync(
+    IEnumerable<InstructionResult> results,
+    CancellationToken cancellationToken)
   {
     var resultList = results.ToList();
     if (resultList.Count == 0)
@@ -224,50 +246,64 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
     }
   }
 
-  public async Task<IReadOnlyList<InstructionResult>> GetAllResultsAsync(CancellationToken cancellationToken)
+  public async Task RemoveAsync(
+    IEnumerable<long> asociativeIds,
+    CancellationToken cancellationToken)
   {
+    var idList = asociativeIds.ToList();
+    if (idList.Count == 0)
+    {
+      _logger.LogDebug("No instructions to delete");
+      return;
+    }
+
     ObjectDisposedException.ThrowIf(_disposed, this);
 
     await using var connection = new SqliteConnection(_connectionString);
     await connection.OpenAsync(cancellationToken);
-
     var command = connection.CreateCommand();
-    command.CommandText = "SELECT AssociativeId, Success, Output, Error FROM InstructionResults ORDER BY CreatedAt";
-
-    var results = new List<InstructionResult>();
+    var parameters = string.Join(", ", idList.Select((_, index) => $"@id{index}"));
+    command.CommandText = $"DELETE FROM Instructions WHERE AssociativeId IN ({parameters})";
+    for (int i = 0; i < idList.Count; i++)
+    {
+      command.Parameters.AddWithValue($"@id{i}", idList[i]);
+    }
     try
     {
-      await using var reader = await command.ExecuteReaderAsync(cancellationToken);
-      while (await reader.ReadAsync(cancellationToken))
-      {
-        results.Add(new InstructionResult
-        {
-          AssociativeId = reader.GetInt64(0),
-          Success = reader.GetInt32(1) == 1,
-          Output = reader.IsDBNull(2) ? null : reader.GetString(2),
-          Error = reader.IsDBNull(3) ? null : reader.GetString(3)
-        });
-      }
-
-      _logger.LogInformation("Retrieved {Count} instruction results from SQLite", results.Count);
-      return results;
+      var deleted = await command.ExecuteNonQueryAsync(cancellationToken);
+      _logger.LogInformation("Deleted {Count} instructions from SQLite", deleted);
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Failed to retrieve instruction results");
+      _logger.LogError(ex, "Failed to delete instructions");
       throw;
     }
   }
 
-  public async Task RemoveAllResultsAsync(CancellationToken cancellationToken)
+  public async Task RemoveResultsAsync(
+    IEnumerable<long> associativeIds,
+    CancellationToken cancellationToken)
   {
+    var idList = associativeIds.ToList();
+    if (idList.Count == 0)
+    {
+      _logger.LogDebug("No instruction results to delete");
+      return;
+    }
+
     ObjectDisposedException.ThrowIf(_disposed, this);
 
     await using var connection = new SqliteConnection(_connectionString);
     await connection.OpenAsync(cancellationToken);
 
     var command = connection.CreateCommand();
-    command.CommandText = "DELETE FROM InstructionResults";
+    var parameters = string.Join(", ", idList.Select((_, index) => $"@id{index}"));
+    command.CommandText = $"DELETE FROM InstructionResults WHERE AssociativeId IN ({parameters})";
+
+    for (int i = 0; i < idList.Count; i++)
+    {
+      command.Parameters.AddWithValue($"@id{i}", idList[i]);
+    }
 
     try
     {
@@ -277,28 +313,6 @@ public class SqliteInstructionStore : IInstructionStore, IDisposable
     catch (Exception ex)
     {
       _logger.LogError(ex, "Failed to delete instruction results");
-      throw;
-    }
-  }
-
-  public async Task RemoveAllAsync(CancellationToken cancellationToken)
-  {
-    ObjectDisposedException.ThrowIf(_disposed, this);
-
-    await using var connection = new SqliteConnection(_connectionString);
-    await connection.OpenAsync(cancellationToken);
-
-    var command = connection.CreateCommand();
-    command.CommandText = "DELETE FROM Instructions";
-
-    try
-    {
-      var deleted = await command.ExecuteNonQueryAsync(cancellationToken);
-      _logger.LogInformation("Deleted {Count} instructions from SQLite", deleted);
-    }
-    catch (Exception ex)
-    {
-      _logger.LogError(ex, "Failed to delete instructions");
       throw;
     }
   }

@@ -18,8 +18,8 @@ public partial class StateMachine
     try
     {
       var authToken = await _secretStore.GetAsync(SecretConfig.AuthTokenKey, Encoding.UTF8, Token);
-      var storedInstrResultsBuffer = await _instrStore.GetAllResultsAsync(Token);
-      var storedMetricsBuffer = await _metricStore.GetAllAsync(Token);
+      var storedInstrResultsBuffer = await _instrStore.GetResultsAsync(Token);
+      var storedMetricsBuffer = await _metricStore.GetAsync(Token);
       var config = await _configStore.GetAsync(Token);
 
       currentCollected = await _metricCollector.CollectAsync(Token);
@@ -42,8 +42,8 @@ public partial class StateMachine
       if(response is null)
         throw new InvalidOperationException("Running state failed: Server response is null");
 
-      await _metricStore.RemoveAllAsync(Token);
-      await _instrStore.RemoveAllResultsAsync(Token);
+      await _metricStore.RemoveAsync(storedMetricsBuffer.Select(x => x.Id), Token);
+      await _instrStore.RemoveResultsAsync(storedInstrResultsBuffer.Select(x => x.AssociativeId), Token);
 
       var newInstructions = response.Instructions.Select(x => x.ToDomain());
       await _instrStore.SaveAsync(newInstructions, Token);
