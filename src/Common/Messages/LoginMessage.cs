@@ -6,4 +6,5 @@ public record AuthMessageResponse(
 
 public record AuthMessageRequest(
   string AgentName,
-  string SecretKey);
+  string SecretKey,
+  string AreaName);

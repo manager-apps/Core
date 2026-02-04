@@ -1,6 +1,7 @@
 using Agent.WindowsService;
 using Agent.WindowsService.Abstraction;
 using Agent.WindowsService.Application;
+using Agent.WindowsService.CommandLine;
 using Agent.WindowsService.Config;
 using Agent.WindowsService.Domain;
 using Agent.WindowsService.Infrastructure.Communication;
@@ -8,9 +9,19 @@ using Agent.WindowsService.Infrastructure.Executors;
 using Agent.WindowsService.Infrastructure.Metric;
 using Agent.WindowsService.Infrastructure.Store;
 using Agent.WindowsService.Validators;
-using Microsoft.Extensions.Hosting.WindowsServices;
 using FluentValidation;
 using Serilog;
+
+// Parse command line arguments
+var options = CommandLineParser.Parse(args);
+
+// Process command line options (init config, show config, etc.)
+var shouldRunService = await CommandLineHandler.ProcessAsync(options);
+
+if (!shouldRunService)
+{
+    return;
+}
 
 Log.Logger = new LoggerConfiguration()
   .MinimumLevel.Information()
@@ -22,13 +33,10 @@ Log.Logger = new LoggerConfiguration()
 try
 {
     var builder = Host.CreateApplicationBuilder(args);
-    if (WindowsServiceHelpers.IsWindowsService())
+    builder.Services.AddWindowsService(serviceOptions =>
     {
-      builder.Services.AddWindowsService(options =>
-      {
-        options.ServiceName = "Agent Windows Service";
-      });
-    }
+      serviceOptions.ServiceName = "DCIAgentService";
+    });
 
     builder.Services.AddSingleton<IStateMachine, StateMachine>();
     builder.Services.AddSingleton<IMetricCollector, MetricCollector>();

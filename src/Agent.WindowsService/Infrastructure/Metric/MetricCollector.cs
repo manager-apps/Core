@@ -22,7 +22,7 @@ public partial class MetricCollector : IMetricCollector
     // metrics.Add(CollectDiskWriteSpeed());
     // metrics.AddRange(CollectDiskSpacePerDrive());
     //
-    metrics.AddRange(CollectNetwork());
+    //metrics.AddRange(CollectNetwork());
     //
     // metrics.Add(CollectProcessCount());
     // metrics.Add(CollectTotalHandleCount());
@@ -31,7 +31,7 @@ public partial class MetricCollector : IMetricCollector
     // metrics.AddRange(CollectTopProcessesByMemory(5));
     //
     // metrics.Add(CollectSystemUptime());
-    metrics.Add(CollectAvailablePhysicalMemory());
+    //metrics.Add(CollectAvailablePhysicalMemory());
     // metrics.Add(CollectSystemTimestamp());
     //
     // metrics.Add(CollectTotalTcpConnections());
