@@ -5,24 +5,24 @@ using Agent.WindowsService.Domain;
 using Common.Messages;
 
 namespace Agent.WindowsService.Application;
+
 public partial class StateMachine
 {
   private async Task HandleRunningEntryAsync()
   {
-    _logger.LogInformation("Entering RunningStart state");
+    _logger.LogInformation("Entering Running state");
 
     List<Metric> metricCollection = [];
     List<InstructionResult> instrResultsCollection = [];
     IReadOnlyList<Metric> currentCollected = [];
-
     try
     {
-      var authToken = await _secretStore.GetAsync(SecretConfig.AuthTokenKey, Encoding.UTF8, CancellationToken.None);
-      var storedInstrResultsBuffer = await _instrStore.GetAllResultsAsync(CancellationToken.None);
-      var storedMetricsBuffer = await _metricStore.GetAllAsync(CancellationToken.None);
-      var config = await _configStore.GetAsync(CancellationToken.None);
+      var authToken = await _secretStore.GetAsync(SecretConfig.AuthTokenKey, Encoding.UTF8, Token);
+      var storedInstrResultsBuffer = await _instrStore.GetAllResultsAsync(Token);
+      var storedMetricsBuffer = await _metricStore.GetAllAsync(Token);
+      var config = await _configStore.GetAsync(Token);
 
-      currentCollected = await _metricCollector.CollectAsync(CancellationToken.None);
+      currentCollected = await _metricCollector.CollectAsync(Token);
 
       metricCollection.AddRange(storedMetricsBuffer);
       metricCollection.AddRange(currentCollected);
@@ -37,43 +37,53 @@ public partial class StateMachine
         metadata: new RequestMetadata(
           AuthToken: authToken,
           AgentName: config.AgentName),
-        cancellationToken: CancellationToken.None);
+        cancellationToken: Token);
 
       if(response is null)
-        throw new InvalidOperationException("Server response is null");
+        throw new InvalidOperationException("Running state failed: Server response is null");
 
-      await _metricStore.RemoveAllAsync(CancellationToken.None);
-      await _instrStore.RemoveAllResultsAsync(CancellationToken.None);
+      await _metricStore.RemoveAllAsync(Token);
+      await _instrStore.RemoveAllResultsAsync(Token);
 
       var newInstructions = response.Instructions.Select(x => x.ToDomain());
-      await _instrStore.SaveAsync(newInstructions, CancellationToken.None);
+      await _instrStore.SaveAsync(newInstructions, Token);
 
-      _logger.LogInformation("RunningStart iteration done");
+      _logger.LogInformation("Running state completed successfully");
       await _machine.FireAsync(Triggers.RunSuccess);
     }
-    catch (HttpRequestException httpEx) when(httpEx.StatusCode is System.Net.HttpStatusCode.Unauthorized or
-                                                                  System.Net.HttpStatusCode.Forbidden)
+    catch (OperationCanceledException)
     {
-      await _metricStore.StoreAsync(currentCollected, CancellationToken.None);
+      _logger.LogInformation("Running state cancelled");
+    }
+    catch (HttpRequestException httpEx) when(
+      httpEx.StatusCode is System.Net.HttpStatusCode.Unauthorized
+                        or System.Net.HttpStatusCode.Forbidden)
+    {
+      await _metricStore.StoreAsync(currentCollected, Token);
 
-      _logger.LogError(httpEx, "HTTP Auth error in RunningStart: {StatusCode} - {Message}", httpEx.StatusCode, httpEx.Message);
-
+      _logger.LogError(httpEx, "Authentication failure in Running state");
       await _machine.FireAsync(Triggers.AuthFailure);
     }
     catch (Exception ex)
     {
-      await _metricStore.StoreAsync(currentCollected, CancellationToken.None);
+      await _metricStore.StoreAsync(currentCollected, Token);
 
-      _logger.LogError(ex, "Error in RunningStart");
+      _logger.LogError(ex, "Running state failed");
       await _machine.FireAsync(Triggers.RunFailure);
     }
   }
 
   private async Task HandleRunningExitAsync()
   {
-    _logger.LogInformation("Exiting RunningStart state");
+    _logger.LogInformation("Exiting Running state");
 
-    // Delaying, will be configurable later
-    await Task.Delay(5000);
+    try
+    {
+      await Task.Delay(5000, Token);
+    }
+    catch (OperationCanceledException)
+    {
+      _logger.LogInformation("Running state exit delay cancelled");
+    }
   }
 }

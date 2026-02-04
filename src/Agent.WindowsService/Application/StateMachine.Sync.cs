@@ -9,16 +9,18 @@ public partial class StateMachine
     _logger.LogInformation("Entering Synchronization state");
     try
     {
-      var config = await _configStore.GetAsync(CancellationToken.None);
+      var config = await _configStore.GetAsync(Token);
 
-      // TODO: додати перевірку сумісності версій та синхронізацію часу
-
-      _logger.LogInformation("Synchronization completed successfully");
+      _logger.LogInformation("Synchronization state completed successfully");
       await _machine.FireAsync(Triggers.SyncSuccess);
+    }
+    catch (OperationCanceledException)
+    {
+      _logger.LogInformation("Synchronization state cancelled");
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Synchronization failed");
+      _logger.LogError(ex, "Synchronization state failed");
       await _machine.FireAsync(Triggers.SyncFailure);
     }
   }
@@ -26,8 +28,13 @@ public partial class StateMachine
   private async Task HandleSynchronizationExitAsync()
   {
     _logger.LogInformation("Exiting Synchronization state");
-
-    // Delaying, will be configurable later
-    await Task.Delay(5000);
+    try
+    {
+      await Task.Delay(5000, Token);
+    }
+    catch (OperationCanceledException)
+    {
+      _logger.LogInformation("Synchronization state exit delay cancelled");
+    }
   }
 }

@@ -9,7 +9,7 @@ public partial class StateMachine
     _logger.LogInformation("Entering Execution state");
     try
     {
-      var instructions = await _instrStore.GetAllAsync(CancellationToken.None);
+      var instructions = await _instrStore.GetAllAsync(Token);
       if (instructions.Count == 0)
       {
         _logger.LogInformation("No instructions to execute");
@@ -21,6 +21,8 @@ public partial class StateMachine
       var results = new List<InstructionResult>();
       foreach (var instruction in instructions)
       {
+        Token.ThrowIfCancellationRequested();
+
         try
         {
           var executor = _executors.FirstOrDefault(e => e.CanExecute(instruction.Type));
@@ -40,12 +42,16 @@ public partial class StateMachine
             continue;
           }
 
-          var result = await executor.ExecuteAsync(instruction, CancellationToken.None);
+          var result = await executor.ExecuteAsync(instruction, Token);
           results.Add(result);
 
           _logger.LogInformation(
             "Instruction {Id} executed with result: {Success}",
             instruction.AssociativeId, result.Success);
+        }
+        catch (OperationCanceledException)
+        {
+          throw;
         }
         catch (Exception ex)
         {
@@ -63,20 +69,21 @@ public partial class StateMachine
         }
       }
 
-      // Make it with pagination
-      await _instrStore.SaveResultsAsync(results, CancellationToken.None);
-      await _instrStore.RemoveAllAsync(CancellationToken.None);
+      await _instrStore.SaveResultsAsync(results, Token);
+      await _instrStore.RemoveAllAsync(Token);
 
-      var successCount = results.Count(r => r.Success);
       _logger.LogInformation(
         "Execution completed: {Success}/{Total} instructions succeeded",
-        successCount, results.Count);
-
+        results.Count(r => r.Success), results.Count);
       await _machine.FireAsync(Triggers.ExecutionSuccess);
+    }
+    catch (OperationCanceledException)
+    {
+      _logger.LogInformation("Execution state cancelled");
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Error in Execution");
+      _logger.LogError(ex, "Execution state failed");
       await _machine.FireAsync(Triggers.ExecutionFailure);
     }
   }
@@ -85,7 +92,13 @@ public partial class StateMachine
   {
     _logger.LogInformation("Exiting Execution state");
 
-    // Delaying, will be configurable later
-    await Task.Delay(5000);
+    try
+    {
+      await Task.Delay(5000, Token);
+    }
+    catch (OperationCanceledException)
+    {
+      _logger.LogInformation("Execution state exit delay cancelled");
+    }
   }
 }

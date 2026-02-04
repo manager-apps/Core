@@ -1,6 +1,5 @@
 using Agent.WindowsService.Abstraction;
 using Agent.WindowsService.Domain;
-using FluentValidation;
 
 namespace Agent.WindowsService.Application;
 
@@ -15,6 +14,10 @@ public partial class StateMachine : IStateMachine
   private readonly ISecretStore _secretStore;
   private readonly IServerClient _serverClient;
   private readonly IConfigurationStore _configStore;
+
+  private CancellationTokenSource? _cts;
+  private CancellationToken Token =>
+    _cts?.Token ?? CancellationToken.None;
 
   public StateMachine(
     ILogger<StateMachine> logger,
@@ -35,7 +38,7 @@ public partial class StateMachine : IStateMachine
     _serverClient = serverClient;
     _configStore = configStore;
 
-    _machine = new Stateless.StateMachine<States, Triggers>(States.Idle);
+    _machine = new Stateless.StateMachine<States, Triggers>(States.Idle, Stateless.FiringMode.Queued);
     ConfigureStateMachine();
   }
 
@@ -74,19 +77,21 @@ public partial class StateMachine : IStateMachine
       .Permit(Triggers.Stop, States.Idle);
 
     _machine.Configure(States.Error)
-      .OnEntryAsync(async () =>
-      {
-          _logger.LogWarning("Entering Error state");
-          await Task.Delay(500);
-          await _machine.FireAsync(Triggers.Retry);
-      })
+      .OnEntryAsync(HandleDelayingEntryAsync)
       .Permit(Triggers.Retry, States.Running)
       .Permit(Triggers.Stop, States.Idle);
   }
 
-  public async Task StartAsync()
-      => await _machine.FireAsync(Triggers.Start);
+  public async Task StartAsync(CancellationToken cancellationToken)
+  {
+    _cts?.Dispose();
+    _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+    await _machine.FireAsync(Triggers.Start, Token);
+  }
 
-  public async Task StopAsync()
-      => await _machine.FireAsync(Triggers.Stop);
+  public async Task StopAsync(CancellationToken cancellationToken)
+  {
+    await _cts?.CancelAsync()!;
+    await _machine.FireAsync(Triggers.Stop, cancellationToken);
+  }
 }

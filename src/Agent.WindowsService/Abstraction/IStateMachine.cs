@@ -5,10 +5,10 @@ public interface IStateMachine
   /// <summary>
   /// Starts the state machine.
   /// </summary>
-  Task StartAsync();
+  Task StartAsync(CancellationToken cancellationToken);
 
   /// <summary>
   /// Stops the state machine.
   /// </summary>
-  Task StopAsync();
+  Task StopAsync(CancellationToken cancellationToken);
 }
