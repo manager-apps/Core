@@ -216,7 +216,7 @@ procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep = usPostUninstall then
   begin
-    if not WizardSilent then
+    if not UninstallSilent then
       MsgBox('{#MyAppName} has been uninstalled.', mbInformation, MB_OK);
   end;
 end;
