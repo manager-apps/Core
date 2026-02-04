@@ -5,7 +5,24 @@
    /p:PublishSingleFile=true `
    -o publish
 
-
 & "C:\Program Files (x86)\Inno Setup 6\iscc.exe" src/Agent.WindowsService/Agent.WindowsService.iss
 
 .\installer-output\DciAgentService-1.0.0-Setup.exe /VERYSILENT /NORESTART /SUPPRESSMSGBOXES
+
+## Installing
+Overwrite flag is by default false, so the newer version will be installed
+without overwriting configuration.
+
+DciAgentService-1.0.1-Setup.exe /VERYSILENT /NORESTART
+
+##
+Overwrite existing installation including configuration
+
+DciAgentService-1.0.1-Setup.exe
+  /VERYSILENT
+  /NORESTART
+  /OVERWRITECONFIG=1
+  /SERVERURL="http://..."
+  /AREANAME="A"
+  /AGENTNAME="X"
+  /CLIENTSECRET="S"
