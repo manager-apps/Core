@@ -15,9 +15,6 @@ public static class SwaggerExtension
   {
     public void UseSwaggerDocs()
     {
-      if (!app.Environment.IsDevelopment())
-        return;
-
       app.UseSwagger();
       app.UseSwagger();
       app.UseSwaggerUI(options =>
