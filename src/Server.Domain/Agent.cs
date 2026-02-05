@@ -27,6 +27,10 @@ public class Agent
   public string CurrentTag { get; private set; } = null!;
 
   [Required]
+  [MaxLength(50)]
+  public string Version { get; private set; } = null!;
+
+  [Required]
   public byte[] SecretKeyHash { get; private init; } = null!;
 
   [Required]
@@ -63,6 +67,7 @@ public class Agent
     Hardware hardware,
     string name,
     string sourceTag,
+    string version,
     byte[] secretKeyHash,
     byte[] secretKeySalt)
   {
@@ -73,6 +78,7 @@ public class Agent
       SourceTag = sourceTag,
       CurrentTag = sourceTag,
       Name = name,
+      Version = version,
       SecretKeyHash = secretKeyHash,
       SecretKeySalt = secretKeySalt,
       State = AgentState.Inactive,
@@ -101,8 +107,10 @@ public class Agent
   /// Updates the last seen timestamp to the current time.
   /// </summary>
   public void UpdateLastSeen(
-    string currentTag)
+    string currentTag,
+    string version)
   {
+    Version = version;
     CurrentTag = currentTag;
     LastSeenAt = DateTimeOffset.UtcNow;
   }

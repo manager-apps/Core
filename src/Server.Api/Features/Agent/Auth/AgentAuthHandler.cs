@@ -1,9 +1,8 @@
-using Common.Messages;
 using Microsoft.EntityFrameworkCore;
 using Server.Api.Common.Interfaces;
 using Server.Api.Common.Result;
 using Server.Api.Infrastructure;
-using Server.Domain;
+using Common.Messages;
 
 namespace Server.Api.Features.Agent.Auth;
 
@@ -64,7 +63,7 @@ internal class AgentAuthHandler(
     Server.Domain.Agent agent,
     AuthMessageRequest request,
     string currentTag,
-    string currentVersion,
+    string version,
     CancellationToken cancellationToken)
   {
     if (!agent.CanAuthenticate())
@@ -76,7 +75,7 @@ internal class AgentAuthHandler(
     if (!dataHasher.IsDataValid(request.SecretKey, agent.SecretKeyHash, agent.SecretKeySalt))
       return AgentErrors.Unauthorized();
 
-    agent.UpdateLastSeen(currentTag);
+    agent.UpdateLastSeen(currentTag, version);
     agent.Hardware.Update(
       osVersion: request.Hardware.OsVersion,
       machineName: request.Hardware.MachineName,

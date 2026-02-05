@@ -46,6 +46,7 @@ public static class LoadTestSeeder
         var agent = Agent.Create(
           config: config,
           hardware: hardware,
+          version: "1.0.0",
           name: $"agent-{i:D6}",
           sourceTag: "load-test",
           secretKeyHash: hash,

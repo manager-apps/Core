@@ -18,6 +18,7 @@ public static class AgentMapper
           hardware: request.Hardware.ToDomain(),
           name: request.AgentName,
           sourceTag: tag,
+          version: version,
           secretKeyHash: secretKeyHash,
           secretKeySalt: secretKeySalt);
   }
