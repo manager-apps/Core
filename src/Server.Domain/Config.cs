@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿﻿using System.ComponentModel.DataAnnotations;
 
 namespace Server.Domain;
 
@@ -93,6 +93,34 @@ public class Config
     => string.IsNullOrEmpty(AllowedInstructions)
       ? []
       : AllowedInstructions.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+  public void Update(
+    int? authenticationExitIntervalSeconds = null,
+    int? synchronizationExitIntervalSeconds = null,
+    int? runningExitIntervalSeconds = null,
+    int? executionExitIntervalSeconds = null,
+    int? instructionsExecutionLimit = null,
+    int? instructionResultsSendLimit = null,
+    int? metricsSendLimit = null,
+    IReadOnlyList<string>? allowedCollectors = null,
+    IReadOnlyList<string>? allowedInstructions = null)
+  {
+    AuthenticationExitIntervalSeconds = authenticationExitIntervalSeconds ?? AuthenticationExitIntervalSeconds;
+    SynchronizationExitIntervalSeconds = synchronizationExitIntervalSeconds ?? SynchronizationExitIntervalSeconds;
+    RunningExitIntervalSeconds = runningExitIntervalSeconds ?? RunningExitIntervalSeconds;
+    ExecutionExitIntervalSeconds = executionExitIntervalSeconds ?? ExecutionExitIntervalSeconds;
+    InstructionsExecutionLimit = instructionsExecutionLimit ?? InstructionsExecutionLimit;
+    InstructionResultsSendLimit = instructionResultsSendLimit ?? InstructionResultsSendLimit;
+    MetricsSendLimit = metricsSendLimit ?? MetricsSendLimit;
+
+    if (allowedCollectors is not null)
+      AllowedCollectors = allowedCollectors.Count > 0 ? string.Join(",", allowedCollectors) : null;
+
+    if (allowedInstructions is not null)
+      AllowedInstructions = allowedInstructions.Count > 0 ? string.Join(",", allowedInstructions) : null;
+
+    UpdatedAt = DateTimeOffset.UtcNow;
+  }
 
   #endregion
 }

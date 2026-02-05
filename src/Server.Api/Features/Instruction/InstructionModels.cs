@@ -43,28 +43,6 @@ public record CreateGpoSetRequest(
   string Name,
   string Value);
 
-/// <summary>
-/// Request to create a config sync instruction for an agent.
-/// </summary>
-/// <param name="AuthenticationExitIntervalSeconds"></param>
-/// <param name="SynchronizationExitIntervalSeconds"></param>
-/// <param name="RunningExitIntervalSeconds"></param>
-/// <param name="ExecutionExitIntervalSeconds"></param>
-/// <param name="InstructionsExecutionLimit"></param>
-/// <param name="InstructionResultsSendLimit"></param>
-/// <param name="MetricsSendLimit"></param>
-/// <param name="AllowedCollectors"></param>
-/// <param name="AllowedInstructions"></param>
-public record CreateConfigSyncRequest(
-  int? AuthenticationExitIntervalSeconds = null,
-  int? SynchronizationExitIntervalSeconds = null,
-  int? RunningExitIntervalSeconds = null,
-  int? ExecutionExitIntervalSeconds = null,
-  int? InstructionsExecutionLimit = null,
-  int? InstructionResultsSendLimit = null,
-  int? MetricsSendLimit = null,
-  IReadOnlyList<string>? AllowedCollectors = null,
-  IReadOnlyList<string>? AllowedInstructions = null);
 
 /// <summary>
 /// Response model for an instruction, returned after creation or retrieval.

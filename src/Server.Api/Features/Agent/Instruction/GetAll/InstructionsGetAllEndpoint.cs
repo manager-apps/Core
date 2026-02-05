@@ -3,17 +3,16 @@ using Server.Api.Features.Instruction;
 
 namespace Server.Api.Features.Agent.Instruction.GetAll;
 
-internal static class GetAllInstructionsEndpoint
+internal static class InstructionsGetAllEndpoint
 {
   internal static void MapGetAllInstructionsEndpoint(this IEndpointRouteBuilder app)
-    => app.MapGet("{id:long}/instructions", async (
-      long id,
-      [FromServices] IGetAllInstructionsHandler handler,
+    => app.MapGet("{agentId:long}/instructions", async (
+      [FromRoute] long agentId,
+      [FromServices] IInstructionsGetAllHandler handler,
       CancellationToken cancellationToken) =>
     {
-      var instructions = await handler.HandleAsync(id, cancellationToken);
+      var instructions = await handler.HandleAsync(agentId, cancellationToken);
       return Results.Ok(instructions);
     })
-    .WithTags("Agent")
     .Produces<IEnumerable<InstructionResponse>>();
 }

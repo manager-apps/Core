@@ -4,18 +4,20 @@ using Server.Api.Infrastructure;
 
 namespace Server.Api.Features.Agent.Instruction.GetAll;
 
-internal interface IGetAllInstructionsHandler
+internal interface IInstructionsGetAllHandler
 {
+  /// <summary>
+  /// Handles the retrieval of all instructions for a given agent
+  /// </summary>
   Task<IEnumerable<InstructionResponse>> HandleAsync(
     long agentId,
     CancellationToken cancellationToken);
 }
 
-public class GetAllInstructionsHandler(
-  ILogger<GetAllInstructionsHandler> logger,
+internal class InstructionsGetAllHandler(
+  ILogger<InstructionsGetAllHandler> logger,
   AppDbContext context
-) : IGetAllInstructionsHandler
-{
+) : IInstructionsGetAllHandler {
   public async Task<IEnumerable<InstructionResponse>> HandleAsync(
     long agentId,
     CancellationToken cancellationToken)

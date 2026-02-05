@@ -17,23 +17,17 @@ internal interface IAgentReportHandler
   /// <summary>
   /// Handles reporting a message from an agent, and returns the instructions to execute.
   /// </summary>
-  /// <param name="agent"></param>
-  /// <param name="request"></param>
-  /// <param name="cancellationToken"></param>
-  /// <returns></returns>
   Task<Result<ReportMessageResponse>> HandleAsync(
     ClaimsPrincipal agent,
     ReportMessageRequest request,
     CancellationToken cancellationToken);
 }
 
-internal class AgentReportHandler(
-  ILogger<AgentReportHandler> logger,
+internal class AgentReportCreateHandler(
+  ILogger<AgentReportCreateHandler> logger,
   AppDbContext dbContext,
-  HybridCache cache) : IAgentReportHandler
-{
-  private static string AgentCacheKey(string name) => $"agent:{name}";
-
+  HybridCache cache
+) : IAgentReportHandler {
   public async Task<Result<ReportMessageResponse>> HandleAsync(
     ClaimsPrincipal agent,
     ReportMessageRequest request,
@@ -41,16 +35,13 @@ internal class AgentReportHandler(
   {
     var agentName = agent.Identity!.Name!;
     var agentInDb = await cache.GetOrCreateAsync(
-      AgentCacheKey(agentName),
+      $"agent:{agentName}",
       async ct => await dbContext.Agents
         .AsNoTracking()
         .FirstOrDefaultAsync(a => a.Name == agentName, ct),
       cancellationToken: cancellationToken);
     if (agentInDb is null)
-    {
-      logger.LogWarning("Agent '{AgentName}' not found in database.", agentName);
       return AgentErrors.NotFound();
-    }
 
     foreach (var metric in request.Metrics)
       dbContext.OutboxMessages.Add(OutboxMessage.Create(
@@ -74,7 +65,6 @@ internal class AgentReportHandler(
                   i.AgentId == agentInDb.Id)
       .Take(10)
       .ToListAsync(cancellationToken: cancellationToken);
-
     foreach (var instruction in pendingInstructions)
       instruction.MarkAsDispatched();
 
@@ -84,7 +74,8 @@ internal class AgentReportHandler(
       .Select(i => new InstructionMessage(
         AssociatedId: i.Id,
         Type: (int)i.Type,
-        Payload: InstructionUtils.DeserializePayload(i.Type, i.PayloadJson)))
+        Payload: InstructionUtils.DeserializePayload(
+          i.Type, i.PayloadJson)))
       .ToList();
 
     logger.LogInformation("Returning {InstructionCount} instructions to agent.", response.Count);

@@ -12,11 +12,6 @@ internal interface IAgentAuthHandler
   /// <summary>
   /// Authenticate agent
   /// </summary>
-  /// <param name="request"></param>
-  /// <param name="currentTag">Agent currentTag from X-Tag header</param>
-  /// <param name="currentVersion">Agent currentVersion from X-Version header</param>
-  /// <param name="cancellationToken"></param>
-  /// <returns></returns>
   Task<Result<AuthMessageResponse>> AuthenticateAsync(
     AuthMessageRequest request,
     string currentTag,
@@ -93,7 +88,7 @@ internal class AgentAuthHandler(
     var token = jwtProvider.GenerateTokenForAgent(agent.Name);
     logger.LogInformation("Authenticated existing agent: {AgentName}", agent.Name);
 
-    var configResponse = ReturnIfChag(agent.Config, request.Config);
+    var configResponse = ReturnIfChange(agent.Config, request.Config);
     return new AuthMessageResponse(
       AuthToken: token,
       RefreshToken: "refresh-token-placeholder",
@@ -120,9 +115,8 @@ internal class AgentAuthHandler(
     return AgentErrors.Unauthorized();
   }
 
-
-  private static ConfigMessage? ReturnIfChag(
-    Config? config,
+  private static ConfigMessage? ReturnIfChange(
+    Domain.Config? config,
     ConfigMessage requestConfig)
   {
     if (config is null)

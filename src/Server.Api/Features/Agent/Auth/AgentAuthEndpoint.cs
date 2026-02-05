@@ -24,5 +24,6 @@ internal static class AgentAuthEndpoint
             authentication will fail.
          ")
         .Produces<AuthMessageResponse>()
-        .ProducesProblem(StatusCodes.Status401Unauthorized);
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status403Forbidden);
 }
