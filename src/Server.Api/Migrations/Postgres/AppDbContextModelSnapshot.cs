@@ -73,6 +73,99 @@ namespace Server.Api.Migrations.Postgres
                     b.ToTable("Agents");
                 });
 
+            modelBuilder.Entity("Server.Domain.Config", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AgentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("AllowedCollectors")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("AllowedInstructions")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("AuthenticationExitIntervalSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ExecutionExitIntervalSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("InstructionResultsSendLimit")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("InstructionsExecutionLimit")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MetricsSendLimit")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RunningExitIntervalSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SynchronizationExitIntervalSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentId")
+                        .IsUnique();
+
+                    b.ToTable("Configs");
+                });
+
+            modelBuilder.Entity("Server.Domain.Hardware", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AgentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MachineName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("OsVersion")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("ProcessorCount")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("TotalMemoryBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentId")
+                        .IsUnique();
+
+                    b.ToTable("Hardwares");
+                });
+
             modelBuilder.Entity("Server.Domain.Instruction", b =>
                 {
                     b.Property<long>("Id")
@@ -84,7 +177,7 @@ namespace Server.Api.Migrations.Postgres
                     b.Property<long>("AgentId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Error")
@@ -106,7 +199,7 @@ namespace Server.Api.Migrations.Postgres
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
@@ -128,7 +221,7 @@ namespace Server.Api.Migrations.Postgres
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
-                    b.Property<DateTime>("OccurredAt")
+                    b.Property<DateTimeOffset>("OccurredAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PayloadJson")
@@ -147,12 +240,34 @@ namespace Server.Api.Migrations.Postgres
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
                     b.ToTable("OutboxMessages");
+                });
+
+            modelBuilder.Entity("Server.Domain.Config", b =>
+                {
+                    b.HasOne("Server.Domain.Agent", "Agent")
+                        .WithOne("Config")
+                        .HasForeignKey("Server.Domain.Config", "AgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Agent");
+                });
+
+            modelBuilder.Entity("Server.Domain.Hardware", b =>
+                {
+                    b.HasOne("Server.Domain.Agent", "Agent")
+                        .WithOne("Hardware")
+                        .HasForeignKey("Server.Domain.Hardware", "AgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Agent");
                 });
 
             modelBuilder.Entity("Server.Domain.Instruction", b =>
@@ -164,6 +279,15 @@ namespace Server.Api.Migrations.Postgres
                         .IsRequired();
 
                     b.Navigation("Agent");
+                });
+
+            modelBuilder.Entity("Server.Domain.Agent", b =>
+                {
+                    b.Navigation("Config")
+                        .IsRequired();
+
+                    b.Navigation("Hardware")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

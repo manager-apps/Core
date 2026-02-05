@@ -1,7 +1,7 @@
 using Agent.WindowsService.Config;
 using Agent.WindowsService.Domain;
-using System.Text;
 using Common.Messages;
+using System.Text;
 
 namespace Agent.WindowsService.Application;
 
@@ -17,11 +17,32 @@ public partial class StateMachine
         Encoding.UTF8, Token);
       var config = await _configStore.GetAsync(Token);
 
+      var hardwareInfo = new HardwareMessage(
+        OsVersion: Environment.OSVersion.ToString(),
+        MachineName: Environment.MachineName,
+        ProcessorCount: Environment.ProcessorCount,
+        TotalMemoryBytes: GC.GetGCMemoryInfo().TotalAvailableMemoryBytes);
+
+      var currentConfig = new ConfigMessage(
+        AuthenticationExitIntervalSeconds: config.AuthenticationExitIntervalSeconds,
+        SynchronizationExitIntervalSeconds: config.SynchronizationExitIntervalSeconds,
+        RunningExitIntervalSeconds: config.RunningExitIntervalSeconds,
+        ExecutionExitIntervalSeconds: config.ExecutionExitIntervalSeconds,
+        InstructionsExecutionLimit: config.InstructionsExecutionLimit,
+        InstructionResultsSendLimit: config.InstructionResultsSendLimit,
+        MetricsSendLimit: config.MetricsSendLimit,
+        AllowedCollectors: config.AllowedCollectors,
+        AllowedInstructions: config.AllowedInstructions);
+
+      var messageRequest = new AuthMessageRequest(
+        AgentName: config.AgentName,
+        SecretKey: clientSecret,
+        Hardware: hardwareInfo,
+        Config: currentConfig);
+
       var authResponse = await _serverClient.Post<AuthMessageResponse, AuthMessageRequest>(
         url: UrlConfig.PostAuthUrl(config.ServerUrl),
-        data: new AuthMessageRequest(
-          AgentName: config.AgentName,
-          SecretKey: clientSecret),
+        data: messageRequest,
         metadata: new RequestMetadata
         {
           Headers = new Dictionary<string, string>
@@ -39,6 +60,25 @@ public partial class StateMachine
 
       await _secretStore.SetAsync(SecretConfig.AuthTokenKey, Encoding.UTF8.GetBytes(authResponse.AuthToken), Token);
       await _secretStore.SetAsync(SecretConfig.RefreshTokenKey, Encoding.UTF8.GetBytes(authResponse.RefreshToken), Token);
+
+      if (authResponse.Config is not null)
+      {
+        var updatedConfig = config with
+        {
+          AuthenticationExitIntervalSeconds = authResponse.Config.AuthenticationExitIntervalSeconds,
+          SynchronizationExitIntervalSeconds = authResponse.Config.SynchronizationExitIntervalSeconds,
+          RunningExitIntervalSeconds = authResponse.Config.RunningExitIntervalSeconds,
+          ExecutionExitIntervalSeconds = authResponse.Config.ExecutionExitIntervalSeconds,
+          InstructionsExecutionLimit = authResponse.Config.InstructionsExecutionLimit,
+          InstructionResultsSendLimit = authResponse.Config.InstructionResultsSendLimit,
+          MetricsSendLimit = authResponse.Config.MetricsSendLimit,
+          AllowedCollectors = authResponse.Config.AllowedCollectors,
+          AllowedInstructions = authResponse.Config.AllowedInstructions
+        };
+
+        await _configStore.SaveAsync(updatedConfig, Token);
+        _logger.LogInformation("Configuration synced from server");
+      }
 
       _logger.LogInformation("Authentication state completed successfully");
       await _machine.FireAsync(Triggers.AuthSuccess);

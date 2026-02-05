@@ -20,6 +20,7 @@ public partial class StateMachine
 
       _logger.LogInformation("Processing {Count} instructions", instructions.Count);
       var results = new List<InstructionResult>();
+
       foreach (var instruction in instructions)
       {
         Token.ThrowIfCancellationRequested();

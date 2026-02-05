@@ -19,5 +19,5 @@ public record InstructionResponse(
   InstructionState State,
   string? Output,
   string? Error,
-  DateTime CreatedAt,
-  DateTime? UpdatedAt);
+  DateTimeOffset CreatedAt,
+  DateTimeOffset? UpdatedAt);

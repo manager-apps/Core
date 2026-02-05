@@ -28,12 +28,14 @@ public partial class StateMachine
       metricCollection.AddRange(currentCollected);
       instrResultsCollection.AddRange(storedInstrResultsBuffer);
 
+      var reportData = new ReportMessageRequest(
+        Metrics: metricCollection.Select(m => m.ToMessage()),
+        InstructionResults: instrResultsCollection.Select(ir => ir.ToMessage())
+      );
+
       var response = await _serverClient.Post<ReportMessageResponse, ReportMessageRequest>(
         url: UrlConfig.PostReportUrl(config.ServerUrl),
-        data: new ReportMessageRequest(
-          Metrics: metricCollection.Select(m => m.ToMessage()),
-          InstructionResults: instrResultsCollection.Select(ir => ir.ToMessage())
-        ),
+        data: reportData,
         metadata: new RequestMetadata
         {
           AuthToken = authToken,

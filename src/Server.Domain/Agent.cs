@@ -39,12 +39,28 @@ public class Agent
   public DateTimeOffset? UpdatedAt { get; private set; }
   public DateTimeOffset LastSeenAt { get; private set; }
 
+  #region Navigation properties
+
+  /// <summary>
+  /// Navigation property to hardware information
+  /// </summary>
+  public virtual Hardware Hardware { get; set; } = null!;
+
+  /// <summary>
+  /// Navigation property to configuration overrides
+  /// </summary>
+  public virtual Config Config { get; set; } = null!;
+
+  #endregion
+
   #region Factory methods
 
   /// <summary>
   /// Creates a new Agent instance.
   /// </summary>
   public static Agent Create(
+    Config config,
+    Hardware hardware,
     string name,
     string sourceTag,
     byte[] secretKeyHash,
@@ -52,6 +68,8 @@ public class Agent
   {
     return new Agent
     {
+      Config = config,
+      Hardware = hardware,
       SourceTag = sourceTag,
       CurrentTag = sourceTag,
       Name = name,

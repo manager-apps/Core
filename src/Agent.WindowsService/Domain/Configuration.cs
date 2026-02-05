@@ -11,11 +11,9 @@ public record Configuration
   public int SynchronizationExitIntervalSeconds { get; set; } = 5;
   public int RunningExitIntervalSeconds { get; set; } = 5;
   public int ExecutionExitIntervalSeconds { get; set; } = 5;
-
   public int InstructionsExecutionLimit { get; set; } = 10;
   public int InstructionResultsSendLimit { get; set; } = 10;
   public int MetricsSendLimit { get; set; } = 10;
-
   public IReadOnlyList<string> AllowedCollectors { get; set; } = ["cpu_usage", "memory_usage", "disk_usage"];
   public IReadOnlyList<string> AllowedInstructions { get; set; } = ["ShellCommand"];
 }

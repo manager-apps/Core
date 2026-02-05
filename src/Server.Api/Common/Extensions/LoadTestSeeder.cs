@@ -18,10 +18,34 @@ public static class LoadTestSeeder
       var agentsToAdd = new List<Agent>();
       var dataHasher = new HmacDataHasher();
       var (hash, salt) = dataHasher.CreateDataHash(TestSecretKey);
+      var random = new Random(42); // Fixed seed for reproducibility
+
+      string[] osVersions = ["Windows 10 Pro 22H2", "Windows 11 Pro 23H2", "Windows Server 2022", "Windows Server 2019", "Ubuntu 22.04 LTS"];
+      string[] collectors = ["cpu", "memory", "disk", "network", "process"];
+      string[] instructions = ["shell", "file", "registry", "service"];
 
       for (int i = 1; i <= agents; i++)
       {
+        var config = Config.Create(
+          authenticationExitIntervalSeconds: random.Next(5, 30),
+          synchronizationExitIntervalSeconds: random.Next(5, 30),
+          runningExitIntervalSeconds: random.Next(5, 30),
+          executionExitIntervalSeconds: random.Next(1, 10),
+          instructionsExecutionLimit: random.Next(5, 50),
+          instructionResultsSendLimit: random.Next(10, 100),
+          metricsSendLimit: random.Next(50, 500),
+          allowedCollectors: collectors.OrderBy(_ => random.Next()).Take(random.Next(1, collectors.Length + 1)).ToList(),
+          allowedInstructions: instructions.OrderBy(_ => random.Next()).Take(random.Next(1, instructions.Length + 1)).ToList());
+
+        var hardware = Hardware.Create(
+          osVersion: osVersions[random.Next(osVersions.Length)],
+          machineName: $"MACHINE-{i:D6}",
+          processorCount: random.Next(2, 32),
+          totalMemoryBytes: (long)random.Next(4, 128) * 1024 * 1024 * 1024);
+
         var agent = Agent.Create(
+          config: config,
+          hardware: hardware,
           name: $"agent-{i:D6}",
           sourceTag: "load-test",
           secretKeyHash: hash,
