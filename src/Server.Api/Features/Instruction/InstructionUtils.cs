@@ -18,20 +18,19 @@ public static class InstructionUtils
   {
     return type switch
     {
-      Server.Domain.InstructionType.ShellCommand =>
+      Domain.InstructionType.ShellCommand =>
         JsonSerializer.Deserialize<ShellCommandPayload>(json, JsonOptions)
         ?? throw new InvalidOperationException($"Failed to deserialize {nameof(ShellCommandPayload)}"),
 
-      Server.Domain.InstructionType.GpoSet =>
+      Domain.InstructionType.GpoSet =>
         JsonSerializer.Deserialize<GpoSetPayload>(json, JsonOptions)
         ?? throw new InvalidOperationException($"Failed to deserialize {nameof(GpoSetPayload)}"),
+
+      Domain.InstructionType.Config =>
+        JsonSerializer.Deserialize<ConfigPayload>(json, JsonOptions)
+        ?? throw new InvalidOperationException($"Failed to deserialize {nameof(ConfigPayload)}"),
+
       _ => throw new ArgumentException($"Unknown instruction type: {type}")
     };
   }
-
-  /// <summary>
-  /// Serializes the given instruction payload to a JSON string.
-  /// </summary>
-  public static string SerializePayload(InstructionPayload payload)
-    => JsonSerializer.Serialize(payload, JsonOptions);
 }

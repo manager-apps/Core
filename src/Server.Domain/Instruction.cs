@@ -9,7 +9,7 @@ public enum InstructionType
 
   ShellCommand,
 
-  ConfigUpdate,
+  Config,
 }
 
 public enum InstructionState

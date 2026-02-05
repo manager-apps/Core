@@ -27,9 +27,12 @@ public partial class StateMachine
 
         try
         {
+          var isConfigInstruction = instruction.Type == InstructionType.Config;
           var instructionTypeName = instruction.Type.ToString();
-          if (config.AllowedInstructions.Count > 0 &&
-              !config.AllowedInstructions.Contains(instructionTypeName, StringComparer.OrdinalIgnoreCase))
+          var isAllowedByConfig = config.AllowedInstructions.Count == 0 ||
+                                  config.AllowedInstructions.Contains(instructionTypeName, StringComparer.OrdinalIgnoreCase);
+
+          if (!isConfigInstruction && !isAllowedByConfig)
           {
             _logger.LogWarning(
               "Instruction type {Type} is not allowed by configuration (Id: {Id})",

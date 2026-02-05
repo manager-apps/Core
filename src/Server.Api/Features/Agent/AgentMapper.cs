@@ -59,4 +59,19 @@ public static class AgentMapper
         LastUpdatedAt: agent.LastSeenAt,
         UpdatedAt: agent.UpdatedAt);
   }
+
+  extension(Config config)
+  {
+    public ConfigMessage ToMessage()
+      => new(
+        AuthenticationExitIntervalSeconds: config.AuthenticationExitIntervalSeconds,
+        SynchronizationExitIntervalSeconds: config.SynchronizationExitIntervalSeconds,
+        RunningExitIntervalSeconds: config.RunningExitIntervalSeconds,
+        ExecutionExitIntervalSeconds: config.ExecutionExitIntervalSeconds,
+        InstructionsExecutionLimit: config.InstructionsExecutionLimit,
+        InstructionResultsSendLimit: config.InstructionResultsSendLimit,
+        MetricsSendLimit: config.MetricsSendLimit,
+        AllowedCollectors: config.GetAllowedCollectorsList(),
+        AllowedInstructions: config.GetAllowedInstructionsList());
+  }
 }

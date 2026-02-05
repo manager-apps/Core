@@ -2,6 +2,13 @@ using System.Text.Json.Serialization;
 
 namespace Common.Messages;
 
+/// <summary>
+/// Message representing the result of an instruction execution, sent from agent to server.
+/// </summary>
+/// <param name="AssociatedId"></param>
+/// <param name="Success"></param>
+/// <param name="Output"></param>
+/// <param name="Error"></param>
 public record InstructionResultMessage(
   long AssociatedId,
   bool Success,
@@ -14,6 +21,7 @@ public record InstructionResultMessage(
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(ShellCommandPayload), "shell")]
 [JsonDerivedType(typeof(GpoSetPayload), "gpo")]
+[JsonDerivedType(typeof(ConfigPayload), "config")]
 public abstract record InstructionPayload;
 
 /// <summary>
@@ -28,7 +36,16 @@ public record ShellCommandPayload(
 /// </summary>
 public record GpoSetPayload(
   string Name,
-  string Value) : InstructionPayload;
+  string Value
+) : InstructionPayload;
+
+/// <summary>
+/// Payload for configuration update.
+/// </summary>
+/// <param name="Config"></param>
+public record ConfigPayload(
+  ConfigMessage Config
+) : InstructionPayload;
 
 /// <summary>
 /// Message representing an instruction sent to an agent.

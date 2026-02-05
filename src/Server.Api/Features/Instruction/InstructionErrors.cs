@@ -4,6 +4,6 @@ namespace Server.Api.Features.Instruction;
 
 public class InstructionErrors
 {
-  public static Error NotFound()
-    => Error.NotFound("Instruction not found.");
+  public static Error AgentNotFound(long agentId)
+    => Error.NotFound($"Agent with ID {agentId} not found.");
 }

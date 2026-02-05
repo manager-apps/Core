@@ -13,6 +13,11 @@ public enum InstructionType
   /// Shell command execution instruction
   /// </summary>
   ShellCommand = 2,
+
+  /// <summary>
+  /// Update configuration instruction
+  /// </summary>
+  Config = 3
 }
 
 public class Instruction

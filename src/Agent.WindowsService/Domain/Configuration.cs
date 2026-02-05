@@ -15,5 +15,5 @@ public record Configuration
   public int InstructionResultsSendLimit { get; set; } = 10;
   public int MetricsSendLimit { get; set; } = 10;
   public IReadOnlyList<string> AllowedCollectors { get; set; } = ["cpu_usage", "memory_usage", "disk_usage"];
-  public IReadOnlyList<string> AllowedInstructions { get; set; } = ["ShellCommand"];
+  public IReadOnlyList<string> AllowedInstructions { get; set; } = ["ShellCommand", "GpoSet", "Config"];
 }
