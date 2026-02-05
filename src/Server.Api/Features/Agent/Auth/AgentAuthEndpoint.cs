@@ -1,3 +1,4 @@
+using Common;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Server.Api.Common.Result;
@@ -10,9 +11,11 @@ internal static class AgentAuthEndpoint
     => app.MapPost("auth",
         async (
           [FromBody] AuthMessageRequest request,
+          [FromHeader(Name = Headers.Tag)] string tag,
+          [FromHeader(Name = Headers.Version)] string version,
           [FromServices] IAgentAuthHandler handler,
           CancellationToken ct)
-          => (await handler.AuthenticateAsync(request, ct)).ToApiResult())
+          => (await handler.AuthenticateAsync(request, tag, ct)).ToApiResult())
         .WithDescription(
          @"
             Authenticate an agent and issue a token. If the agent does not exist,

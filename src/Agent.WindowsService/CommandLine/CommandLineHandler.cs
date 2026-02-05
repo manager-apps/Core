@@ -22,21 +22,21 @@ public static class CommandLineHandler
     /// </summary>
     public static async Task<bool> ProcessAsync(CommandLineOptions options)
     {
-        if (options.ShowHelp)
+        if (options.SetVersion)
         {
-            CommandLineParser.PrintHelp();
-            return false;
-        }
+          await SetVersionAsync(
+            options.Version);
 
-        if (options.ShowConfig)
-        {
-            await ShowConfigurationAsync();
-            return false;
+          return false;
         }
 
         if (options.InitConfig)
         {
-            await InitializeConfigurationAsync(options.ServerUrl, options.AgentName, options.Tag);
+            await InitializeConfigurationAsync(
+              options.Version,
+              options.ServerUrl,
+              options.AgentName,
+              options.Tag);
         }
 
         if (options.InitSecrets)
@@ -47,89 +47,55 @@ public static class CommandLineHandler
         return options.RunService;
     }
 
-    private static async Task ShowConfigurationAsync()
-    {
-        var configPath = PathConfig.ConfigFilePath;
-
-        Console.WriteLine("=== Agent Configuration ===");
-        Console.WriteLine($"Config Path: {configPath}");
-        Console.WriteLine($"Secrets Path: {PathConfig.SecretFilePath}");
-        Console.WriteLine($"Logs Path: {PathConfig.LogsFilePath}");
-        Console.WriteLine();
-
-        if (File.Exists(configPath))
-        {
-            var json = await File.ReadAllTextAsync(configPath);
-            var config = JsonSerializer.Deserialize<Configuration>(json, JsonOptions);
-
-            Console.WriteLine("Current Configuration:");
-            Console.WriteLine($"  Agent Name: {config?.AgentName ?? "(not set)"}");
-            Console.WriteLine($"  Server URL: {config?.ServerUrl ?? "(not set)"}");
-        }
-        else
-        {
-            Console.WriteLine("Configuration file not found. Use --init-config to create one.");
-        }
-
-        Console.WriteLine();
-        Console.WriteLine($"Secrets file exists: {File.Exists(PathConfig.SecretFilePath)}");
-    }
-
     private static async Task InitializeConfigurationAsync(
+      string version,
       string? serverUrl,
       string? agentName,
       string? tag)
     {
-        Console.WriteLine("Initializing configuration...");
+      var config = new Configuration
+      {
+          Version = version,
+          AgentName = agentName ?? $"{Environment.MachineName}_{Guid.NewGuid():N}",
+          ServerUrl = serverUrl ?? "http://147.232.52.190:5000",
+          Tag = tag ?? ""
+      };
+      var path = PathConfig.ConfigFilePath;
+      var json = JsonSerializer.Serialize(config, JsonOptions);
 
-        var config = new Configuration
-        {
-            AgentName = agentName ?? $"{Environment.MachineName}_{Guid.NewGuid():N}",
-            ServerUrl = serverUrl ?? "http://147.232.52.190:5000",
-            Tag = tag
-        };
-
-        var path = PathConfig.ConfigFilePath;
-        var json = JsonSerializer.Serialize(config, JsonOptions);
-
-        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        await File.WriteAllTextAsync(path, json);
-
-        Console.WriteLine($"Configuration saved to: {path}");
-        Console.WriteLine($"  Agent Name: {config.AgentName}");
-        Console.WriteLine($"  Server URL: {config.ServerUrl}");
+      Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+      await File.WriteAllTextAsync(path, json);
     }
 
-    private static async Task InitializeSecretsAsync(string? clientSecret)
+    private static async Task InitializeSecretsAsync(
+      string? clientSecret)
     {
-        if (string.IsNullOrWhiteSpace(clientSecret))
-        {
-            Console.WriteLine("Warning: No client secret provided. Creating empty secrets store.");
-        }
-        else
-        {
-            Console.WriteLine("Initializing secrets...");
-        }
+      var secrets = new Dictionary<string, byte[]>();
+      if (!string.IsNullOrWhiteSpace(clientSecret))
+      {
+          secrets[SecretConfig.ClientSecretKey] = Encoding.UTF8.GetBytes(clientSecret);
+      }
 
-        var secrets = new Dictionary<string, byte[]>();
+      var path = PathConfig.SecretFilePath;
 
-        if (!string.IsNullOrWhiteSpace(clientSecret))
-        {
-            secrets[SecretConfig.ClientSecretKey] = Encoding.UTF8.GetBytes(clientSecret);
-        }
+      var json = JsonSerializer.SerializeToUtf8Bytes(secrets, JsonOptions);
+      var encrypted = ProtectedData.Protect(json, SecretConfig.Entropy, DataProtectionScope.LocalMachine);
 
-        var path = PathConfig.SecretFilePath;
+      Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+      await File.WriteAllBytesAsync(path, encrypted);
+    }
 
-        var json = JsonSerializer.SerializeToUtf8Bytes(secrets, JsonOptions);
-        var encrypted = ProtectedData.Protect(json, SecretConfig.Entropy, DataProtectionScope.LocalMachine);
+    private static async Task SetVersionAsync(string version)
+    {
+      var path = PathConfig.ConfigFilePath;
+      if (!File.Exists(path))
+        return;
 
-        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        await File.WriteAllBytesAsync(path, encrypted);
+      var json = await File.ReadAllTextAsync(path);
+      var config = JsonSerializer.Deserialize<Configuration>(json, JsonOptions);
 
-        Console.WriteLine($"Secrets saved to: {path}");
-        if (!string.IsNullOrWhiteSpace(clientSecret))
-        {
-            Console.WriteLine($"  Client secret: [STORED SECURELY]");
-        }
+      config?.Version = version;
+      var updatedJson = JsonSerializer.Serialize(config, JsonOptions);
+      await File.WriteAllTextAsync(path, updatedJson);
     }
 }

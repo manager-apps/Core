@@ -12,10 +12,12 @@ internal interface IAgentAuthHandler
   /// Authenticate agent
   /// </summary>
   /// <param name="request"></param>
+  /// <param name="tag">Agent tag from X-Tag header</param>
   /// <param name="cancellationToken"></param>
   /// <returns></returns>
   Task<Result<AuthMessageResponse>> AuthenticateAsync(
     AuthMessageRequest request,
+    string tag,
     CancellationToken cancellationToken);
 }
 
@@ -27,11 +29,12 @@ internal class AgentAuthHandler(
 {
   public async Task<Result<AuthMessageResponse>> AuthenticateAsync(
     AuthMessageRequest request,
+    string tag,
     CancellationToken cancellationToken)
   {
     logger.LogInformation("Authenticating agent: {AgentName}", request.AgentName);
 
-    var agent = await GetOrCreateAgentAsync(request, cancellationToken);
+    var agent = await GetOrCreateAgentAsync(request, tag, cancellationToken);
     if (!agent.CanAuthenticate())
     {
       logger.LogWarning("Authentication attempt for inactive agent: {AgentName}", agent.Name);
@@ -44,7 +47,7 @@ internal class AgentAuthHandler(
           storedSalt: agent.SecretKeySalt))
       return AgentErrors.Unauthorized();
 
-    agent.UpdateLastSeen(request.Tag);
+    agent.UpdateLastSeen(tag);
     await dbContext.SaveChangesAsync(cancellationToken);
 
     var token = jwtProvider.GenerateTokenForAgent(agent.Name);
@@ -58,6 +61,7 @@ internal class AgentAuthHandler(
 
   private async Task<Server.Domain.Agent> GetOrCreateAgentAsync(
     AuthMessageRequest request,
+    string sourceTag,
     CancellationToken cancellationToken)
   {
     var agent = await dbContext.Agents
@@ -69,7 +73,7 @@ internal class AgentAuthHandler(
       return agent;
 
     var (hash, salt) = dataHasher.CreateDataHash(request.SecretKey);
-    agent = request.ToDomain(hash, salt);
+    agent = request.ToDomain(hash, salt, sourceTag);
 
     dbContext.Agents.Add(agent);
     await dbContext.SaveChangesAsync(cancellationToken);

@@ -12,19 +12,29 @@ public partial class StateMachine
     _logger.LogInformation("Entering Authentication state");
     try
     {
+      var clientSecret = await _secretStore.GetAsync(
+        SecretConfig.ClientSecretKey,
+        Encoding.UTF8, Token);
       var config = await _configStore.GetAsync(Token);
-      var clientSecret = await _secretStore.GetAsync(SecretConfig.ClientSecretKey, Encoding.UTF8, Token);
 
       var authResponse = await _serverClient.Post<AuthMessageResponse, AuthMessageRequest>(
         url: UrlConfig.PostAuthUrl(config.ServerUrl),
         data: new AuthMessageRequest(
           AgentName: config.AgentName,
-          Tag: config.Tag,
           SecretKey: clientSecret),
-        metadata: new RequestMetadata(),
+        metadata: new RequestMetadata
+        {
+          Headers = new Dictionary<string, string>
+          {
+            { Common.Headers.Version, config.Version },
+            { Common.Headers.Tag, config.Tag }
+          }
+        },
         cancellationToken: Token);
 
-      if (authResponse == null || string.IsNullOrWhiteSpace(authResponse.AuthToken) || string.IsNullOrWhiteSpace(authResponse.RefreshToken))
+      if (authResponse == null
+          || string.IsNullOrWhiteSpace(authResponse.AuthToken)
+          || string.IsNullOrWhiteSpace(authResponse.RefreshToken))
         throw new InvalidOperationException("Authentication failed: Invalid response from server");
 
       await _secretStore.SetAsync(SecretConfig.AuthTokenKey, Encoding.UTF8.GetBytes(authResponse.AuthToken), Token);
@@ -57,7 +67,8 @@ public partial class StateMachine
 
     try
     {
-      await Task.Delay(5000, Token);
+      var config = await _configStore.GetAsync(Token);
+      await Task.Delay(TimeSpan.FromSeconds(config.AuthenticationExitIntervalSeconds), Token);
     }
     catch (OperationCanceledException)
     {

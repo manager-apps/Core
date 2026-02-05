@@ -18,11 +18,11 @@ public partial class StateMachine
     try
     {
       var authToken = await _secretStore.GetAsync(SecretConfig.AuthTokenKey, Encoding.UTF8, Token);
-      var storedInstrResultsBuffer = await _instrStore.GetResultsAsync(Token);
-      var storedMetricsBuffer = await _metricStore.GetAsync(Token);
       var config = await _configStore.GetAsync(Token);
+      var storedInstrResultsBuffer = await _instrStore.GetResultsAsync(Token, config.InstructionResultsSendLimit);
+      var storedMetricsBuffer = await _metricStore.GetAsync(Token, config.MetricsSendLimit);
 
-      currentCollected = await _metricCollector.CollectAsync(Token);
+      currentCollected = await _metricCollector.CollectAsync(Token, config.AllowedCollectors);
 
       metricCollection.AddRange(storedMetricsBuffer);
       metricCollection.AddRange(currentCollected);
@@ -34,9 +34,16 @@ public partial class StateMachine
           Metrics: metricCollection.Select(m => m.ToMessage()),
           InstructionResults: instrResultsCollection.Select(ir => ir.ToMessage())
         ),
-        metadata: new RequestMetadata(
-          AuthToken: authToken,
-          AgentName: config.AgentName),
+        metadata: new RequestMetadata
+        {
+          AuthToken = authToken,
+          AgentName = config.AgentName,
+          Headers = new Dictionary<string, string>
+          {
+            { Common.Headers.Version, config.Version },
+            { Common.Headers.Tag, config.Tag }
+          }
+        },
         cancellationToken: Token);
 
       if(response is null)
@@ -79,7 +86,8 @@ public partial class StateMachine
 
     try
     {
-      await Task.Delay(5000, Token);
+      var config = await _configStore.GetAsync(Token);
+      await Task.Delay(TimeSpan.FromSeconds(config.RunningExitIntervalSeconds), Token);
     }
     catch (OperationCanceledException)
     {

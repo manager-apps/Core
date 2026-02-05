@@ -8,10 +8,11 @@ public static class AgentMapper
   {
     public Server.Domain.Agent ToDomain(
       byte[] secretKeyHash,
-      byte[] secretKeySalt)
+      byte[] secretKeySalt,
+      string sourceTag)
       => Domain.Agent.Create(
         name: request.AgentName,
-        tag: request.Tag,
+        sourceTag: sourceTag,
         secretKeyHash: secretKeyHash,
         secretKeySalt: secretKeySalt);
   }

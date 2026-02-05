@@ -56,7 +56,7 @@ internal class AgentReportHandler(
       dbContext.OutboxMessages.Add(OutboxMessage.Create(
         type: nameof(AgentMetricsEvent),
         payloadJson: JsonSerializer.Serialize(
-          new AgentMetricsEvent(agentInDb.Name, metric),
+          new AgentMetricsEvent(agentName, metric),
           JsonOptions.Default)));
 
     foreach (var instructionResult in request.InstructionResults)

@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Common.Messages;
 
 namespace Agent.WindowsService.Domain;

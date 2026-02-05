@@ -10,7 +10,10 @@ public class HttpServerClient (
   HttpClient httpClient
 ) : IServerClient
 {
-  public async Task<TResponse?> Post<TResponse, TRequest>(string url, TRequest data, RequestMetadata metadata, CancellationToken cancellationToken)
+  public async Task<TResponse?> Post<TResponse, TRequest>(
+    string url,
+    TRequest data,
+    RequestMetadata metadata, CancellationToken cancellationToken)
   {
     using var request = new HttpRequestMessage(HttpMethod.Post, url);
     request.Content = JsonContent.Create(data);
@@ -20,6 +23,12 @@ public class HttpServerClient (
 
     if (!string.IsNullOrEmpty(metadata.AgentName))
       request.Headers.Add("X-Agent-Id", metadata.AgentName);
+
+    foreach (var (key, value) in metadata.Headers)
+    {
+      if (!request.Headers.TryAddWithoutValidation(key, value))
+        logger.LogWarning("Failed to add header {HeaderKey} to request", key);
+    }
 
     logger.LogDebug("Sending POST request to {Url} with AgentName: {AgentName}", url, metadata.AgentName);
 

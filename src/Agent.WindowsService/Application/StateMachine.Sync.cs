@@ -11,6 +11,8 @@ public partial class StateMachine
     {
       var config = await _configStore.GetAsync(Token);
 
+      // sync two configs, from server and in agent, because it can be changed in both places.
+
       _logger.LogInformation("Synchronization state completed successfully");
       await _machine.FireAsync(Triggers.SyncSuccess);
     }
@@ -30,7 +32,8 @@ public partial class StateMachine
     _logger.LogInformation("Exiting Synchronization state");
     try
     {
-      await Task.Delay(5000, Token);
+      var config = await _configStore.GetAsync(Token);
+      await Task.Delay(TimeSpan.FromSeconds(config.SynchronizationExitIntervalSeconds), Token);
     }
     catch (OperationCanceledException)
     {

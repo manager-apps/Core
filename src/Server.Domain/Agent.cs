@@ -46,14 +46,14 @@ public class Agent
   /// </summary>
   public static Agent Create(
     string name,
-    string tag,
+    string sourceTag,
     byte[] secretKeyHash,
     byte[] secretKeySalt)
   {
     return new Agent
     {
-      SourceTag = tag,
-      CurrentTag = tag,
+      SourceTag = sourceTag,
+      CurrentTag = sourceTag,
       Name = name,
       SecretKeyHash = secretKeyHash,
       SecretKeySalt = secretKeySalt,

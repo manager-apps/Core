@@ -42,6 +42,7 @@ Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs 
 Filename: "sc.exe"; Parameters: "stop {#ServiceName}"; Flags: runhidden waituntilterminated; Check: ServiceExists('{#ServiceName}')
 Filename: "taskkill.exe"; Parameters: "/F /IM {#MyAppExeName}"; Flags: runhidden waituntilterminated
 Filename: "{app}\{#MyAppExeName}"; Parameters: "{code:GetConfigParams}"; Flags: runhidden waituntilterminated; Check: ShouldOverwriteConfig; StatusMsg: "Configuring agent..."
+Filename: "{app}\{#MyAppExeName}"; Parameters: "--set-version --agent-version ""{#MyAppVersion}"""; Flags: runhidden waituntilterminated; Check: ConfigFileExists(); StatusMsg: "Updating version..."
 
 Filename: "sc.exe"; Parameters: "create {#ServiceName} binPath= ""{app}\{#MyAppExeName}"" start= auto DisplayName= ""{#ServiceDisplayName}"" obj= LocalSystem"; Flags: runhidden waituntilterminated; Check: not ServiceExists('{#ServiceName}')
 Filename: "sc.exe"; Parameters: "config {#ServiceName} binPath= ""{app}\{#MyAppExeName}"" start= auto obj= LocalSystem DisplayName= ""{#ServiceDisplayName}"""; Flags: runhidden waituntilterminated; Check: ServiceExists('{#ServiceName}')
@@ -155,6 +156,8 @@ begin
 
   if Tag <> '' then
     Result := Result + ' --tag "' + Tag + '"';
+
+  Result := Result + ' --agent-version "' + '{#MyAppVersion}' + '"';
 end;
 
 procedure InitializeWizard();

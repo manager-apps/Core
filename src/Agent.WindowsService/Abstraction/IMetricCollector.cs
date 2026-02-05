@@ -8,5 +8,6 @@ public interface IMetricCollector
    /// Collect system metrics asynchronously
    /// </summary>
    Task<IReadOnlyList<Metric>> CollectAsync(
-     CancellationToken cancellationToken);
+     CancellationToken cancellationToken,
+     IEnumerable<string> allowedCollectors);
 }

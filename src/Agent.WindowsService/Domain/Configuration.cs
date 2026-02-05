@@ -2,18 +2,20 @@ namespace Agent.WindowsService.Domain;
 
 public record Configuration
 {
-  /// <summary>
-  /// Unique identifier for the agent
-  /// </summary>
+  public string Version { get; set; } = string.Empty;
   public string AgentName { get; set;  } = string.Empty;
-
-  /// <summary>
-  /// URL of the server the agent communicates with
-  /// </summary>
   public string ServerUrl { get; set; } = string.Empty;
+  public string Tag { get; set; } = "default";
 
-  /// <summary>
-  /// Geographical area or group the agent belongs to
-  /// </summary>
-  public string Tag { get; set; } = string.Empty;
+  public int AuthenticationExitIntervalSeconds { get; set; } = 5;
+  public int SynchronizationExitIntervalSeconds { get; set; } = 5;
+  public int RunningExitIntervalSeconds { get; set; } = 5;
+  public int ExecutionExitIntervalSeconds { get; set; } = 5;
+
+  public int InstructionsExecutionLimit { get; set; } = 10;
+  public int InstructionResultsSendLimit { get; set; } = 10;
+  public int MetricsSendLimit { get; set; } = 10;
+
+  public IReadOnlyList<string> AllowedCollectors { get; set; } = ["cpu_usage", "memory_usage", "disk_usage"];
+  public IReadOnlyList<string> AllowedInstructions { get; set; } = ["ShellCommand"];
 }

@@ -6,16 +6,6 @@
 public class CommandLineOptions
 {
     /// <summary>
-    /// Shows help information.
-    /// </summary>
-    public bool ShowHelp { get; set; }
-
-    /// <summary>
-    /// Shows current configuration.
-    /// </summary>
-    public bool ShowConfig { get; set; }
-
-    /// <summary>
     /// Initialize default configuration file.
     /// </summary>
     public bool InitConfig { get; set; }
@@ -24,6 +14,16 @@ public class CommandLineOptions
     /// Initialize secrets store.
     /// </summary>
     public bool InitSecrets { get; set; }
+
+    /// <summary>
+    /// Indicates whether to set the agent version during configuration.
+    /// </summary>
+    public bool SetVersion { get; set; }
+
+    /// <summary>
+    /// Version of the agent software to configure.
+    /// </summary>
+    public string Version { get; set; } = "1.0.0";
 
     /// <summary>
     /// Server URL to configure.

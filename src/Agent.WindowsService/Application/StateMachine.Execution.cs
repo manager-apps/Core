@@ -9,7 +9,8 @@ public partial class StateMachine
     _logger.LogInformation("Entering Execution state");
     try
     {
-      var instructions = await _instrStore.GetAsync(Token);
+      var config = await _configStore.GetAsync(Token);
+      var instructions = await _instrStore.GetAsync(Token, config.InstructionsExecutionLimit);
       if (instructions.Count == 0)
       {
         _logger.LogInformation("No instructions to execute");
@@ -25,6 +26,24 @@ public partial class StateMachine
 
         try
         {
+          var instructionTypeName = instruction.Type.ToString();
+          if (config.AllowedInstructions.Count > 0 &&
+              !config.AllowedInstructions.Contains(instructionTypeName, StringComparer.OrdinalIgnoreCase))
+          {
+            _logger.LogWarning(
+              "Instruction type {Type} is not allowed by configuration (Id: {Id})",
+              instruction.Type, instruction.AssociativeId);
+
+            results.Add(new InstructionResult
+            {
+              AssociativeId = instruction.AssociativeId,
+              Success = false,
+              Output = null,
+              Error = $"Instruction type '{instructionTypeName}' is not allowed by configuration"
+            });
+            continue;
+          }
+
           var executor = _executors.FirstOrDefault(e => e.CanExecute(instruction.Type));
           if (executor == null)
           {
@@ -95,7 +114,8 @@ public partial class StateMachine
 
     try
     {
-      await Task.Delay(5000, Token);
+      var config = await _configStore.GetAsync(Token);
+      await Task.Delay(TimeSpan.FromSeconds(config.ExecutionExitIntervalSeconds), Token);
     }
     catch (OperationCanceledException)
     {

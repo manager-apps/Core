@@ -25,6 +25,9 @@ public static class UrlConfig
 /// </summary>
 /// <param name="AgentName"></param>
 /// <param name="AuthToken"></param>
-public record RequestMetadata(
-  string? AgentName = null,
-  string? AuthToken = null);
+public record RequestMetadata
+{
+  public string? AgentName { get; init; } = null;
+  public string? AuthToken { get; init; } = null;
+  public Dictionary<string, string> Headers { get; init; } = new();
+}
