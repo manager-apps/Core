@@ -10,12 +10,28 @@ import ListItemText from '@mui/material/ListItemText';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import { Icon } from '@mui/material';
 import TryIcon from '@mui/icons-material/Try';
+import AddchartIcon from '@mui/icons-material/Addchart';
+
 
 interface DrawerMenuProps {
   drawerWidth: number;
 }
 
-const firstList = [
+interface MenuItem {
+  text: string;
+  path?: string;
+  externalUrl?: string;
+  icon: React.ReactNode;
+  disabled: boolean;
+}
+
+const firstList: MenuItem[] = [
+  {
+    text: 'Metrics',
+    externalUrl: 'http://localhost:3000',
+    icon: <Icon component={AddchartIcon} />,
+    disabled: false
+  },
   {
     text: 'Agents',
     path: '/agents',
@@ -29,7 +45,6 @@ const firstList = [
     disabled: true
   },
 ];
-
 
 export default function DrawerMenu({ drawerWidth }: DrawerMenuProps) {
   return (

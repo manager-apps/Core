@@ -35,8 +35,10 @@ export function AgentsPage() {
         try {
             setLoading(true);
             setError(null);
+            
             const agents = await fetchAgents();
             setRows(agents);
+
             console.log("Fetched agents:", agents);
         } catch (err) {
             console.error("Failed to fetch agents", err);
