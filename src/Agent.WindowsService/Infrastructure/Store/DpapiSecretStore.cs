@@ -71,7 +71,7 @@ public class DpapiSecretStore : ISecretStore
     }
 
     var encrypted = await File.ReadAllBytesAsync(path, ct);
-    var decrypted = ProtectedData.Unprotect(encrypted, SecretConfig.Entropy, DataProtectionScope.CurrentUser);
+    var decrypted = ProtectedData.Unprotect(encrypted, SecretConfig.Entropy, DataProtectionScope.LocalMachine);
     var deserialized = JsonSerializer.Deserialize<Dictionary<string, byte[]>>(decrypted, JsonOptions);
     if (deserialized is not null)
       _cache = deserialized;
@@ -84,7 +84,7 @@ public class DpapiSecretStore : ISecretStore
     var path = PathConfig.SecretFilePath;
 
     var json = JsonSerializer.SerializeToUtf8Bytes(_cache, JsonOptions);
-    var encrypted = ProtectedData.Protect(json, SecretConfig.Entropy, DataProtectionScope.CurrentUser);
+    var encrypted = ProtectedData.Protect(json, SecretConfig.Entropy, DataProtectionScope.LocalMachine);
 
     Directory.CreateDirectory(Path.GetDirectoryName(path)!);
     await File.WriteAllBytesAsync(path, encrypted, ct);
