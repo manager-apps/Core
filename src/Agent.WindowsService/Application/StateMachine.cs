@@ -50,7 +50,7 @@ public partial class StateMachine : IStateMachine
     _machine.Configure(States.Authentication)
       .OnEntryAsync(HandleAuthenticationEntryAsync)
       .OnExitAsync(HandleAuthenticationExitAsync)
-      .Permit(Triggers.AuthSuccess, States.Synchronization)
+      .Permit(Triggers.AuthSuccess, States.Running)
       .Permit(Triggers.AuthFailure, States.Error)
       .Permit(Triggers.Stop, States.Idle);
 
