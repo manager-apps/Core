@@ -12,7 +12,7 @@ using Server.Domain;
 
 namespace Server.Api.Features.Agent.Report;
 
-internal interface IAgentReportHandler
+internal interface IAgentReportCreateHandler
 {
   /// <summary>
   /// Handles reporting a message from an agent, and returns the instructions to execute.
@@ -27,7 +27,7 @@ internal class AgentReportCreateHandler(
   ILogger<AgentReportCreateHandler> logger,
   AppDbContext dbContext,
   HybridCache cache
-) : IAgentReportHandler {
+) : IAgentReportCreateHandler {
   public async Task<Result<ReportMessageResponse>> HandleAsync(
     ClaimsPrincipal agent,
     ReportMessageRequest request,

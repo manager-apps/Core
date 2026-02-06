@@ -7,7 +7,7 @@ using Server.Api.Features.Config;
 using Server.Api.Infrastructure;
 using Server.Domain;
 
-namespace Server.Api.Features.Agent.Config;
+namespace Server.Api.Features.Agent.Config.Update;
 
 internal interface IConfigUpdateHandler
 {
@@ -40,7 +40,6 @@ internal class ConfigUpdateHandler(
 
     agent.Config.Update(
       authenticationExitIntervalSeconds: request.AuthenticationExitIntervalSeconds,
-      synchronizationExitIntervalSeconds: request.SynchronizationExitIntervalSeconds,
       runningExitIntervalSeconds: request.RunningExitIntervalSeconds,
       executionExitIntervalSeconds: request.ExecutionExitIntervalSeconds,
       instructionsExecutionLimit: request.InstructionsExecutionLimit,

@@ -1,8 +1,8 @@
 ﻿using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
 using Agent.WindowsService.Config;
 using Agent.WindowsService.Domain;
+using System.Text;
+using System.Text.Json;
 
 namespace Agent.WindowsService.CommandLine;
 

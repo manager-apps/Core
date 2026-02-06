@@ -25,11 +25,11 @@ public record HardwareMessage(
 /// </summary>
 public record ConfigMessage(
   int AuthenticationExitIntervalSeconds,
-  int SynchronizationExitIntervalSeconds,
   int RunningExitIntervalSeconds,
   int ExecutionExitIntervalSeconds,
   int InstructionsExecutionLimit,
   int InstructionResultsSendLimit,
   int MetricsSendLimit,
+  int IterationDelaySeconds,
   IReadOnlyList<string> AllowedCollectors,
   IReadOnlyList<string> AllowedInstructions);

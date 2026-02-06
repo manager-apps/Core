@@ -8,8 +8,8 @@ public static class ConfigMapper
   {
     public ConfigMessage ToMessage()
       => new(
+        IterationDelaySeconds: config.IterationDelaySeconds,
         AuthenticationExitIntervalSeconds: config.AuthenticationExitIntervalSeconds,
-        SynchronizationExitIntervalSeconds: config.SynchronizationExitIntervalSeconds,
         RunningExitIntervalSeconds: config.RunningExitIntervalSeconds,
         ExecutionExitIntervalSeconds: config.ExecutionExitIntervalSeconds,
         InstructionsExecutionLimit: config.InstructionsExecutionLimit,
@@ -22,8 +22,8 @@ public static class ConfigMapper
       => new(
         Id: config.Id,
         AgentId: config.AgentId,
+        IterationDelaySeconds: config.IterationDelaySeconds,
         AuthenticationExitIntervalSeconds: config.AuthenticationExitIntervalSeconds,
-        SynchronizationExitIntervalSeconds: config.SynchronizationExitIntervalSeconds,
         RunningExitIntervalSeconds: config.RunningExitIntervalSeconds,
         ExecutionExitIntervalSeconds: config.ExecutionExitIntervalSeconds,
         InstructionsExecutionLimit: config.InstructionsExecutionLimit,
@@ -37,8 +37,8 @@ public static class ConfigMapper
   {
     public Domain.Config ToDomain()
       => Domain.Config.Create(
+        iterationDelaySeconds: config.IterationDelaySeconds,
         authenticationExitIntervalSeconds: config.AuthenticationExitIntervalSeconds,
-        synchronizationExitIntervalSeconds: config.SynchronizationExitIntervalSeconds,
         runningExitIntervalSeconds: config.RunningExitIntervalSeconds,
         executionExitIntervalSeconds: config.ExecutionExitIntervalSeconds,
         instructionsExecutionLimit: config.InstructionsExecutionLimit,

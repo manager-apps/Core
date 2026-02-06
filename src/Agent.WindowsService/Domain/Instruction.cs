@@ -7,12 +7,12 @@ public enum InstructionType
   /// <summary>
   /// Group Policy Object setting instruction
   /// </summary>
-  GpoSet = 1,
+  Gpo = 1,
 
   /// <summary>
   /// Shell command execution instruction
   /// </summary>
-  ShellCommand = 2,
+  Shell = 2,
 
   /// <summary>
   /// Update configuration instruction

@@ -5,9 +5,9 @@ namespace Server.Domain;
 
 public enum InstructionType
 {
-  GpoSet = 1,
+  Gpo = 1,
 
-  ShellCommand,
+  Shell,
 
   Config,
 }
@@ -51,7 +51,7 @@ public class Instruction
   /// <summary>
   /// The agent associated with this instruction.
   /// </summary>
-  public virtual Agent Agent { get; set; } = null!;
+  public virtual Agent Agent { get; init; } = null!;
 
   #endregion
 

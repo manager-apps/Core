@@ -47,7 +47,7 @@ public static class InstructionMapper
       var payloadJson = JsonSerializer.Serialize<InstructionPayload>(payload, JsonOptions.Default);
       return Domain.Instruction.Create(
         agentId: agentId,
-        type: Domain.InstructionType.ShellCommand,
+        type: Domain.InstructionType.Shell,
         payloadJson: payloadJson);
     }
   }
@@ -60,7 +60,7 @@ public static class InstructionMapper
       var payloadJson = JsonSerializer.Serialize<InstructionPayload>(payload, JsonOptions.Default);
       return Domain.Instruction.Create(
         agentId: agentId,
-        type: Domain.InstructionType.GpoSet,
+        type: Domain.InstructionType.Gpo,
         payloadJson: payloadJson);
     }
   }

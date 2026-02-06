@@ -23,6 +23,7 @@ internal class AgentGetByIdHandler (
     CancellationToken cancellationToken)
   {
     var agent = await dbContext.Agents
+      .AsNoTracking()
       .Include(a => a.Config)
       .Include(a => a.Hardware)
       .FirstOrDefaultAsync(a => a.Id == agentId, cancellationToken);

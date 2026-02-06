@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Server.Api.Common.Extensions;
 using Server.Api.Common.Result;
 
 namespace Server.Api.Features.Agent.GetById;
@@ -6,12 +7,14 @@ namespace Server.Api.Features.Agent.GetById;
 internal static class AgentGetByIdEndpoint
 {
   internal static void MapGetByIdAgentEndpoint(this IEndpointRouteBuilder app)
-   => app.MapGet("/{id:long}",
+   => app.MapGet("/{agentId:long}",
         async (
-            [FromRoute] long id,
+            [FromRoute] long agentId,
             [FromServices] IAgentGetByIdHandler handler,
             CancellationToken ct)
-          => (await handler.HandleAsync(id, ct)).ToApiResult())
+          => (await handler.HandleAsync(agentId, ct)).ToApiResult())
+      .WithTags("User")
       .Produces<AgentDetailResponse>()
-      .ProducesProblem(StatusCodes.Status404NotFound);
+      .ProducesProblem(StatusCodes.Status404NotFound)
+      .MapToApiVersion(ApiVersioningExtension.V1);
 }

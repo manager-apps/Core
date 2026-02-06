@@ -44,8 +44,8 @@ public class ConfigExecutor(
       var newConfig = configPayload.Config;
       var updatedConfig = currentConfig with
       {
+        IterationDelaySeconds = newConfig.IterationDelaySeconds,
         AuthenticationExitIntervalSeconds = newConfig.AuthenticationExitIntervalSeconds,
-        SynchronizationExitIntervalSeconds = newConfig.SynchronizationExitIntervalSeconds,
         InstructionsExecutionLimit = newConfig.InstructionsExecutionLimit,
         RunningExitIntervalSeconds = newConfig.RunningExitIntervalSeconds,
         ExecutionExitIntervalSeconds = newConfig.ExecutionExitIntervalSeconds,

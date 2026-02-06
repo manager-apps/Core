@@ -7,19 +7,12 @@ namespace Server.Api.Features.Agent;
 /// <summary>
 /// Represents the response model for an agent, containing its details and state information.
 /// </summary>
-/// <param name="Id"></param>
-/// <param name="Name"></param>
-/// <param name="CurrentTag"></param>
-/// <param name="SourceTag"></param>
-/// <param name="State"></param>
-/// <param name="CreatedAt"></param>
-/// <param name="LastUpdatedAt"></param>
-/// <param name="UpdatedAt"></param>
 public record AgentResponse(
   long Id,
   string Name,
   string CurrentTag,
   string SourceTag,
+  string Version,
   AgentState State,
   DateTimeOffset CreatedAt,
   DateTimeOffset LastUpdatedAt,
@@ -33,6 +26,7 @@ public record AgentDetailResponse(
   string Name,
   string CurrentTag,
   string SourceTag,
+  string Version,
   AgentState State,
   DateTimeOffset CreatedAt,
   DateTimeOffset LastUpdatedAt,

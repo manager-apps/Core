@@ -48,12 +48,12 @@ public class Agent
   /// <summary>
   /// Navigation property to hardware information
   /// </summary>
-  public virtual Hardware Hardware { get; set; } = null!;
+  public virtual Hardware Hardware { get; init; } = null!;
 
   /// <summary>
   /// Navigation property to configuration overrides
   /// </summary>
-  public virtual Config Config { get; set; } = null!;
+  public virtual Config Config { get; init; } = null!;
 
   #endregion
 

@@ -54,13 +54,6 @@ public partial class StateMachine : IStateMachine
       .Permit(Triggers.AuthFailure, States.Error)
       .Permit(Triggers.Stop, States.Idle);
 
-    _machine.Configure(States.Synchronization)
-      .OnEntryAsync(HandleSynchronizationEntryAsync)
-      .OnExitAsync(HandleSynchronizationExitAsync)
-      .Permit(Triggers.SyncSuccess, States.Running)
-      .Permit(Triggers.SyncFailure, States.Error)
-      .Permit(Triggers.Stop, States.Idle);
-
     _machine.Configure(States.Running)
       .OnEntryAsync(HandleRunningEntryAsync)
       .OnExitAsync(HandleRunningExitAsync)

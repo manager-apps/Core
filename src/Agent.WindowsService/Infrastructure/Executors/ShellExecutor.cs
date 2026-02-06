@@ -8,7 +8,7 @@ namespace Agent.WindowsService.Infrastructure.Executors;
 
 public class ShellExecutor(IValidator<Instruction> validator) : IInstructionExecutor
 {
-  public bool CanExecute(InstructionType type) => type is InstructionType.ShellCommand;
+  public bool CanExecute(InstructionType type) => type is InstructionType.Shell;
 
   public async Task<InstructionResult> ExecuteAsync(Instruction instruction, CancellationToken cancellationToken = default)
   {
@@ -24,7 +24,6 @@ public class ShellExecutor(IValidator<Instruction> validator) : IInstructionExec
       };
     }
 
-    // Type-safe payload extraction
     if (instruction.Payload is not ShellCommandPayload shellPayload)
     {
       return new InstructionResult

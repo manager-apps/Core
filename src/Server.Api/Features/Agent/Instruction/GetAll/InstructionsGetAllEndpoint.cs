@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Server.Api.Common.Extensions;
 using Server.Api.Features.Instruction;
 
 namespace Server.Api.Features.Agent.Instruction.GetAll;
@@ -14,5 +15,7 @@ internal static class InstructionsGetAllEndpoint
       var instructions = await handler.HandleAsync(agentId, cancellationToken);
       return Results.Ok(instructions);
     })
-    .Produces<IEnumerable<InstructionResponse>>();
+    .WithTags("User")
+    .Produces<IEnumerable<InstructionResponse>>()
+    .MapToApiVersion(ApiVersioningExtension.V1);
 }

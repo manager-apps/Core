@@ -1,9 +1,9 @@
 using Server.Api.Common.Result;
 using Server.Api.Infrastructure;
 
-namespace Server.Api.Features.Agent.State;
+namespace Server.Api.Features.Agent.State.Update;
 
-internal interface IUpdateStatusHandler
+internal interface IStateUpdateHandler
 {
   /// <summary>
   /// Handles the update of an agent's state
@@ -14,10 +14,10 @@ internal interface IUpdateStatusHandler
     CancellationToken cancellationToken);
 }
 
-internal class AgentStateUpdateHandler(
-  ILogger<AgentStateUpdateHandler> logger,
+internal class StateUpdateHandler(
+  ILogger<StateUpdateHandler> logger,
   AppDbContext dbContext
-) : IUpdateStatusHandler {
+) : IStateUpdateHandler {
   public async Task<Result<AgentResponse>> HandleAsync(
     long agentId,
     AgentUpdateStateRequest request,

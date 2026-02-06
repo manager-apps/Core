@@ -6,8 +6,8 @@
 public record ConfigResponse(
   long Id,
   long AgentId,
+  int IterationDelaySeconds,
   int AuthenticationExitIntervalSeconds,
-  int SynchronizationExitIntervalSeconds,
   int RunningExitIntervalSeconds,
   int ExecutionExitIntervalSeconds,
   int InstructionsExecutionLimit,
@@ -22,7 +22,6 @@ public record ConfigResponse(
 /// </summary>
 public record ConfigUpdateRequest(
   int? AuthenticationExitIntervalSeconds = null,
-  int? SynchronizationExitIntervalSeconds = null,
   int? RunningExitIntervalSeconds = null,
   int? ExecutionExitIntervalSeconds = null,
   int? InstructionsExecutionLimit = null,

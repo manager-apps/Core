@@ -27,8 +27,8 @@ public static class LoadTestSeeder
       for (int i = 1; i <= agents; i++)
       {
         var config = Config.Create(
+          iterationDelaySeconds: random.Next(1, 10),
           authenticationExitIntervalSeconds: random.Next(5, 30),
-          synchronizationExitIntervalSeconds: random.Next(5, 30),
           runningExitIntervalSeconds: random.Next(5, 30),
           executionExitIntervalSeconds: random.Next(1, 10),
           instructionsExecutionLimit: random.Next(5, 50),
@@ -72,7 +72,7 @@ public static class LoadTestSeeder
       var batch = Enumerable.Range(0, instructionsPerAgent)
         .Select(_ => Instruction.Create(
           agentId,
-          InstructionType.ShellCommand,
+          InstructionType.Shell,
           """{"$type":"shell","command":"echo test","timeout":5000}"""));
       allInstructions.AddRange(batch);
     }

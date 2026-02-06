@@ -9,7 +9,9 @@ public partial class StateMachine
     _logger.LogInformation("Entering Delaying state");
     try
     {
-      await Task.Delay(500, Token);
+      var config = await _configStore.GetAsync(Token);
+      await Task.Delay(TimeSpan.FromSeconds(config.IterationDelaySeconds), Token);
+
       _logger.LogInformation("Delaying state completed successfully");
 
       await _machine.FireAsync(Triggers.Retry, Token);

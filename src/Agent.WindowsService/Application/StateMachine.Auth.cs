@@ -25,12 +25,12 @@ public partial class StateMachine
 
       var currentConfig = new ConfigMessage(
         AuthenticationExitIntervalSeconds: config.AuthenticationExitIntervalSeconds,
-        SynchronizationExitIntervalSeconds: config.SynchronizationExitIntervalSeconds,
         RunningExitIntervalSeconds: config.RunningExitIntervalSeconds,
         ExecutionExitIntervalSeconds: config.ExecutionExitIntervalSeconds,
         InstructionsExecutionLimit: config.InstructionsExecutionLimit,
         InstructionResultsSendLimit: config.InstructionResultsSendLimit,
         MetricsSendLimit: config.MetricsSendLimit,
+        IterationDelaySeconds: config.IterationDelaySeconds,
         AllowedCollectors: config.AllowedCollectors,
         AllowedInstructions: config.AllowedInstructions);
 
@@ -47,7 +47,7 @@ public partial class StateMachine
         {
           Headers = new Dictionary<string, string>
           {
-            { Common.Headers.Version, config.Version },
+            { Common.Headers.AgentVersion, config.Version },
             { Common.Headers.Tag, config.Tag }
           }
         },
@@ -66,12 +66,12 @@ public partial class StateMachine
         var updatedConfig = config with
         {
           AuthenticationExitIntervalSeconds = authResponse.Config.AuthenticationExitIntervalSeconds,
-          SynchronizationExitIntervalSeconds = authResponse.Config.SynchronizationExitIntervalSeconds,
           RunningExitIntervalSeconds = authResponse.Config.RunningExitIntervalSeconds,
           ExecutionExitIntervalSeconds = authResponse.Config.ExecutionExitIntervalSeconds,
           InstructionsExecutionLimit = authResponse.Config.InstructionsExecutionLimit,
           InstructionResultsSendLimit = authResponse.Config.InstructionResultsSendLimit,
           MetricsSendLimit = authResponse.Config.MetricsSendLimit,
+          IterationDelaySeconds = authResponse.Config.IterationDelaySeconds,
           AllowedCollectors = authResponse.Config.AllowedCollectors,
           AllowedInstructions = authResponse.Config.AllowedInstructions
         };

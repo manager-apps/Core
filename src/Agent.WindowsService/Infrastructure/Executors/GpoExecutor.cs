@@ -9,7 +9,7 @@ namespace Agent.WindowsService.Infrastructure.Executors;
 
 public class GpoExecutor(IValidator<Instruction> validator) : IInstructionExecutor
 {
-  public bool CanExecute(InstructionType type) => type == InstructionType.GpoSet;
+  public bool CanExecute(InstructionType type) => type == InstructionType.Gpo;
 
   public async Task<InstructionResult> ExecuteAsync(
     Instruction instruction,

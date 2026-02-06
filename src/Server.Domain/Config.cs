@@ -1,4 +1,4 @@
-﻿﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Server.Domain;
 
@@ -16,9 +16,6 @@ public class Config
   public int AuthenticationExitIntervalSeconds { get; private set; }
 
   [Required]
-  public int SynchronizationExitIntervalSeconds { get; private set; }
-
-  [Required]
   public int RunningExitIntervalSeconds { get; private set; }
 
   [Required]
@@ -29,6 +26,9 @@ public class Config
 
   [Required]
   public int InstructionResultsSendLimit { get; private set; }
+
+  [Required]
+  public int IterationDelaySeconds { get; private set; }
 
   [Required]
   public int MetricsSendLimit { get; private set; }
@@ -44,6 +44,10 @@ public class Config
 
   #region Navigation properties
 
+  /// <summary>
+  /// Navigation property to the associated agent. This is a one-to-one
+  /// relationship where each agent has one config record.
+  /// </summary>
   public virtual Agent Agent { get; init; } = null!;
 
   #endregion
@@ -51,8 +55,8 @@ public class Config
   #region Factory methods
 
   public static Config Create(
+    int iterationDelaySeconds,
     int authenticationExitIntervalSeconds,
-    int synchronizationExitIntervalSeconds,
     int runningExitIntervalSeconds,
     int executionExitIntervalSeconds,
     int instructionsExecutionLimit,
@@ -63,8 +67,8 @@ public class Config
   {
     return new Config
     {
+      IterationDelaySeconds = iterationDelaySeconds,
       AuthenticationExitIntervalSeconds = authenticationExitIntervalSeconds,
-      SynchronizationExitIntervalSeconds = synchronizationExitIntervalSeconds,
       InstructionResultsSendLimit = instructionResultsSendLimit,
       MetricsSendLimit = metricsSendLimit,
       RunningExitIntervalSeconds = runningExitIntervalSeconds,
@@ -95,8 +99,8 @@ public class Config
       : AllowedInstructions.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
   public void Update(
+    int? iterationDelaySeconds = null,
     int? authenticationExitIntervalSeconds = null,
-    int? synchronizationExitIntervalSeconds = null,
     int? runningExitIntervalSeconds = null,
     int? executionExitIntervalSeconds = null,
     int? instructionsExecutionLimit = null,
@@ -105,8 +109,8 @@ public class Config
     IReadOnlyList<string>? allowedCollectors = null,
     IReadOnlyList<string>? allowedInstructions = null)
   {
+    IterationDelaySeconds = iterationDelaySeconds ?? IterationDelaySeconds;
     AuthenticationExitIntervalSeconds = authenticationExitIntervalSeconds ?? AuthenticationExitIntervalSeconds;
-    SynchronizationExitIntervalSeconds = synchronizationExitIntervalSeconds ?? SynchronizationExitIntervalSeconds;
     RunningExitIntervalSeconds = runningExitIntervalSeconds ?? RunningExitIntervalSeconds;
     ExecutionExitIntervalSeconds = executionExitIntervalSeconds ?? ExecutionExitIntervalSeconds;
     InstructionsExecutionLimit = instructionsExecutionLimit ?? InstructionsExecutionLimit;

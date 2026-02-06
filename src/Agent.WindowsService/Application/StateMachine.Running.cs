@@ -1,7 +1,7 @@
-using System.Text;
 using Agent.WindowsService.Abstraction;
 using Agent.WindowsService.Config;
 using Agent.WindowsService.Domain;
+using System.Text;
 using Common.Messages;
 
 namespace Agent.WindowsService.Application;
@@ -42,7 +42,7 @@ public partial class StateMachine
           AgentName = config.AgentName,
           Headers = new Dictionary<string, string>
           {
-            { Common.Headers.Version, config.Version },
+            { Common.Headers.AgentVersion, config.Version },
             { Common.Headers.Tag, config.Tag }
           }
         },

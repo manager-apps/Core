@@ -8,8 +8,7 @@ namespace Agent.WindowsService.Infrastructure.Communication;
 public class HttpServerClient (
   ILogger<HttpServerClient> logger,
   HttpClient httpClient
-) : IServerClient
-{
+) : IServerClient {
   public async Task<TResponse?> Post<TResponse, TRequest>(
     string url,
     TRequest data,

@@ -13,6 +13,5 @@ var connectionString = builder.Configuration["Database:Postgres:ConnectionString
 builder.Services.AddDbContext<AppDbContext>(options =>
   options.UseNpgsql(connectionString));
 
-
 var host = builder.Build();
 host.Run();

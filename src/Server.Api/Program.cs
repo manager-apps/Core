@@ -1,10 +1,13 @@
 using Server.Api.Common.Extensions;
+using Server.Api.Common.FeatureFlags;
 using Server.Api.Features.Agent;
 using Server.Api.Features.Instruction;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSwagger(builder.Configuration);
+builder.Services.AddApiVersioning(builder.Configuration);
+builder.Services.AddFeatureFlags(builder.Configuration);
 builder.Services.AddPsqlDatabase(builder.Configuration);
 builder.Services.AddClickHouseDatabase(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);
@@ -28,7 +31,11 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-var group = app.MapGroup("/api/v1");
+var versionSet = app.CreateVersionSet();
+
+var group = app
+  .MapGroup("/api/v{version:apiVersion}")
+  .WithApiVersionSet(versionSet);
 
 group.MapAgentEndpoints();
 group.MapInstructionEndpoints();

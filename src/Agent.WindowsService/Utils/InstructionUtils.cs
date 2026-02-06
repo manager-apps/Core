@@ -18,10 +18,10 @@ public static class InstructionUtils
   {
     return type switch
     {
-      InstructionType.ShellCommand
+      InstructionType.Shell
         => JsonSerializer.Deserialize<ShellCommandPayload>(json, JsonOptions)
               ?? throw new InvalidOperationException($"Failed to deserialize {nameof(ShellCommandPayload)}"),
-      InstructionType.GpoSet =>
+      InstructionType.Gpo =>
         JsonSerializer.Deserialize<GpoSetPayload>(json, JsonOptions)
           ?? throw new InvalidOperationException($"Failed to deserialize {nameof(GpoSetPayload)}"),
 

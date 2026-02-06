@@ -128,7 +128,6 @@ internal class AgentAuthHandler(
       config.RunningExitIntervalSeconds == requestConfig.RunningExitIntervalSeconds
       && config.ExecutionExitIntervalSeconds == requestConfig.ExecutionExitIntervalSeconds
       && config.AuthenticationExitIntervalSeconds == requestConfig.AuthenticationExitIntervalSeconds
-      && config.SynchronizationExitIntervalSeconds == requestConfig.SynchronizationExitIntervalSeconds
       && config.InstructionsExecutionLimit == requestConfig.InstructionsExecutionLimit
       && config.InstructionResultsSendLimit == requestConfig.InstructionResultsSendLimit
       && config.MetricsSendLimit == requestConfig.MetricsSendLimit
@@ -140,8 +139,8 @@ internal class AgentAuthHandler(
 
     // Return server config to override agent's custom configuration
     return new ConfigMessage(
+      IterationDelaySeconds: config.IterationDelaySeconds,
       AuthenticationExitIntervalSeconds: config.AuthenticationExitIntervalSeconds,
-      SynchronizationExitIntervalSeconds: config.SynchronizationExitIntervalSeconds,
       RunningExitIntervalSeconds: config.RunningExitIntervalSeconds,
       ExecutionExitIntervalSeconds: config.ExecutionExitIntervalSeconds,
       InstructionsExecutionLimit: config.InstructionsExecutionLimit,

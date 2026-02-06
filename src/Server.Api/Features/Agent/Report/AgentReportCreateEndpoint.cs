@@ -1,4 +1,5 @@
 using Common.Messages;
+using Server.Api.Common.Extensions;
 using Server.Api.Common.Result;
 
 namespace Server.Api.Features.Agent.Report;
@@ -9,7 +10,7 @@ internal static class AgentReportCreateEndpoint
   internal static void MapAgentReportCreateEndpoint(this IEndpointRouteBuilder app)
     => app.MapPost("report", async (
           [FromBody] ReportMessageRequest request,
-          [FromServices] IAgentReportHandler handler,
+          [FromServices] IAgentReportCreateHandler handler,
           HttpContext context,
           CancellationToken cancellationToken)
         => (await handler.HandleAsync(context.User, request, cancellationToken)).ToApiResult())
@@ -22,6 +23,8 @@ internal static class AgentReportCreateEndpoint
         these results, updates the instruction statuses accordingly, and then responds
         with a ReportMessageResponse containing new instructions for the agent to execute.
       """)
+      .WithTags("Agent")
       .Produces<ReportMessageResponse>()
-      .ProducesProblem(StatusCodes.Status404NotFound);
+      .ProducesProblem(StatusCodes.Status404NotFound)
+      .MapToApiVersion(ApiVersioningExtension.V1);
 }

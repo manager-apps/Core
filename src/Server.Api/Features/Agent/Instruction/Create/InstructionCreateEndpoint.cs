@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Server.Api.Common.Extensions;
 using Server.Api.Features.Instruction;
 using Server.Api.Common.Result;
 
@@ -18,12 +19,11 @@ internal static class InstructionCreateEndpoint
         return result.ToApiResult(
           createdUri: $"/instructions/{result.Value?.Id}");
       })
-      .WithName("CreateShellCommandInstruction")
-      .WithSummary("Create a shell command instruction for a specific agent.")
-      .WithDescription("Creates a new shell command instruction to be executed on the agent.")
+      .WithTags("User")
       .Produces<InstructionResponse>(StatusCodes.Status201Created)
       .ProducesProblem(StatusCodes.Status400BadRequest)
-      .ProducesProblem(StatusCodes.Status404NotFound);
+      .ProducesProblem(StatusCodes.Status404NotFound)
+      .MapToApiVersion(ApiVersioningExtension.V1);
 
     app.MapPost("{agentId}/instructions/gpo", async (
         [FromRoute] long agentId,
@@ -35,11 +35,10 @@ internal static class InstructionCreateEndpoint
         return result.ToApiResult(
           createdUri: $"/instructions/{result.Value?.Id}");
       })
-      .WithName("CreateGpoSetInstruction")
-      .WithSummary("Create a GPO set instruction for a specific agent.")
-      .WithDescription("Creates a new Group Policy Object setting instruction for the agent.")
+      .WithTags("User")
       .Produces<InstructionResponse>(StatusCodes.Status201Created)
       .ProducesProblem(StatusCodes.Status400BadRequest)
-      .ProducesProblem(StatusCodes.Status404NotFound);
+      .ProducesProblem(StatusCodes.Status404NotFound)
+      .MapToApiVersion(ApiVersioningExtension.V1);
   }
 }
