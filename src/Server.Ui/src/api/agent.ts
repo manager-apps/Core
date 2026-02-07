@@ -19,10 +19,10 @@ export const fetchInstructionsForAgent = async (agentId: number): Promise<Instru
 }
 
 export const updateAgentConfig = async (agentId: number, config: ConfigUpdateRequest): Promise<void> => {
-  await api.patch(`agents/${agentId}/config`, config);
+  await api.put(`agents/${agentId}/config`, config);
 }
 
-export const createShellInstruction = async (
+export const createShellInstructionForAgent = async (
   agentId: number,
   payload: CreateShellCommandRequest
 ): Promise<InstructionResponse> => {
@@ -30,7 +30,7 @@ export const createShellInstruction = async (
   return response.data;
 }
 
-export const createGpoInstruction = async (
+export const createGpoInstructionForAgent = async (
   agentId: number,
   payload: CreateGpoSetRequest
 ): Promise<InstructionResponse> => {

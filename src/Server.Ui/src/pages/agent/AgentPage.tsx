@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { createShellInstruction, createGpoInstruction, fetchAgentById, fetchInstructionsForAgent, updateAgentConfig, updateAgentState } from "../../api/agent";
+import { createShellInstructionForAgent, createGpoInstructionForAgent, fetchAgentById, fetchInstructionsForAgent, updateAgentConfig, updateAgentState } from "../../api/agent";
 import { InstructionType } from "../../types/instruction";
 import { useEffect, useState } from "react";
 
@@ -104,9 +104,9 @@ export function AgentPage() {
     const handleCreateInstruction = async (type: number, payload: CreateShellCommandRequest | CreateGpoSetRequest) => {
         if (!agent) return;
         if (type === InstructionType.Shell) {
-            await createShellInstruction(agent.id, payload as CreateShellCommandRequest);
+            await createShellInstructionForAgent(agent.id, payload as CreateShellCommandRequest);
         } else if (type === InstructionType.Gpo) {
-            await createGpoInstruction(agent.id, payload as CreateGpoSetRequest);
+            await createGpoInstructionForAgent(agent.id, payload as CreateGpoSetRequest);
         }
     };
 

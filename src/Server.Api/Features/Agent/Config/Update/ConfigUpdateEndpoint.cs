@@ -8,7 +8,7 @@ namespace Server.Api.Features.Agent.Config.Update;
 internal static class ConfigUpdateEndpoint
 {
   internal static void MapConfigUpdateEndpoint(this IEndpointRouteBuilder app)
-    => app.MapPut("{agentId}/config", async (
+    => app.MapPut("{agentId:long}/config", async (
         [FromRoute] long agentId,
         [FromBody] ConfigUpdateRequest request,
         [FromServices] IConfigUpdateHandler handler,
