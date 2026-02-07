@@ -21,6 +21,7 @@ import type { InstructionResponse, CreateShellCommandRequest, CreateGpoSetReques
 import { InstructionType, InstructionState } from "../../../types/instruction";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import AddIcon from "@mui/icons-material/Add";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import TerminalIcon from "@mui/icons-material/Terminal";
@@ -215,13 +216,20 @@ export const AgentInstructionsTab: React.FC<AgentInstructionsTabProps> = ({
                                 sx={{ ml: 1 }}
                             />
                         </Box>
-                        <Button
-                            variant="contained"
-                            startIcon={<AddIcon />}
-                            onClick={() => setDialogOpen(true)}
-                        >
-                            Create Instruction
-                        </Button>
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                            <Tooltip title="Refresh">
+                                <IconButton onClick={onRefresh}>
+                                    <RefreshIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Button
+                                variant="contained"
+                                startIcon={<AddIcon />}
+                                onClick={() => setDialogOpen(true)}
+                            >
+                                Create Instruction
+                            </Button>
+                        </Box>
                     </Box>
 
                     {instructions.length === 0 ? (
