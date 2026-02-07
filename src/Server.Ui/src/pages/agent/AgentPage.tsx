@@ -120,7 +120,7 @@ export function AgentPage() {
         <FetchContentWrapper loading={loading} error={error}>
             {agent && (
                 <Box>
-                    {/* Header */}
+                    {/* Header
                     <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
                         <Typography variant="h4" component="h1">
                             {agent.name}
@@ -129,7 +129,7 @@ export function AgentPage() {
                         <Typography variant="body2" color="text.secondary">
                             v{agent.version}
                         </Typography>
-                    </Box>
+                    </Box> */}
 
                     {/* Tabs */}
                     <Box sx={{ borderBottom: 1, borderColor: "divider" }}>

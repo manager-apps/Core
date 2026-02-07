@@ -12,6 +12,8 @@ import {
     Snackbar,
     IconButton,
     Tooltip,
+    Avatar,
+    Paper,
 } from "@mui/material";
 import { useState } from "react";
 import type { ConfigResponse, ConfigUpdateRequest } from "../../../types/config";
@@ -19,6 +21,11 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import SaveIcon from "@mui/icons-material/Save";
 import RestoreIcon from "@mui/icons-material/Restore";
 import EditIcon from "@mui/icons-material/Edit";
+import TimerIcon from "@mui/icons-material/Timer";
+import TuneIcon from "@mui/icons-material/Tune";
+import SpeedIcon from "@mui/icons-material/Speed";
+import DataUsageIcon from "@mui/icons-material/DataUsage";
+import TerminalIcon from "@mui/icons-material/Terminal";
 import { MultiSelectDialog } from "../../../components/dialog/MultiSelectDialog";
 
 const AVAILABLE_COLLECTORS = ["cpu_usage", "disk_usage", "memory_usage"];
@@ -28,6 +35,47 @@ interface AgentConfigTabProps {
     config: ConfigResponse;
     onSave: (config: ConfigUpdateRequest) => Promise<void>;
 }
+
+interface ConfigFieldProps {
+    label: string;
+    description: string;
+    value: number;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    suffix?: string;
+}
+
+const ConfigField: React.FC<ConfigFieldProps> = ({ label, description, value, onChange, suffix }) => (
+    <Box>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+            <Box sx={{ flex: 1, pr: 2 }}>
+                <Typography variant="body2" fontWeight={500}>
+                    {label}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                    {description}
+                </Typography>
+            </Box>
+            <TextField
+                type="number"
+                value={value}
+                onChange={onChange}
+                size="small"
+                sx={{ width: 120 }}
+                slotProps={{
+                    input: suffix
+                        ? {
+                              endAdornment: (
+                                  <Typography variant="caption" color="text.secondary">
+                                      {suffix}
+                                  </Typography>
+                              ),
+                          }
+                        : undefined,
+                }}
+            />
+        </Box>
+    </Box>
+);
 
 export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ config, onSave }) => {
     const [formData, setFormData] = useState<ConfigUpdateRequest>({
@@ -86,216 +134,264 @@ export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ config, onSave }
 
     return (
         <Box sx={{ p: 2 }}>
-            <Card elevation={2}>
-                <CardContent>
-                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                            <SettingsIcon sx={{ mr: 1, color: "primary.main" }} />
-                            <Typography variant="h6">Agent Configuration</Typography>
+            {/* Header Card */}
+            <Card
+                elevation={0}
+                sx={{
+                    mb: 3,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    borderRadius: 2,
+                }}
+            >
+                <CardContent sx={{ p: 3 }}>
+                    <Box
+                        sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}
+                    >
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                            <Avatar sx={{ width: 56, height: 56, bgcolor: "secondary.main" }}>
+                                <SettingsIcon fontSize="large" />
+                            </Avatar>
+                            <Box>
+                                <Typography variant="h5" fontWeight={600}>
+                                    Agent Configuration
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Manage timing, limits, and permissions for this agent
+                                </Typography>
+                            </Box>
                         </Box>
                         <Box sx={{ display: "flex", gap: 1 }}>
-                            <Button
-                                variant="outlined"
-                                startIcon={<RestoreIcon />}
-                                onClick={handleReset}
-                                disabled={saving}
-                            >
+                            <Button variant="outlined" startIcon={<RestoreIcon />} onClick={handleReset} disabled={saving}>
                                 Reset
                             </Button>
-                            <Button
-                                variant="contained"
-                                startIcon={<SaveIcon />}
-                                onClick={handleSave}
-                                disabled={saving}
-                            >
-                                {saving ? "Saving..." : "Save"}
+                            <Button variant="contained" startIcon={<SaveIcon />} onClick={handleSave} disabled={saving}>
+                                {saving ? "Saving..." : "Save Changes"}
                             </Button>
                         </Box>
                     </Box>
-
-                    <Divider sx={{ mb: 3 }} />
-
-                    <Grid container spacing={3}>
-                        {/* Left column - Timing Settings */}
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                                Timing Settings
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                Configure intervals for agent state transitions
-                            </Typography>
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                                <Box>
-                                    <Typography variant="body2" fontWeight={500} sx={{ mb: 0.5 }}>
-                                        Authentication Exit Interval
-                                    </Typography>
-                                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
-                                        Time the agent waits before retrying authentication after a failed attempt
-                                    </Typography>
-                                    <TextField
-                                        fullWidth
-                                        type="number"
-                                        value={formData.authenticationExitIntervalSeconds}
-                                        onChange={handleChange("authenticationExitIntervalSeconds")}
-                                        size="small"
-                                        slotProps={{ input: { endAdornment: <Typography variant="caption" color="text.secondary">sec</Typography> } }}
-                                    />
-                                </Box>
-                                <Box>
-                                    <Typography variant="body2" fontWeight={500} sx={{ mb: 0.5 }}>
-                                        Running Exit Interval
-                                    </Typography>
-                                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
-                                        Delay between each iteration of the running state loop (collecting metrics, checking instructions)
-                                    </Typography>
-                                    <TextField
-                                        fullWidth
-                                        type="number"
-                                        value={formData.runningExitIntervalSeconds}
-                                        onChange={handleChange("runningExitIntervalSeconds")}
-                                        size="small"
-                                        slotProps={{ input: { endAdornment: <Typography variant="caption" color="text.secondary">sec</Typography> } }}
-                                    />
-                                </Box>
-                                <Box>
-                                    <Typography variant="body2" fontWeight={500} sx={{ mb: 0.5 }}>
-                                        Execution Exit Interval
-                                    </Typography>
-                                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
-                                        Time to wait after executing a batch of instructions before continuing
-                                    </Typography>
-                                    <TextField
-                                        fullWidth
-                                        type="number"
-                                        value={formData.executionExitIntervalSeconds}
-                                        onChange={handleChange("executionExitIntervalSeconds")}
-                                        size="small"
-                                        slotProps={{ input: { endAdornment: <Typography variant="caption" color="text.secondary">sec</Typography> } }}
-                                    />
-                                </Box>
-                            </Box>
-                        </Grid>
-
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                                Limits
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                Control batch sizes for instruction execution and data transmission
-                            </Typography>
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                                <Box>
-                                    <Typography variant="body2" fontWeight={500} sx={{ mb: 0.5 }}>
-                                        Instructions Execution Limit
-                                    </Typography>
-                                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
-                                        Maximum number of instructions the agent will execute in a single iteration
-                                    </Typography>
-                                    <TextField
-                                        fullWidth
-                                        type="number"
-                                        value={formData.instructionsExecutionLimit}
-                                        onChange={handleChange("instructionsExecutionLimit")}
-                                        size="small"
-                                    />
-                                </Box>
-                                <Box>
-                                    <Typography variant="body2" fontWeight={500} sx={{ mb: 0.5 }}>
-                                        Instruction Results Send Limit
-                                    </Typography>
-                                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
-                                        Maximum number of instruction results to send to the server per batch
-                                    </Typography>
-                                    <TextField
-                                        fullWidth
-                                        type="number"
-                                        value={formData.instructionResultsSendLimit}
-                                        onChange={handleChange("instructionResultsSendLimit")}
-                                        size="small"
-                                    />
-                                </Box>
-                                <Box>
-                                    <Typography variant="body2" fontWeight={500} sx={{ mb: 0.5 }}>
-                                        Metrics Send Limit
-                                    </Typography>
-                                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
-                                        Maximum number of collected metrics to send to the server per batch
-                                    </Typography>
-                                    <TextField
-                                        fullWidth
-                                        type="number"
-                                        value={formData.metricsSendLimit}
-                                        onChange={handleChange("metricsSendLimit")}
-                                        size="small"
-                                    />
-                                </Box>
-                            </Box>
-                        </Grid>
-
-                        <Grid size={12}>
-                            <Divider sx={{ my: 2 }} />
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <Typography variant="subtitle1" fontWeight="bold">
-                                    Allowed Collectors
-                                </Typography>
-                                <Tooltip title="Edit collectors">
-                                    <IconButton size="small" onClick={() => setCollectorsDialogOpen(true)}>
-                                        <EditIcon fontSize="small" />
-                                    </IconButton>
-                                </Tooltip>
-                            </Box>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                                Metric collectors enabled for this agent
-                            </Typography>
-                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
-                                {formData.allowedCollectors && formData.allowedCollectors.length > 0 ? (
-                                    formData.allowedCollectors.map((collector, index) => (
-                                        <Chip key={index} label={collector} color="primary" variant="outlined" />
-                                    ))
-                                ) : (
-                                    <Typography variant="body2" color="text.secondary">
-                                        No collectors configured
-                                    </Typography>
-                                )}
-                            </Box>
-                        </Grid>
-                        <Alert severity="info" >
-                            Available collectors are based on version of the agent.
-                        </Alert>
-
-                        <Grid size={12}>
-                            <Divider sx={{ my: 2 }} />
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <Typography variant="subtitle1" fontWeight="bold">
-                                    Allowed Instructions
-                                </Typography>
-                                <Tooltip title="Edit instructions">
-                                    <IconButton size="small" onClick={() => setInstructionsDialogOpen(true)}>
-                                        <EditIcon fontSize="small" />
-                                    </IconButton>
-                                </Tooltip>
-                            </Box>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                                Instruction types this agent can execute
-                            </Typography>
-                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
-                                {formData.allowedInstructions && formData.allowedInstructions.length > 0 ? (
-                                    formData.allowedInstructions.map((instruction, index) => (
-                                        <Chip key={index} label={instruction} color="secondary" variant="outlined" />
-                                    ))
-                                ) : (
-                                    <Typography variant="body2" color="text.secondary">
-                                        No instructions configured
-                                    </Typography>
-                                )}
-                            </Box>
-                        </Grid>
-                        <Alert severity="info">
-                            Instruction type <strong>Config</strong> is always allowed
-                        </Alert>
-                    </Grid>
                 </CardContent>
             </Card>
+
+            <Grid container spacing={3}>
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, height: "100%" }}>
+                        <CardContent>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
+                                <Avatar sx={{ bgcolor: "primary.main", width: 40, height: 40 }}>
+                                    <TimerIcon />
+                                </Avatar>
+                                <Box>
+                                    <Typography variant="subtitle1" fontWeight={600}>
+                                        Timing Settings
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Configure intervals for state transitions
+                                    </Typography>
+                                </Box>
+                            </Box>
+
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                                <ConfigField
+                                    label="Authentication Retry"
+                                    description="Wait time before retrying failed authentication"
+                                    value={formData.authenticationExitIntervalSeconds ?? 0}
+                                    onChange={handleChange("authenticationExitIntervalSeconds")}
+                                    suffix="sec"
+                                />
+                                <Divider />
+                                <ConfigField
+                                    label="Running Loop Interval"
+                                    description="Delay between running state iterations"
+                                    value={formData.runningExitIntervalSeconds ?? 0}
+                                    onChange={handleChange("runningExitIntervalSeconds")}
+                                    suffix="sec"
+                                />
+                                <Divider />
+                                <ConfigField
+                                    label="Execution Cooldown"
+                                    description="Wait time after executing instructions"
+                                    value={formData.executionExitIntervalSeconds ?? 0}
+                                    onChange={handleChange("executionExitIntervalSeconds")}
+                                    suffix="sec"
+                                />
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                {/* Limits Card */}
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, height: "100%" }}>
+                        <CardContent>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
+                                <Avatar sx={{ bgcolor: "info.main", width: 40, height: 40 }}>
+                                    <TuneIcon />
+                                </Avatar>
+                                <Box>
+                                    <Typography variant="subtitle1" fontWeight={600}>
+                                        Batch Limits
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Control data processing batch sizes
+                                    </Typography>
+                                </Box>
+                            </Box>
+
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                                <ConfigField
+                                    label="Instructions per Batch"
+                                    description="Max instructions to execute per iteration"
+                                    value={formData.instructionsExecutionLimit ?? 0}
+                                    onChange={handleChange("instructionsExecutionLimit")}
+                                />
+                                <Divider />
+                                <ConfigField
+                                    label="Results per Send"
+                                    description="Max instruction results per server batch"
+                                    value={formData.instructionResultsSendLimit ?? 0}
+                                    onChange={handleChange("instructionResultsSendLimit")}
+                                />
+                                <Divider />
+                                <ConfigField
+                                    label="Metrics per Send"
+                                    description="Max metrics to send per batch"
+                                    value={formData.metricsSendLimit ?? 0}
+                                    onChange={handleChange("metricsSendLimit")}
+                                />
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                {/* Collectors Card */}
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2 }}>
+                        <CardContent>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    mb: 2,
+                                }}
+                            >
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                                    <Avatar sx={{ bgcolor: "success.main", width: 40, height: 40 }}>
+                                        <DataUsageIcon />
+                                    </Avatar>
+                                    <Box>
+                                        <Typography variant="subtitle1" fontWeight={600}>
+                                            Metric Collectors
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            {formData.allowedCollectors?.length || 0} of {AVAILABLE_COLLECTORS.length} enabled
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                                <Tooltip title="Edit collectors">
+                                    <IconButton onClick={() => setCollectorsDialogOpen(true)} color="primary">
+                                        <EditIcon />
+                                    </IconButton>
+                                </Tooltip>
+                            </Box>
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                                {formData.allowedCollectors && formData.allowedCollectors.length > 0 ? (
+                                    formData.allowedCollectors.map((collector, index) => (
+                                        <Chip
+                                            key={index}
+                                            icon={<SpeedIcon />}
+                                            label={collector}
+                                            color="success"
+                                            variant="outlined"
+                                            size="small"
+                                        />
+                                    ))
+                                ) : (
+                                    <Paper
+                                        variant="outlined"
+                                        sx={{
+                                            p: 2,
+                                            width: "100%",
+                                            textAlign: "center",
+                                            borderStyle: "dashed",
+                                        }}
+                                    >
+                                        <Typography variant="body2" color="text.secondary">
+                                            No collectors enabled. Click edit to add.
+                                        </Typography>
+                                    </Paper>
+                                )}
+                            </Box>
+                            <Alert severity="info" sx={{ mt: 2 }} icon={false}>
+                                Available collectors depend on agent version
+                            </Alert>
+                        </CardContent>
+                    </Card>
+                </Grid>
+
+                {/* Instructions Card */}
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2 }}>
+                        <CardContent>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    mb: 2,
+                                }}
+                            >
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                                    <Avatar sx={{ bgcolor: "warning.main", width: 40, height: 40 }}>
+                                        <TerminalIcon />
+                                    </Avatar>
+                                    <Box>
+                                        <Typography variant="subtitle1" fontWeight={600}>
+                                            Allowed Instructions
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            {formData.allowedInstructions?.length || 0} of {AVAILABLE_INSTRUCTIONS.length} enabled
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                                <Tooltip title="Edit instructions">
+                                    <IconButton onClick={() => setInstructionsDialogOpen(true)} color="primary">
+                                        <EditIcon />
+                                    </IconButton>
+                                </Tooltip>
+                            </Box>
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                                <Chip label="Config" color="default" variant="filled" size="small" sx={{ opacity: 0.7 }} />
+                                {formData.allowedInstructions && formData.allowedInstructions.length > 0 ? (
+                                    formData.allowedInstructions.map((instruction, index) => (
+                                        <Chip key={index} label={instruction} color="warning" variant="outlined" size="small" />
+                                    ))
+                                ) : null}
+                            </Box>
+                            {(!formData.allowedInstructions || formData.allowedInstructions.length === 0) && (
+                                <Paper
+                                    variant="outlined"
+                                    sx={{
+                                        p: 2,
+                                        mt: 1,
+                                        width: "100%",
+                                        textAlign: "center",
+                                        borderStyle: "dashed",
+                                    }}
+                                >
+                                    <Typography variant="body2" color="text.secondary">
+                                        Only Config instruction enabled
+                                    </Typography>
+                                </Paper>
+                            )}
+                            <Alert severity="info" sx={{ mt: 2 }} icon={false}>
+                                Config instruction type is always allowed
+                            </Alert>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
 
             <Snackbar
                 open={snackbar.open}
