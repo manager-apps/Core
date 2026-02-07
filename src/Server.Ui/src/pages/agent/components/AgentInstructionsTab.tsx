@@ -143,7 +143,6 @@ const columns: StyledTableColumn<InstructionResponse>[] = [
 const renderExpandedContent = (instruction: InstructionResponse) => (
     <>
         <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <SettingsIcon fontSize="small" color="primary" />
             Payload
         </Typography>
         <Paper
@@ -197,7 +196,6 @@ const renderExpandedContent = (instruction: InstructionResponse) => (
         {instruction.error && (
             <>
                 <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <ErrorIcon fontSize="small" color="error" />
                     Error
                 </Typography>
                 <Paper

@@ -275,13 +275,11 @@ export const AgentOverviewTab: React.FC<AgentOverviewTabProps> = ({ agent, onSta
                                     </Typography>
                                 </Box>
                                 <Divider />
-                                <Box>
-                                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Operating System
-                                        </Typography>
-                                    </Box>
-                                    <Typography variant="body2" fontWeight={500} sx={{ wordBreak: "break-word" }}>
+                                <Box  sx={{ display: "flex", justifyContent: "space-between" }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Operating System
+                                    </Typography>
+                                    <Typography variant="body2" fontWeight={500}>
                                         {agent.hardware.osVersion || "-"}
                                     </Typography>
                                 </Box>
