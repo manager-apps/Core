@@ -4,6 +4,7 @@ import Layout from './components/layout/Layout';
 import { AgentsPage } from './pages/agent/AgentsPage';
 import { AgentPage } from './pages/agent/AgentPage';
 import { MetricsPage } from './pages/metrics/MetricsPage';
+import { ChatPage } from './pages/chat/ChatPage';
 
 const demoTheme = createTheme({
   cssVariables: {
@@ -35,6 +36,7 @@ function App() {
             <Route path="metrics" element={<MetricsPage />} />
             <Route path="agents" element={<AgentsPage />} />
             <Route path="agents/:id" element={<AgentPage />} />
+            <Route path="chat" element={<ChatPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
