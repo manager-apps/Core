@@ -5,16 +5,9 @@ import {
     CardContent,
     Chip,
     IconButton,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
     Paper,
     Typography,
     Tooltip,
-    Collapse,
     Avatar,
     Grid,
 } from "@mui/material";
@@ -24,8 +17,6 @@ import { InstructionType, InstructionState } from "../../../types/instruction";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import AddIcon from "@mui/icons-material/Add";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import TerminalIcon from "@mui/icons-material/Terminal";
 import PolicyIcon from "@mui/icons-material/Policy";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -34,6 +25,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 import SendIcon from "@mui/icons-material/Send";
 import { CreateInstructionDialog } from "./CreateInstructionDialog";
+import { StyledTable, type StyledTableColumn } from "../../../components/table/StyledTable";
 
 interface AgentInstructionsTabProps {
     agentId: number;
@@ -88,157 +80,148 @@ const parsePayload = (payloadJson: string, type: number): string => {
     }
 };
 
-interface InstructionRowProps {
-    instruction: InstructionResponse;
-}
+const columns: StyledTableColumn<InstructionResponse>[] = [
+    {
+        id: "id",
+        label: "ID",
+        minWidth: 80,
+        render: (row) => (
+            <Typography variant="body2" fontWeight={500}>
+                #{row.id}
+            </Typography>
+        ),
+    },
+    {
+        id: "type",
+        label: "Type",
+        minWidth: 100,
+        render: (row) => {
+            const typeInfo = getInstructionTypeInfo(row.type);
+            return <Chip icon={typeInfo.icon} label={typeInfo.label} color={typeInfo.color} size="small" variant="outlined" />;
+        },
+    },
+    {
+        id: "state",
+        label: "State",
+        minWidth: 100,
+        render: (row) => getStateChip(row.state),
+    },
+    {
+        id: "payload",
+        label: "Payload",
+        minWidth: 200,
+        render: (row) => (
+            <Tooltip title={parsePayload(row.payloadJson, row.type)}>
+                <Typography
+                    variant="body2"
+                    sx={{
+                        maxWidth: 200,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        fontFamily: "monospace",
+                        fontSize: "0.8rem",
+                    }}
+                >
+                    {parsePayload(row.payloadJson, row.type)}
+                </Typography>
+            </Tooltip>
+        ),
+    },
+    {
+        id: "createdAt",
+        label: "Created At",
+        minWidth: 150,
+        render: (row) => (
+            <Typography variant="caption" color="text.secondary">
+                {formatDate(row.createdAt)}
+            </Typography>
+        ),
+    },
+];
 
-const InstructionRow: React.FC<InstructionRowProps> = ({ instruction }) => {
-    const [expanded, setExpanded] = useState(false);
-    const typeInfo = getInstructionTypeInfo(instruction.type);
-
-    return (
-        <>
-            <TableRow
-                hover
-                sx={{
-                    cursor: "pointer",
-                    bgcolor: "background.paper",
-                    "&:nth-of-type(odd)": { bgcolor: "action.hover" },
-                }}
-                onClick={() => setExpanded(!expanded)}
+const renderExpandedContent = (instruction: InstructionResponse) => (
+    <>
+        <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <SettingsIcon fontSize="small" color="primary" />
+            Payload
+        </Typography>
+        <Paper
+            variant="outlined"
+            sx={{
+                p: 2,
+                mb: 2,
+                bgcolor: "background.paper",
+                borderRadius: 1,
+                border: "1px solid",
+                borderColor: "divider",
+            }}
+        >
+            <Typography
+                variant="body2"
+                component="pre"
+                sx={{ fontFamily: "monospace", whiteSpace: "pre-wrap", m: 0, color: "text.primary", fontSize: "0.85rem" }}
             >
-                <TableCell>
-                    <IconButton size="small">
-                        {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                    </IconButton>
-                </TableCell>
-                <TableCell>
-                    <Typography variant="body2" fontWeight={500}>
-                        #{instruction.id}
-                    </Typography>
-                </TableCell>
-                <TableCell>
-                    <Chip
-                        icon={typeInfo.icon}
-                        label={typeInfo.label}
-                        color={typeInfo.color}
-                        size="small"
-                        variant="outlined"
-                    />
-                </TableCell>
-                <TableCell>{getStateChip(instruction.state)}</TableCell>
-                <TableCell>
-                    <Tooltip title={parsePayload(instruction.payloadJson, instruction.type)}>
-                        <Typography
-                            variant="body2"
-                            sx={{
-                                maxWidth: 200,
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                fontFamily: "monospace",
-                                fontSize: "0.8rem",
-                            }}
-                        >
-                            {parsePayload(instruction.payloadJson, instruction.type)}
-                        </Typography>
-                    </Tooltip>
-                </TableCell>
-                <TableCell>
-                    <Typography variant="caption" color="text.secondary">
-                        {formatDate(instruction.createdAt)}
-                    </Typography>
-                </TableCell>
-            </TableRow>
-            <TableRow>
-                <TableCell sx={{ py: 0, borderBottom: expanded ? 1 : 0, borderColor: "divider" }} colSpan={6}>
-                    <Collapse in={expanded} timeout="auto" unmountOnExit>
-                        <Box sx={{ p: 2.5, bgcolor: "background.default", borderRadius: 1, my: 1 }}>
-                            <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <SettingsIcon fontSize="small" color="primary" />
-                                Payload
-                            </Typography>
-                            <Paper
-                                variant="outlined"
-                                sx={{
-                                    p: 2,
-                                    mb: 2,
-                                    bgcolor: "background.paper",
-                                    borderRadius: 1,
-                                    border: "1px solid",
-                                    borderColor: "divider",
-                                }}
-                            >
-                                <Typography
-                                    variant="body2"
-                                    component="pre"
-                                    sx={{ fontFamily: "monospace", whiteSpace: "pre-wrap", m: 0, color: "text.primary", fontSize: "0.85rem" }}
-                                >
-                                    {JSON.stringify(JSON.parse(instruction.payloadJson), null, 2)}
-                                </Typography>
-                            </Paper>
+                {JSON.stringify(JSON.parse(instruction.payloadJson), null, 2)}
+            </Typography>
+        </Paper>
 
-                            {instruction.output && (
-                                <>
-                                    <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                        <CheckCircleIcon fontSize="small" color="success" />
-                                        Output
-                                    </Typography>
-                                    <Paper
-                                        variant="outlined"
-                                        sx={{
-                                            p: 2,
-                                            mb: 2,
-                                            bgcolor: "background.paper",
-                                            borderRadius: 1,
-                                            border: "1px solid",
-                                            borderColor: "success.main",
-                                        }}
-                                    >
-                                        <Typography
-                                            variant="body2"
-                                            component="pre"
-                                            sx={{ fontFamily: "monospace", whiteSpace: "pre-wrap", m: 0, color: "success.light", fontSize: "0.85rem" }}
-                                        >
-                                            {instruction.output}
-                                        </Typography>
-                                    </Paper>
-                                </>
-                            )}
+        {instruction.output && (
+            <>
+                <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <CheckCircleIcon fontSize="small" color="success" />
+                    Output
+                </Typography>
+                <Paper
+                    variant="outlined"
+                    sx={{
+                        p: 2,
+                        mb: 2,
+                        bgcolor: "background.paper",
+                        borderRadius: 1,
+                        border: "1px solid",
+                        borderColor: "success.main",
+                    }}
+                >
+                    <Typography
+                        variant="body2"
+                        component="pre"
+                        sx={{ fontFamily: "monospace", whiteSpace: "pre-wrap", m: 0, color: "success.light", fontSize: "0.85rem" }}
+                    >
+                        {instruction.output}
+                    </Typography>
+                </Paper>
+            </>
+        )}
 
-                            {instruction.error && (
-                                <>
-                                    <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                        <ErrorIcon fontSize="small" color="error" />
-                                        Error
-                                    </Typography>
-                                    <Paper
-                                        variant="outlined"
-                                        sx={{
-                                            p: 2,
-                                            bgcolor: "background.paper",
-                                            borderRadius: 1,
-                                            border: "1px solid",
-                                            borderColor: "error.main",
-                                        }}
-                                    >
-                                        <Typography
-                                            variant="body2"
-                                            component="pre"
-                                            sx={{ fontFamily: "monospace", whiteSpace: "pre-wrap", m: 0, color: "error.light", fontSize: "0.85rem" }}
-                                        >
-                                            {instruction.error}
-                                        </Typography>
-                                    </Paper>
-                                </>
-                            )}
-                        </Box>
-                    </Collapse>
-                </TableCell>
-            </TableRow>
-        </>
-    );
-};
+        {instruction.error && (
+            <>
+                <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <ErrorIcon fontSize="small" color="error" />
+                    Error
+                </Typography>
+                <Paper
+                    variant="outlined"
+                    sx={{
+                        p: 2,
+                        bgcolor: "background.paper",
+                        borderRadius: 1,
+                        border: "1px solid",
+                        borderColor: "error.main",
+                    }}
+                >
+                    <Typography
+                        variant="body2"
+                        component="pre"
+                        sx={{ fontFamily: "monospace", whiteSpace: "pre-wrap", m: 0, color: "error.light", fontSize: "0.85rem" }}
+                    >
+                        {instruction.error}
+                    </Typography>
+                </Paper>
+            </>
+        )}
+    </>
+);
 
 interface StatCardProps {
     title: string;
@@ -344,47 +327,14 @@ export const AgentInstructionsTab: React.FC<AgentInstructionsTabProps> = ({
                 </Grid>
             </Grid>
 
-            {/* Instructions Table */}
-            <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2 }}>
-                <CardContent sx={{ p: 0 }}>
-                    {instructions.length === 0 ? (
-                        <Box sx={{ textAlign: "center", py: 6 }}>
-                            <Avatar sx={{ width: 64, height: 64, bgcolor: "action.hover", mx: "auto", mb: 2 }}>
-                                <SendIcon sx={{ fontSize: 32, color: "text.secondary" }} />
-                            </Avatar>
-                            <Typography variant="h6" color="text.secondary" gutterBottom>
-                                No Instructions Yet
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                Create your first instruction to get started
-                            </Typography>
-                            <Button variant="outlined" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-                                Create Instruction
-                            </Button>
-                        </Box>
-                    ) : (
-                        <TableContainer>
-                            <Table size="small" sx={{ bgcolor: "background.default" }}>
-                                <TableHead>
-                                    <TableRow sx={{ bgcolor: "action.selected" }}>
-                                        <TableCell width={50} />
-                                        <TableCell sx={{ fontWeight: 600 }}>ID</TableCell>
-                                        <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
-                                        <TableCell sx={{ fontWeight: 600 }}>State</TableCell>
-                                        <TableCell sx={{ fontWeight: 600 }}>Payload</TableCell>
-                                        <TableCell sx={{ fontWeight: 600 }}>Created At</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {instructions.map((instruction) => (
-                                        <InstructionRow key={instruction.id} instruction={instruction} />
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    )}
-                </CardContent>
-            </Card>
+            <StyledTable
+                columns={columns}
+                rows={instructions}
+                getRowId={(row) => row.id}
+                renderExpandedContent={renderExpandedContent}
+                emptyMessage="No Instructions Yet"
+                emptyIcon={<SendIcon sx={{ fontSize: 32, color: "text.secondary" }} />}
+            />
 
             <CreateInstructionDialog
                 open={dialogOpen}

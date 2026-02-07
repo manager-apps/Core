@@ -11,10 +11,19 @@ import {
     MenuItem,
     Box,
     Alert,
+    IconButton,
+    Typography,
+    Divider,
+    Avatar,
+    Paper,
 } from "@mui/material";
 import { useState } from "react";
 import type { CreateShellCommandRequest, CreateGpoSetRequest } from "../../../types/instruction";
 import { InstructionType } from "../../../types/instruction";
+import CloseIcon from "@mui/icons-material/Close";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import TerminalIcon from "@mui/icons-material/Terminal";
+import PolicyIcon from "@mui/icons-material/Policy";
 
 interface CreateInstructionDialogProps {
     open: boolean;
@@ -87,76 +96,162 @@ export const CreateInstructionDialog: React.FC<CreateInstructionDialogProps> = (
     };
 
     return (
-        <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-            <DialogTitle>Create New Instruction</DialogTitle>
-            <DialogContent>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
-                    {error && <Alert severity="error">{error}</Alert>}
+        <Dialog
+            open={open}
+            onClose={handleClose}
+            maxWidth="sm"
+            fullWidth
+            PaperProps={{
+                elevation: 0,
+                sx: {
+                    border: "1px solid",
+                    borderColor: "divider",
+                    borderRadius: 2,
+                    bgcolor: "background.paper",
+                },
+            }}
+        >
+            <DialogTitle sx={{ p: 2.5, pb: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                        <Avatar sx={{ width: 40, height: 40, bgcolor: "primary.main" }}>
+                            <AddCircleOutlineIcon />
+                        </Avatar>
+                        <Box>
+                            <Typography variant="h6" fontWeight={600}>
+                                Create New Instruction
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                                Send a command to the agent
+                            </Typography>
+                        </Box>
+                    </Box>
+                    <IconButton size="small" onClick={handleClose} sx={{ color: "text.secondary" }}>
+                        <CloseIcon fontSize="small" />
+                    </IconButton>
+                </Box>
+            </DialogTitle>
+            <Divider />
+            <DialogContent sx={{ p: 2.5 }}>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+                    {error && (
+                        <Alert severity="error" sx={{ borderRadius: 1 }}>
+                            {error}
+                        </Alert>
+                    )}
 
-                    <FormControl fullWidth>
+                    <FormControl fullWidth size="small">
                         <InputLabel>Instruction Type</InputLabel>
                         <Select
                             value={type}
                             label="Instruction Type"
                             onChange={(e) => setType(Number(e.target.value))}
                         >
-                            <MenuItem value={InstructionType.Shell}>Shell Command</MenuItem>
-                            <MenuItem value={InstructionType.Gpo}>GPO Setting</MenuItem>
+                            <MenuItem value={InstructionType.Shell}>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                    <TerminalIcon fontSize="small" color="primary" />
+                                    Shell Command
+                                </Box>
+                            </MenuItem>
+                            <MenuItem value={InstructionType.Gpo}>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                    <PolicyIcon fontSize="small" color="secondary" />
+                                    GPO Setting
+                                </Box>
+                            </MenuItem>
                         </Select>
                     </FormControl>
 
-                    {type === InstructionType.Shell && (
-                        <>
-                            <TextField
-                                label="Command"
-                                fullWidth
-                                multiline
-                                rows={3}
-                                value={command}
-                                onChange={(e) => setCommand(e.target.value)}
-                                placeholder="Enter shell command..."
-                                helperText="The command to execute on the agent"
-                            />
-                            <TextField
-                                label="Timeout (ms)"
-                                type="number"
-                                fullWidth
-                                value={timeout}
-                                onChange={(e) => setTimeout(Number(e.target.value))}
-                                helperText="Maximum execution time in milliseconds"
-                            />
-                        </>
-                    )}
+                    <Paper
+                        variant="outlined"
+                        sx={{
+                            p: 2,
+                            borderRadius: 1,
+                            border: "1px solid",
+                            borderColor: "divider",
+                            bgcolor: "background.default",
+                        }}
+                    >
+                        {type === InstructionType.Shell && (
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                                <Box>
+                                    <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>
+                                        Command
+                                    </Typography>
+                                    <TextField
+                                        fullWidth
+                                        multiline
+                                        rows={3}
+                                        size="small"
+                                        value={command}
+                                        onChange={(e) => setCommand(e.target.value)}
+                                        placeholder="Enter shell command..."
+                                        sx={{
+                                            "& .MuiInputBase-input": {
+                                                fontFamily: "monospace",
+                                                fontSize: "0.875rem",
+                                            },
+                                        }}
+                                    />
+                                    <Typography variant="caption" color="text.secondary">
+                                        The command to execute on the agent
+                                    </Typography>
+                                </Box>
+                                <Box>
+                                    <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>
+                                        Timeout (ms)
+                                    </Typography>
+                                    <TextField
+                                        type="number"
+                                        fullWidth
+                                        size="small"
+                                        value={timeout}
+                                        onChange={(e) => setTimeout(Number(e.target.value))}
+                                    />
+                                    <Typography variant="caption" color="text.secondary">
+                                        Maximum execution time in milliseconds
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        )}
 
-                    {type === InstructionType.Gpo && (
-                        <>
-                            <TextField
-                                label="GPO Name"
-                                fullWidth
-                                value={gpoName}
-                                onChange={(e) => setGpoName(e.target.value)}
-                                placeholder="Enter GPO setting name..."
-                            />
-                            <TextField
-                                label="GPO Value"
-                                fullWidth
-                                value={gpoValue}
-                                onChange={(e) => setGpoValue(e.target.value)}
-                                placeholder="Enter GPO setting value..."
-                            />
-                        </>
-                    )}
+                        {type === InstructionType.Gpo && (
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                                <Box>
+                                    <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>
+                                        GPO Name
+                                    </Typography>
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        value={gpoName}
+                                        onChange={(e) => setGpoName(e.target.value)}
+                                        placeholder="Enter GPO setting name..."
+                                    />
+                                </Box>
+                                <Box>
+                                    <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>
+                                        GPO Value
+                                    </Typography>
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        value={gpoValue}
+                                        onChange={(e) => setGpoValue(e.target.value)}
+                                        placeholder="Enter GPO setting value..."
+                                    />
+                                </Box>
+                            </Box>
+                        )}
+                    </Paper>
                 </Box>
             </DialogContent>
-            <DialogActions>
-                <Button onClick={handleClose} disabled={loading}>
+            <Divider />
+            <DialogActions sx={{ p: 2, gap: 1 }}>
+                <Button onClick={handleClose} variant="outlined" disabled={loading}>
                     Cancel
                 </Button>
-                <Button
-                    onClick={handleCreate}
-                    variant="contained"
-                    disabled={loading}
-                >
+                <Button onClick={handleCreate} variant="contained" disabled={loading}>
                     {loading ? "Creating..." : "Create"}
                 </Button>
             </DialogActions>

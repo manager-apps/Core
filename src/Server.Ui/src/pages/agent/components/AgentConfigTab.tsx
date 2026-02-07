@@ -21,12 +21,10 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import SaveIcon from "@mui/icons-material/Save";
 import RestoreIcon from "@mui/icons-material/Restore";
 import EditIcon from "@mui/icons-material/Edit";
-import TimerIcon from "@mui/icons-material/Timer";
-import TuneIcon from "@mui/icons-material/Tune";
 import SpeedIcon from "@mui/icons-material/Speed";
-import DataUsageIcon from "@mui/icons-material/DataUsage";
 import TerminalIcon from "@mui/icons-material/Terminal";
 import { MultiSelectDialog } from "../../../components/dialog/MultiSelectDialog";
+import DocumentScannerIcon from '@mui/icons-material/DocumentScanner';
 
 const AVAILABLE_COLLECTORS = ["cpu_usage", "disk_usage", "memory_usage"];
 const AVAILABLE_INSTRUCTIONS = ["Gpo", "Shell"];
@@ -178,15 +176,9 @@ export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ config, onSave }
                     <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, height: "100%" }}>
                         <CardContent>
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
-                                <Avatar sx={{ bgcolor: "primary.main", width: 40, height: 40 }}>
-                                    <TimerIcon />
-                                </Avatar>
                                 <Box>
                                     <Typography variant="subtitle1" fontWeight={600}>
                                         Timing Settings
-                                    </Typography>
-                                    <Typography variant="caption" color="text.secondary">
-                                        Configure intervals for state transitions
                                     </Typography>
                                 </Box>
                             </Box>
@@ -220,20 +212,13 @@ export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ config, onSave }
                     </Card>
                 </Grid>
 
-                {/* Limits Card */}
                 <Grid size={{ xs: 12, md: 6 }}>
                     <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, height: "100%" }}>
                         <CardContent>
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
-                                <Avatar sx={{ bgcolor: "info.main", width: 40, height: 40 }}>
-                                    <TuneIcon />
-                                </Avatar>
                                 <Box>
                                     <Typography variant="subtitle1" fontWeight={600}>
                                         Batch Limits
-                                    </Typography>
-                                    <Typography variant="caption" color="text.secondary">
-                                        Control data processing batch sizes
                                     </Typography>
                                 </Box>
                             </Box>
@@ -278,7 +263,7 @@ export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ config, onSave }
                             >
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                                     <Avatar sx={{ bgcolor: "success.main", width: 40, height: 40 }}>
-                                        <DataUsageIcon />
+                                        <DocumentScannerIcon />
                                     </Avatar>
                                     <Box>
                                         <Typography variant="subtitle1" fontWeight={600}>
@@ -323,7 +308,7 @@ export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ config, onSave }
                                     </Paper>
                                 )}
                             </Box>
-                            <Alert severity="info" sx={{ mt: 2 }} icon={false}>
+                            <Alert severity="info" sx={{ mt: 2 }}>
                                 Available collectors depend on agent version
                             </Alert>
                         </CardContent>
@@ -385,7 +370,7 @@ export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ config, onSave }
                                     </Typography>
                                 </Paper>
                             )}
-                            <Alert severity="info" sx={{ mt: 2 }} icon={false}>
+                            <Alert severity="info" sx={{ mt: 2 }}>
                                 Config instruction type is always allowed
                             </Alert>
                         </CardContent>

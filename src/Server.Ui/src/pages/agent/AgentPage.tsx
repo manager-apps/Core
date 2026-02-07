@@ -8,8 +8,7 @@ import type { InstructionResponse, CreateShellCommandRequest, CreateGpoSetReques
 import type { ConfigUpdateRequest } from "../../types/config";
 
 import FetchContentWrapper from "../../components/wrappers/FetchContentWrapper";
-import { Box, Chip, Tab, Tabs, Typography } from "@mui/material";
-import { AgentState } from "../../types/agent";
+import { Box, Chip, Tab, Tabs } from "@mui/material";
 import { AgentOverviewTab } from "./components/AgentOverviewTab";
 import { AgentConfigTab } from "./components/AgentConfigTab";
 import { AgentInstructionsTab } from "./components/AgentInstructionsTab";
@@ -35,17 +34,6 @@ function TabPanel(props: TabPanelProps) {
     );
 }
 
-const getStateChip = (state: number) => {
-    switch (state) {
-        case AgentState.Active:
-            return <Chip label="Active" color="success" size="small" />;
-        case AgentState.Inactive:
-            return <Chip label="Inactive" color="default" size="small" />;
-        default:
-            return <Chip label="Unknown" color="warning" size="small" />;
-    }
-};
-
 export function AgentPage() {
     const { id } = useParams<{ id: string }>();
     const [loading, setLoading] = useState<boolean>(false);
@@ -61,7 +49,6 @@ export function AgentPage() {
             setError("Invalid agent id");
             return;
         }
-
         loadAgentAndInstructions(agentId);
     }, [id]);
 
@@ -120,18 +107,6 @@ export function AgentPage() {
         <FetchContentWrapper loading={loading} error={error}>
             {agent && (
                 <Box>
-                    {/* Header
-                    <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
-                        <Typography variant="h4" component="h1">
-                            {agent.name}
-                        </Typography>
-                        {getStateChip(agent.state)}
-                        <Typography variant="body2" color="text.secondary">
-                            v{agent.version}
-                        </Typography>
-                    </Box> */}
-
-                    {/* Tabs */}
                     <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
                         <Tabs value={tabValue} onChange={handleTabChange}>
                             <Tab label="Overview" id="agent-tab-0" aria-controls="agent-tabpanel-0" />
@@ -148,16 +123,16 @@ export function AgentPage() {
                             />
                         </Tabs>
                     </Box>
-
-                    {/* Tab Panels */}
                     <TabPanel value={tabValue} index={0}>
-                        <AgentOverviewTab agent={agent} onStateChange={handleStateChange} />
+                        <AgentOverviewTab 
+                            agent={agent} 
+                            onStateChange={handleStateChange} />
                     </TabPanel>
-
                     <TabPanel value={tabValue} index={1}>
-                        <AgentConfigTab config={agent.config} onSave={handleConfigSave} />
+                        <AgentConfigTab 
+                            config={agent.config} 
+                            onSave={handleConfigSave} />
                     </TabPanel>
-
                     <TabPanel value={tabValue} index={2}>
                         <AgentInstructionsTab
                             agentId={agent.id}
