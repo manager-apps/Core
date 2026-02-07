@@ -18,7 +18,7 @@ public static class LoadTestSeeder
       var agentsToAdd = new List<Agent>();
       var dataHasher = new HmacDataHasher();
       var (hash, salt) = dataHasher.CreateDataHash(TestSecretKey);
-      var random = new Random(42); // Fixed seed for reproducibility
+      var random = new Random(42);
 
       string[] osVersions = ["Windows 10 Pro 22H2", "Windows 11 Pro 23H2", "Windows Server 2022", "Windows Server 2019", "Ubuntu 22.04 LTS"];
       string[] collectors = ["cpu", "memory", "disk", "network", "process"];

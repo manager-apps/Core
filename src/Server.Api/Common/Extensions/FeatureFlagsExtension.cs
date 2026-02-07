@@ -1,6 +1,6 @@
 ﻿using Microsoft.FeatureManagement;
 
-namespace Server.Api.Common.FeatureFlags;
+namespace Server.Api.Common.Extensions;
 
 public static class FeatureFlagsExtension
 {

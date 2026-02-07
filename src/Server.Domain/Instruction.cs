@@ -6,9 +6,7 @@ namespace Server.Domain;
 public enum InstructionType
 {
   Gpo = 1,
-
   Shell,
-
   Config,
 }
 

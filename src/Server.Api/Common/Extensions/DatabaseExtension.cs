@@ -1,6 +1,6 @@
-using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Server.Api.Infrastructure;
+using System.Reflection;
 
 namespace Server.Api.Common.Extensions;
 
