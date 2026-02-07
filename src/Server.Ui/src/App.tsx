@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import { AgentsPage } from './pages/agent/AgentsPage';
 import { AgentPage } from './pages/agent/AgentPage';
+import { MetricsPage } from './pages/metrics/MetricsPage';
 
 const demoTheme = createTheme({
   cssVariables: {
@@ -31,6 +32,7 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Navigate to="/agents" replace />} />
             <Route path="dashboard" element={<div>test</div>} />
+            <Route path="metrics" element={<MetricsPage />} />
             <Route path="agents" element={<AgentsPage />} />
             <Route path="agents/:id" element={<AgentPage />} />
           </Route>
