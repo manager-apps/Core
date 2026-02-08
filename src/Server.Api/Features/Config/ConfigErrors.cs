@@ -1,6 +1,9 @@
-﻿namespace Server.Api.Features.Config;
+﻿using Server.Api.Common.Result;
 
-public class ConfigErrors
+namespace Server.Api.Features.Config;
+
+public static class ConfigErrors
 {
-  
+  public static Error NotFound()
+    => Error.NotFound("Config not found");
 }

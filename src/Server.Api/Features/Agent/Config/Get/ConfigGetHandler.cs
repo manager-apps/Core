@@ -29,6 +29,9 @@ internal class ConfigGetHandler(
     if (agent is null)
       return AgentErrors.NotFound();
 
+    if (agent.Config is null)
+      return ConfigErrors.NotFound();
+
     return agent.Config.ToResponse();
   }
 }

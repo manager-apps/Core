@@ -29,6 +29,9 @@ internal class HardwareGetHandler(
     if (agent is null)
       return AgentErrors.NotFound();
 
+    if (agent.Hardware is null)
+      return HardwareErrors.NotFound();
+
     return agent.Hardware.ToResponse();
   }
 }

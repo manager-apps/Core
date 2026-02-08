@@ -37,6 +37,9 @@ internal class ConfigUpdateHandler(
     if (agent is null)
       return AgentErrors.NotFound();
 
+    if (agent.Config is null)
+      return ConfigErrors.NotFound();
+
     agent.Config.Update(
       authenticationExitIntervalSeconds: request.AuthenticationExitIntervalSeconds,
       runningExitIntervalSeconds: request.RunningExitIntervalSeconds,
