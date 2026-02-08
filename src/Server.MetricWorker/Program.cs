@@ -20,7 +20,6 @@ builder.Services.AddSingleton<ClickHouse.Driver.ADO.ClickHouseConnection>(_ =>
   new ClickHouse.Driver.ADO.ClickHouseConnection(connectionString));
 builder.Services.AddScoped<IMetricStorage, ClickHouseMetricStorage>();
 
-// Cache
 var redisConnectionString = builder.Configuration["Cache:Redis:ConnectionString"]!;
 builder.Services.AddStackExchangeRedisCache(options =>
 {

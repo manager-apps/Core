@@ -11,7 +11,7 @@
 
 #define ServiceName "DciAgentService"
 #define ServiceDisplayName "DCI Agent Service"
-#define DefaultServerUrl "http://147.232.52.190:5000"
+#define DefaultServerUrl "https://localhost:5141"
 
 [Setup]
 AppId={{12345678-1234-1234-1234-123456789012}}
@@ -42,6 +42,7 @@ Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs 
 Filename: "sc.exe"; Parameters: "stop {#ServiceName}"; Flags: runhidden waituntilterminated; Check: ServiceExists('{#ServiceName}')
 Filename: "taskkill.exe"; Parameters: "/F /IM {#MyAppExeName}"; Flags: runhidden waituntilterminated
 Filename: "{app}\{#MyAppExeName}"; Parameters: "{code:GetConfigParams}"; Flags: runhidden waituntilterminated; Check: ShouldOverwriteConfig; StatusMsg: "Configuring agent..."
+Filename: "{app}\{#MyAppExeName}"; Parameters: "{code:GetCertParams}"; Flags: runhidden waituntilterminated; Check: ShouldInitCertificate; StatusMsg: "Configuring certificate..."
 Filename: "{app}\{#MyAppExeName}"; Parameters: "--set-version --agent-version ""{#MyAppVersion}"""; Flags: runhidden waituntilterminated; Check: ConfigFileExists(); StatusMsg: "Updating version..."
 
 Filename: "sc.exe"; Parameters: "create {#ServiceName} binPath= ""{app}\{#MyAppExeName}"" start= auto DisplayName= ""{#ServiceDisplayName}"" obj= LocalSystem"; Flags: runhidden waituntilterminated; Check: not ServiceExists('{#ServiceName}')
@@ -115,9 +116,25 @@ begin
   Result := Assigned(OverwriteRadio) and OverwriteRadio.Checked;
 end;
 
+function ShouldInitCertificate(): Boolean;
+var
+  CertPath: string;
+begin
+  Result := False;
+  CertPath := GetCommandLineParam('/CERTPATH');
+  if WizardSilent then
+  begin
+    Result := CertPath <> '';
+    Exit;
+  end;
+
+  if Assigned(ConfigPage) and (ConfigPage.Values[3] <> '') then
+    Result := True;
+end;
+
 function GetConfigParams(Param: string): string;
 var
-  ServerUrl, Tag, AgentName, ClientSecret: string;
+  ServerUrl, Tag, AgentName, EnrollmentToken: string;
 begin
   if not ShouldOverwriteConfig() then
   begin
@@ -128,7 +145,7 @@ begin
   ServerUrl := GetCommandLineParam('/SERVERURL');
   Tag := GetCommandLineParam('/TAG');
   AgentName := GetCommandLineParam('/AGENTNAME');
-  ClientSecret := GetCommandLineParam('/CLIENTSECRET');
+  EnrollmentToken := GetCommandLineParam('/ENROLLMENTTOKEN');
 
   if not WizardSilent then
   begin
@@ -138,8 +155,8 @@ begin
       Tag := ConfigPage.Values[1];
     if (ConfigPage.Values[2] <> '') then
       AgentName := ConfigPage.Values[2];
-    if (ConfigPage.Values[3] <> '') then
-      ClientSecret := ConfigPage.Values[3];
+    if (ConfigPage.Values[4] <> '') then
+      EnrollmentToken := ConfigPage.Values[4];
   end;
 
   Result := '--init-config';
@@ -151,13 +168,40 @@ begin
   if AgentName <> '' then
     Result := Result + ' --agent-name "' + AgentName + '"';
 
-  if ClientSecret <> '' then
-    Result := Result + ' --init-secrets --client-secret "' + ClientSecret + '"';
-
   if Tag <> '' then
     Result := Result + ' --tag "' + Tag + '"';
 
+  if EnrollmentToken <> '' then
+    Result := Result + ' --enrollment-token "' + EnrollmentToken + '"';
+
   Result := Result + ' --agent-version "' + '{#MyAppVersion}' + '"';
+end;
+
+function GetCertParams(Param: string): string;
+var
+  CertPath, CertPassword: string;
+begin
+  Result := '';
+  if not ShouldInitCertificate() then Exit;
+
+  CertPath := GetCommandLineParam('/CERTPATH');
+  CertPassword := GetCommandLineParam('/CERTPASSWORD');
+
+  if not WizardSilent then
+  begin
+    if Assigned(ConfigPage) then
+    begin
+      if ConfigPage.Values[3] <> '' then
+        CertPath := ConfigPage.Values[3];
+    end;
+  end;
+
+  if CertPath <> '' then
+  begin
+    Result := '--init-cert --cert-path "' + CertPath + '"';
+    if CertPassword <> '' then
+      Result := Result + ' --cert-password "' + CertPassword + '"';
+  end;
 end;
 
 procedure InitializeWizard();
@@ -211,14 +255,16 @@ begin
       'Enter the configuration values below:');
 
   ConfigPage.Add('Server URL:', False);
-  ConfigPage.Add('Source Tag (required):', False);
-  ConfigPage.Add('Agent Name (required, must be unique):', False);
-  ConfigPage.Add('Secret (required):', True);
+  ConfigPage.Add('Source Tag:', False);
+  ConfigPage.Add('Agent Name (must be unique):', False);
+  ConfigPage.Add('Certificate Path (optional, for pre-provisioned cert):', False);
+  ConfigPage.Add('Enrollment Token (required for initial setup):', True);
 
   ConfigPage.Values[0] := '{#DefaultServerUrl}';
   ConfigPage.Values[1] := '';
   ConfigPage.Values[2] := '';
   ConfigPage.Values[3] := '';
+  ConfigPage.Values[4] := '';
 end;
 
 function ShouldSkipPage(PageID: Integer): Boolean;

@@ -6,23 +6,6 @@ namespace Server.Api.Features.Agent;
 
 public static class AgentMapper
 {
-  extension(AuthMessageRequest request)
-  {
-    public Server.Domain.Agent ToDomain(
-      byte[] secretKeyHash,
-      byte[] secretKeySalt,
-      string tag,
-      string version)
-      => Domain.Agent.Create(
-          config: request.Config.ToDomain(),
-          hardware: request.Hardware.ToDomain(),
-          name: request.AgentName,
-          sourceTag: tag,
-          version: version,
-          secretKeyHash: secretKeyHash,
-          secretKeySalt: secretKeySalt);
-  }
-
   extension(Server.Domain.Agent agent)
   {
     public AgentResponse ToResponse()

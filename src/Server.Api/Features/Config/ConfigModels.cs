@@ -1,8 +1,5 @@
 ﻿namespace Server.Api.Features.Config;
 
-/// <summary>
-/// Response model for configuration settings of an agent.
-/// </summary>
 public record ConfigResponse(
   long Id,
   long AgentId,
@@ -16,10 +13,6 @@ public record ConfigResponse(
   List<string> AllowedCollectors,
   List<string> AllowedInstructions);
 
-/// <summary>
-/// Request model for updating agent configuration.
-/// All fields are optional - only provided fields will be updated.
-/// </summary>
 public record ConfigUpdateRequest(
   int? AuthenticationExitIntervalSeconds = null,
   int? RunningExitIntervalSeconds = null,

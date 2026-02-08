@@ -1,7 +1,6 @@
 using Agent.WindowsService.Abstraction;
 using Agent.WindowsService.Config;
 using Agent.WindowsService.Domain;
-using System.Text;
 using Common.Messages;
 
 namespace Agent.WindowsService.Application;
@@ -17,7 +16,6 @@ public partial class StateMachine
     IReadOnlyList<Metric> currentCollected = [];
     try
     {
-      var authToken = await _secretStore.GetAsync(SecretConfig.AuthTokenKey, Encoding.UTF8, Token);
       var config = await _configStore.GetAsync(Token);
       var storedInstrResultsBuffer = await _instrStore.GetResultsAsync(Token, config.InstructionResultsSendLimit);
       var storedMetricsBuffer = await _metricStore.GetAsync(Token, config.MetricsSendLimit);
@@ -38,7 +36,6 @@ public partial class StateMachine
         data: reportData,
         metadata: new RequestMetadata
         {
-          AuthToken = authToken,
           AgentName = config.AgentName,
           Headers = new Dictionary<string, string>
           {

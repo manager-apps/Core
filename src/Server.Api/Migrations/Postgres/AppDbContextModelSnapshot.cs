@@ -46,14 +46,6 @@ namespace Server.Api.Migrations.Postgres
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<byte[]>("SecretKeyHash")
-                        .IsRequired()
-                        .HasColumnType("bytea");
-
-                    b.Property<byte[]>("SecretKeySalt")
-                        .IsRequired()
-                        .HasColumnType("bytea");
-
                     b.Property<string>("SourceTag")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -76,6 +68,64 @@ namespace Server.Api.Migrations.Postgres
                         .IsUnique();
 
                     b.ToTable("Agents");
+                });
+
+            modelBuilder.Entity("Server.Domain.Certificate", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AgentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset>("IssuedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RevocationReason")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SerialNumber")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("SubjectName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Thumbprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentId");
+
+                    b.HasIndex("SerialNumber")
+                        .IsUnique();
+
+                    b.HasIndex("Thumbprint")
+                        .IsUnique();
+
+                    b.ToTable("Certificates");
                 });
 
             modelBuilder.Entity("Server.Domain.Config", b =>
@@ -130,6 +180,46 @@ namespace Server.Api.Migrations.Postgres
                         .IsUnique();
 
                     b.ToTable("Configs");
+                });
+
+            modelBuilder.Entity("Server.Domain.EnrollmentToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<long?>("AgentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("AgentName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("boolean");
+
+                    b.Property<byte[]>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<byte[]>("TokenSalt")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentId");
+
+                    b.ToTable("EnrollmentTokens");
                 });
 
             modelBuilder.Entity("Server.Domain.Hardware", b =>
@@ -253,6 +343,17 @@ namespace Server.Api.Migrations.Postgres
                     b.ToTable("OutboxMessages");
                 });
 
+            modelBuilder.Entity("Server.Domain.Certificate", b =>
+                {
+                    b.HasOne("Server.Domain.Agent", "Agent")
+                        .WithMany()
+                        .HasForeignKey("AgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Agent");
+                });
+
             modelBuilder.Entity("Server.Domain.Config", b =>
                 {
                     b.HasOne("Server.Domain.Agent", "Agent")
@@ -260,6 +361,15 @@ namespace Server.Api.Migrations.Postgres
                         .HasForeignKey("Server.Domain.Config", "AgentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Agent");
+                });
+
+            modelBuilder.Entity("Server.Domain.EnrollmentToken", b =>
+                {
+                    b.HasOne("Server.Domain.Agent", "Agent")
+                        .WithMany()
+                        .HasForeignKey("AgentId");
 
                     b.Navigation("Agent");
                 });

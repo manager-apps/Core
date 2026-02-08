@@ -108,7 +108,6 @@ public class Worker(
           .AsNoTracking()
           .FirstOrDefaultAsync(a => a.Name == @event.AgentName, token),
         cancellationToken: ct);
-
       if (agent is null)
       {
         logger.LogWarning("Agent {AgentName} not found", @event.AgentName);

@@ -11,9 +11,10 @@ public partial class StateMachine : IStateMachine
   private readonly IMetricCollector _metricCollector;
   private readonly IMetricStore _metricStore;
   private readonly IInstructionStore _instrStore;
-  private readonly ISecretStore _secretStore;
   private readonly IServerClient _serverClient;
   private readonly IConfigurationStore _configStore;
+  private readonly ICertificateStore _certificateStore;
+  private readonly ICaEnrollmentService _icaEnrollmentService;
 
   private CancellationTokenSource? _cts;
   private CancellationToken Token =>
@@ -25,18 +26,20 @@ public partial class StateMachine : IStateMachine
     IMetricCollector metricCollector,
     IMetricStore metricStore,
     IInstructionStore instrStore,
-    ISecretStore secretStore,
     IServerClient serverClient,
-    IConfigurationStore configStore)
+    IConfigurationStore configStore,
+    ICertificateStore certificateStore,
+    ICaEnrollmentService icaEnrollmentService)
   {
     _logger = logger;
     _executors = executors;
     _metricCollector = metricCollector;
     _metricStore = metricStore;
     _instrStore = instrStore;
-    _secretStore = secretStore;
     _serverClient = serverClient;
     _configStore = configStore;
+    _certificateStore = certificateStore;
+    _icaEnrollmentService = icaEnrollmentService;
 
     _machine = new Stateless.StateMachine<States, Triggers>(States.Idle, Stateless.FiringMode.Queued);
     ConfigureStateMachine();

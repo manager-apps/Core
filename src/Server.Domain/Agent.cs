@@ -31,12 +31,6 @@ public class Agent
   public string Version { get; private set; } = null!;
 
   [Required]
-  public byte[] SecretKeyHash { get; private init; } = null!;
-
-  [Required]
-  public byte[] SecretKeySalt { get; private init; } = null!;
-
-  [Required]
   public AgentState State { get; private set; }
 
   public DateTimeOffset CreatedAt { get; private init; }
@@ -63,25 +57,16 @@ public class Agent
   /// Creates a new Agent instance.
   /// </summary>
   public static Agent Create(
-    Config config,
-    Hardware hardware,
     string name,
-    string sourceTag,
-    string version,
-    byte[] secretKeyHash,
-    byte[] secretKeySalt)
+    string sourceTag)
   {
     return new Agent
     {
-      Config = config,
-      Hardware = hardware,
+      Name = name,
       SourceTag = sourceTag,
       CurrentTag = sourceTag,
-      Name = name,
-      Version = version,
-      SecretKeyHash = secretKeyHash,
-      SecretKeySalt = secretKeySalt,
-      State = AgentState.Inactive,
+      Version = "1.0.0",
+      State = AgentState.Active,
       CreatedAt = DateTimeOffset.UtcNow,
       LastSeenAt = DateTimeOffset.UtcNow
     };

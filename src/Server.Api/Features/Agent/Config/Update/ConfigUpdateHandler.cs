@@ -24,8 +24,7 @@ internal interface IConfigUpdateHandler
 internal class ConfigUpdateHandler(
   ILogger<ConfigUpdateHandler> logger,
   AppDbContext dbContext
-) : IConfigUpdateHandler
-{
+) : IConfigUpdateHandler {
   public async Task<Result<ConfigResponse>> HandleAsync(
     long agentId,
     ConfigUpdateRequest request,

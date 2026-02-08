@@ -19,16 +19,15 @@ public static class CommandLineParser
           options.RunService = false;
           break;
 
-        case "--init-secrets":
-          options.InitSecrets = true;
+        case "--init-cert":
+        case "--init-certificate":
+          options.InitCertificate = true;
           options.RunService = false;
           break;
 
         case "--server-url":
           if (i + 1 < args.Length)
-          {
-              options.ServerUrl = args[++i];
-          }
+            options.ServerUrl = args[++i];
           break;
 
         case "--set-version":
@@ -38,30 +37,34 @@ public static class CommandLineParser
 
         case "--agent-version":
           if (i + 1 < args.Length)
-          {
-              options.Version = args[++i];
-          }
+            options.Version = args[++i];
           break;
 
         case "--agent-name":
           if (i + 1 < args.Length)
-          {
-              options.AgentName = args[++i];
-          }
-          break;
-
-        case "--client-secret":
-          if (i + 1 < args.Length)
-          {
-              options.ClientSecret = args[++i];
-          }
+            options.AgentName = args[++i];
           break;
 
         case "--tag":
           if (i + 1 < args.Length)
-          {
-              options.Tag = args[++i];
-          }
+            options.Tag = args[++i];
+          break;
+
+        case "--enrollment-token":
+          if (i + 1 < args.Length)
+            options.EnrollmentToken = args[++i];
+          break;
+
+        case "--cert-path":
+        case "--certificate-path":
+          if (i + 1 < args.Length)
+            options.CertificatePath = args[++i];
+          break;
+
+        case "--cert-password":
+        case "--certificate-password":
+          if (i + 1 < args.Length)
+            options.CertificatePassword = args[++i];
           break;
 
         case "--run":

@@ -8,16 +8,10 @@ public static class UrlConfig
   private const string Version = "v1";
 
   /// <summary>
-  /// Constructs the URL for posting authentication requests to the agent API.
-  /// </summary>
-  public static string PostAuthUrl(string baseUrl)
-    => $"{baseUrl.TrimEnd('/')}/api/{Version}/agents/auth";
-
-  /// <summary>
   /// Constructs the URL for posting reports to the agent API.
   /// </summary>
   public static string PostReportUrl(string baseUrl)
-    => $"{baseUrl.TrimEnd('/')}/api/{Version}/agents/report";
+    => $"{baseUrl}/api/{Version}/agents/report";
 }
 
 /// <summary>
@@ -25,7 +19,6 @@ public static class UrlConfig
 /// </summary>
 public record RequestMetadata
 {
-  public string? AgentName { get; init; } = null;
-  public string? AuthToken { get; init; } = null;
+  public string? AgentName { get; init; }
   public Dictionary<string, string> Headers { get; init; } = new();
 }

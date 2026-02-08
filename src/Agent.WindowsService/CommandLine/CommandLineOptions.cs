@@ -11,11 +11,6 @@ public class CommandLineOptions
     public bool InitConfig { get; set; }
 
     /// <summary>
-    /// Initialize secrets store.
-    /// </summary>
-    public bool InitSecrets { get; set; }
-
-    /// <summary>
     /// Indicates whether to set the agent version during configuration.
     /// </summary>
     public bool SetVersion { get; set; }
@@ -36,14 +31,29 @@ public class CommandLineOptions
     public string? AgentName { get; set; }
 
     /// <summary>
-    /// Client secret to store securely.
-    /// </summary>
-    public string? ClientSecret { get; set; }
-
-    /// <summary>
     /// Tag to configure.
     /// </summary>
     public string? Tag { get; set; }
+
+    /// <summary>
+    /// Enrollment token for certificate provisioning.
+    /// </summary>
+    public string? EnrollmentToken { get; set; }
+
+    /// <summary>
+    /// Path to pre-provisioned PFX certificate file.
+    /// </summary>
+    public string? CertificatePath { get; set; }
+
+    /// <summary>
+    /// Password for the PFX certificate file.
+    /// </summary>
+    public string? CertificatePassword { get; set; }
+
+    /// <summary>
+    /// Initialize certificate from file.
+    /// </summary>
+    public bool InitCertificate { get; set; }
 
     /// <summary>
     /// Run the service normally after configuration.

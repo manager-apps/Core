@@ -1,14 +1,12 @@
 ﻿using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using Agent.WindowsService.Config;
 using Agent.WindowsService.Domain;
-using System.Text;
 using System.Text.Json;
 
 namespace Agent.WindowsService.CommandLine;
 
-/// <summary>
-/// Handles command line operations for configuration and secrets management.
-/// </summary>
+
 public static class CommandLineHandler
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -17,16 +15,11 @@ public static class CommandLineHandler
         WriteIndented = true
     };
 
-    /// <summary>
-    /// Processes command line options and returns true if the service should run.
-    /// </summary>
     public static async Task<bool> ProcessAsync(CommandLineOptions options)
     {
         if (options.SetVersion)
         {
-          await SetVersionAsync(
-            options.Version);
-
+          await SetVersionAsync(options.Version);
           return false;
         }
 
@@ -36,12 +29,15 @@ public static class CommandLineHandler
               options.Version,
               options.ServerUrl,
               options.AgentName,
-              options.Tag);
+              options.Tag,
+              options.EnrollmentToken);
         }
 
-        if (options.InitSecrets)
+        if (options.InitCertificate)
         {
-            await InitializeSecretsAsync(options.ClientSecret);
+            await InitializeCertificateAsync(
+              options.CertificatePath,
+              options.CertificatePassword);
         }
 
         return options.RunService;
@@ -51,14 +47,16 @@ public static class CommandLineHandler
       string version,
       string? serverUrl,
       string? agentName,
-      string? tag)
+      string? tag,
+      string? enrollmentToken = null)
     {
       var config = new Configuration
       {
           Version = version,
           AgentName = agentName ?? $"{Environment.MachineName}_{Guid.NewGuid():N}",
-          ServerUrl = serverUrl ?? "http://147.232.52.190:5000",
-          Tag = tag ?? ""
+          ServerUrl = serverUrl ?? "https://localhost:5141",
+          Tag = tag ?? "",
+          EnrollmentToken = enrollmentToken
       };
       var path = PathConfig.ConfigFilePath;
       var json = JsonSerializer.Serialize(config, JsonOptions);
@@ -67,22 +65,51 @@ public static class CommandLineHandler
       await File.WriteAllTextAsync(path, json);
     }
 
-    private static async Task InitializeSecretsAsync(
-      string? clientSecret)
+    private static async Task InitializeCertificateAsync(
+      string? certificatePath,
+      string? certificatePassword)
     {
-      var secrets = new Dictionary<string, byte[]>();
-      if (!string.IsNullOrWhiteSpace(clientSecret))
+      if (string.IsNullOrEmpty(certificatePath))
       {
-          secrets[SecretConfig.ClientSecretKey] = Encoding.UTF8.GetBytes(clientSecret);
+        Console.WriteLine("No certificate path provided. Skipping certificate initialization.");
+        return;
       }
 
-      var path = PathConfig.SecretFilePath;
+      if (!File.Exists(certificatePath))
+      {
+        Console.WriteLine($"Certificate file not found: {certificatePath}");
+        return;
+      }
 
-      var json = JsonSerializer.SerializeToUtf8Bytes(secrets, JsonOptions);
-      var encrypted = ProtectedData.Protect(json, SecretConfig.Entropy, DataProtectionScope.LocalMachine);
+      try
+      {
+        var pfxBytes = await File.ReadAllBytesAsync(certificatePath);
+        var cert = X509CertificateLoader.LoadPkcs12(
+          pfxBytes,
+          certificatePassword,
+          X509KeyStorageFlags.Exportable);
 
-      Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-      await File.WriteAllBytesAsync(path, encrypted);
+        Console.WriteLine($"Certificate loaded: {cert.Subject}");
+        Console.WriteLine($"Expires: {cert.NotAfter}");
+
+        var certsDir = Path.Combine(PathConfig.BaseDirectory, "certs");
+        Directory.CreateDirectory(certsDir);
+
+        var encryptedPath = Path.Combine(certsDir, "agent.pfx.enc");
+        var encryptedBytes = ProtectedData.Protect(
+          pfxBytes,
+          SecretConfig.CertificateEntropy,
+          DataProtectionScope.LocalMachine);
+
+        await File.WriteAllBytesAsync(encryptedPath, encryptedBytes);
+        Console.WriteLine($"Certificate stored securely at: {encryptedPath}");
+
+        cert.Dispose();
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"Failed to initialize certificate: {ex.Message}");
+      }
     }
 
     private static async Task SetVersionAsync(string version)
@@ -94,8 +121,11 @@ public static class CommandLineHandler
       var json = await File.ReadAllTextAsync(path);
       var config = JsonSerializer.Deserialize<Configuration>(json, JsonOptions);
 
-      config?.Version = version;
-      var updatedJson = JsonSerializer.Serialize(config, JsonOptions);
-      await File.WriteAllTextAsync(path, updatedJson);
+      if (config is not null)
+      {
+        config.Version = version;
+        var updatedJson = JsonSerializer.Serialize(config, JsonOptions);
+        await File.WriteAllTextAsync(path, updatedJson);
+      }
     }
 }
