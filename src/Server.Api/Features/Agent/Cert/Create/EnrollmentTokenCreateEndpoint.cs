@@ -8,7 +8,7 @@ public static class EnrollmentTokenCreateEndpoint
 {
   public static void MapCreateEnrollmentTokenEndpoint(this IEndpointRouteBuilder app)
   {
-    app.MapPost("/tokens", async (
+    app.MapPost("/certs/tokens", async (
       [FromBody] CreateEnrollmentTokenRequest request,
       [FromServices] IEnrollmentTokenCreateHandler handler,
       CancellationToken cancellationToken) =>

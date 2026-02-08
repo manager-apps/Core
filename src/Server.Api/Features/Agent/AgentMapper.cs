@@ -31,7 +31,7 @@ public static class AgentMapper
           CreatedAt: agent.CreatedAt,
           LastUpdatedAt: agent.LastSeenAt,
           UpdatedAt: agent.UpdatedAt,
-          Config: agent.Config.ToResponse(),
-          Hardware: agent.Hardware.ToResponse());
+          Config: agent.Config?.ToResponse(),
+          Hardware: agent.Hardware?.ToResponse());
   }
 }

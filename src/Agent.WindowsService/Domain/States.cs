@@ -4,6 +4,7 @@ public enum States
 {
   Idle,
   Authentication,
+  Synchronization,
   Running,
   Execution,
   Error

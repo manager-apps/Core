@@ -31,8 +31,8 @@ public record AgentDetailResponse(
   DateTimeOffset CreatedAt,
   DateTimeOffset LastUpdatedAt,
   DateTimeOffset? UpdatedAt,
-  ConfigResponse Config,
-  HardwareResponse Hardware);
+  ConfigResponse? Config,
+  HardwareResponse? Hardware);
 
 /// <summary>
 /// Request model for updating an agent's state.

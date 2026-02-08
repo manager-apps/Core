@@ -53,8 +53,15 @@ public partial class StateMachine : IStateMachine
     _machine.Configure(States.Authentication)
       .OnEntryAsync(HandleAuthenticationEntryAsync)
       .OnExitAsync(HandleAuthenticationExitAsync)
-      .Permit(Triggers.AuthSuccess, States.Running)
+      .Permit(Triggers.AuthSuccess, States.Synchronization)
       .Permit(Triggers.AuthFailure, States.Error)
+      .Permit(Triggers.Stop, States.Idle);
+
+    _machine.Configure(States.Synchronization)
+      .OnEntryAsync(HandleSynchronizationEntryAsync)
+      .OnExitAsync(HandleSynchronizationExitAsync)
+      .Permit(Triggers.SyncSuccess, States.Running)
+      .Permit(Triggers.SyncFailure, States.Error)
       .Permit(Triggers.Stop, States.Idle);
 
     _machine.Configure(States.Running)
@@ -74,7 +81,7 @@ public partial class StateMachine : IStateMachine
 
     _machine.Configure(States.Error)
       .OnEntryAsync(HandleDelayingEntryAsync)
-      .Permit(Triggers.Retry, States.Running)
+      .Permit(Triggers.Retry, States.Authentication)
       .Permit(Triggers.Stop, States.Idle);
   }
 

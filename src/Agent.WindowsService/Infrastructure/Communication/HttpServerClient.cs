@@ -37,8 +37,8 @@ public class HttpServerClient(
       Content = JsonContent.Create(data)
     };
 
-    if (!string.IsNullOrEmpty(metadata.AgentName))
-      request.Headers.Add("X-Agent-Id", metadata.AgentName);
+    // if (!string.IsNullOrEmpty(metadata.AgentName))
+    //   request.Headers.Add("X-Agent-Id", metadata.AgentName);
 
     foreach (var (key, value) in metadata.Headers)
     {

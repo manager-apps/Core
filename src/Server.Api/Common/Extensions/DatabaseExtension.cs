@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Server.Api.Infrastructure;
 using System.Reflection;
+using Server.Api.Common.Interfaces;
 
 namespace Server.Api.Common.Extensions;
 
@@ -13,6 +14,8 @@ public static class DatabaseExtension
       var connectionString = configuration["Database:Postgres:ConnectionString"]!;
       services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(connectionString));
+
+      services.AddSingleton<IDataHasher, HmacDataHasher>();
     }
 
     public void AddClickHouseDatabase(IConfiguration configuration)

@@ -6,7 +6,6 @@ using System.Text.Json;
 
 namespace Agent.WindowsService.CommandLine;
 
-
 public static class CommandLineHandler
 {
     private static readonly JsonSerializerOptions JsonOptions = new()

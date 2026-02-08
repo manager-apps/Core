@@ -8,7 +8,7 @@ public static class CertRevokeEndpoint
 {
   public static void MapRevokeCertificateEndpoint(this IEndpointRouteBuilder app)
   {
-    app.MapPost("/{agentId:long}/revoke", async (
+    app.MapPost("/{agentId:long}/certs/revoke", async (
       [FromRoute] long agentId,
       [FromBody] RevokeRequest request,
       [FromServices] ICertRevokeHandler handler,

@@ -42,12 +42,12 @@ public class Agent
   /// <summary>
   /// Navigation property to hardware information
   /// </summary>
-  public virtual Hardware Hardware { get; init; } = null!;
+  public virtual Hardware? Hardware { get; private set; }
 
   /// <summary>
   /// Navigation property to configuration overrides
   /// </summary>
-  public virtual Config Config { get; init; } = null!;
+  public virtual Config? Config { get; private set; }
 
   #endregion
 
@@ -75,6 +75,52 @@ public class Agent
   #endregion
 
   #region Domain methods
+
+  /// <summary>
+  /// Assigns configuration to the agent. Config must be created by a factory or repository.
+  /// </summary>
+  public void AssignConfig(Config config)
+  {
+    ArgumentNullException.ThrowIfNull(config);
+    Config = config;
+  }
+
+  /// <summary>
+  /// Assigns hardware information to the agent. Hardware must be created by a factory or repository.
+  /// </summary>
+  public void AssignHardware(Hardware hardware)
+  {
+    ArgumentNullException.ThrowIfNull(hardware);
+    Hardware = hardware;
+  }
+
+  /// <summary>
+  /// Tries to get the configuration. Returns false if not assigned.
+  /// </summary>
+  public bool TryGetConfig(out Config? config)
+  {
+    config = Config;
+    return config is not null;
+  }
+
+  /// <summary>
+  /// Tries to get the hardware information. Returns false if not assigned.
+  /// </summary>
+  public bool TryGetHardware(out Hardware? hardware)
+  {
+    hardware = Hardware;
+    return hardware is not null;
+  }
+
+  /// <summary>
+  /// Checks if agent has configuration assigned.
+  /// </summary>
+  public bool HasConfig() => Config is not null;
+
+  /// <summary>
+  /// Checks if agent has hardware information assigned.
+  /// </summary>
+  public bool HasHardware() => Hardware is not null;
 
   /// <summary>
   /// Patch update

@@ -7,6 +7,8 @@ public enum Triggers
   Retry,
   AuthSuccess,
   AuthFailure,
+  SyncSuccess,
+  SyncFailure,
   RunSuccess,
   RunFailure,
   ExecutionSuccess,

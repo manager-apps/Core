@@ -7,6 +7,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
   public DbSet<Instruction> Instructions => Set<Instruction>();
   public DbSet<Agent> Agents => Set<Agent>();
+  public DbSet<Hardware> Hardwares => Set<Hardware>();
+  public DbSet<Config> Configs => Set<Config>();
   public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
   public DbSet<Certificate> Certificates => Set<Certificate>();
   public DbSet<EnrollmentToken> EnrollmentTokens => Set<EnrollmentToken>();

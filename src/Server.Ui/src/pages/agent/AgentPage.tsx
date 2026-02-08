@@ -124,14 +124,22 @@ export function AgentPage() {
                         </Tabs>
                     </Box>
                     <TabPanel value={tabValue} index={0}>
-                        <AgentOverviewTab 
-                            agent={agent} 
+                      {agent.hardware && agent.config ? (
+                        <AgentOverviewTab
+                            agent={agent}
                             onStateChange={handleStateChange} />
+                      ) : (
+                        <Box sx={{ p: 2 }}>No details available for this agent.</Box>
+                      )}
                     </TabPanel>
                     <TabPanel value={tabValue} index={1}>
-                        <AgentConfigTab 
-                            config={agent.config} 
+                      { agent.config ? (
+                        <AgentConfigTab
+                            config={agent.config}
                             onSave={handleConfigSave} />
+                      ) : (
+                        <Box sx={{ p: 2 }}>No configuration available for this agent.</Box>
+                      )}
                     </TabPanel>
                     <TabPanel value={tabValue} index={2}>
                         <AgentInstructionsTab

@@ -24,6 +24,6 @@ export interface AgentUpdateStateRequest {
 }
 
 export interface AgentDetailResponse extends AgentResponse {
-    config: ConfigResponse;
-    hardware: HardwareResponse;
+    config?: ConfigResponse;
+    hardware?: HardwareResponse;
 }
