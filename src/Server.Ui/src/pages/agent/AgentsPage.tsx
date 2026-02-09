@@ -1,30 +1,17 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Avatar, Card, CardContent, Chip } from "@mui/material";
-import { AgentState, type AgentResponse } from "../../types/agent";
+import { Box, Typography, Avatar, Card, CardContent, Button } from "@mui/material";
+import { type AgentResponse } from "../../types/agent";
 import { fetchAgents } from "../../api/agent";
 import FetchContentWrapper from "../../components/wrappers/FetchContentWrapper";
 import { StyledTable, type StyledTableColumn } from "../../components/table/StyledTable";
 import { useNavigate } from "react-router-dom";
 import ComputerIcon from "@mui/icons-material/Computer";
+import AddIcon from "@mui/icons-material/Add";
+import { CreateEnrollmentTokenDialog } from "./components/CreateEnrollmentTokenDialog";
 
 const columns: StyledTableColumn<AgentResponse>[] = [
     { id: "id", label: "ID", minWidth: 80 },
     { id: "name", label: "Name", minWidth: 150 },
-    {
-        id: "state",
-        label: "State",
-        minWidth: 100,
-        render: (row: AgentResponse) => {
-            switch (row.state) {
-                case AgentState.Active:
-                    return <Chip label="Active" color="success" size="small" variant="outlined" />;
-                case AgentState.Inactive:
-                    return <Chip label="Inactive" color="error" size="small" variant="outlined" />;
-                default:
-                    return <Chip label="Unknown" color="default" size="small" variant="outlined" />;
-            }
-        },
-    },
 ];
 
 export function AgentsPage() {
@@ -32,6 +19,7 @@ export function AgentsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [rows, setRows] = useState<AgentResponse[]>([]);
+    const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
 
     useEffect(() => {
         loadAgents();
@@ -68,18 +56,27 @@ export function AgentsPage() {
                     }}
                 >
                     <CardContent sx={{ p: 3 }}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                            <Avatar sx={{ width: 56, height: 56, bgcolor: "primary.main" }}>
-                                <ComputerIcon fontSize="large" />
-                            </Avatar>
-                            <Box>
-                                <Typography variant="h5" fontWeight={600}>
-                                    Agents
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {rows.length} registered agent{rows.length !== 1 ? "s" : ""}
-                                </Typography>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2, justifyContent: "space-between" }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                                <Avatar sx={{ width: 56, height: 56, bgcolor: "primary.main" }}>
+                                    <ComputerIcon fontSize="large" />
+                                </Avatar>
+                                <Box>
+                                    <Typography variant="h5" fontWeight={600}>
+                                        Agents
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {rows.length} registered agent{rows.length !== 1 ? "s" : ""}
+                                    </Typography>
+                                </Box>
                             </Box>
+                            <Button
+                                variant="contained"
+                                startIcon={<AddIcon />}
+                                onClick={() => setTokenDialogOpen(true)}
+                            >
+                                Create Enrollment Token
+                            </Button>
                         </Box>
                     </CardContent>
                 </Card>
@@ -91,6 +88,11 @@ export function AgentsPage() {
                     onRowClick={(row) => navigate(`/agents/${row.id}`)}
                     emptyMessage="No Agents Registered"
                     emptyIcon={<ComputerIcon sx={{ fontSize: 32, color: "text.secondary" }} />}
+                />
+
+                <CreateEnrollmentTokenDialog
+                    open={tokenDialogOpen}
+                    onClose={() => setTokenDialogOpen(false)}
                 />
             </Box>
         </FetchContentWrapper>

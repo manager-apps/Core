@@ -22,14 +22,16 @@ import SaveIcon from "@mui/icons-material/Save";
 import RestoreIcon from "@mui/icons-material/Restore";
 import EditIcon from "@mui/icons-material/Edit";
 import SpeedIcon from "@mui/icons-material/Speed";
-import TerminalIcon from "@mui/icons-material/Terminal";
+import BlockIcon from "@mui/icons-material/Block";
 import { MultiSelectDialog } from "../../../components/dialog/MultiSelectDialog";
-import DocumentScannerIcon from '@mui/icons-material/DocumentScanner';
+import { RevokeCertificateDialog } from "./RevokeCertificateDialog";
 
 const AVAILABLE_COLLECTORS = ["cpu_usage", "disk_usage", "memory_usage"];
 const AVAILABLE_INSTRUCTIONS = ["Gpo", "Shell"];
 
 interface AgentConfigTabProps {
+    agentId: number;
+    agentName: string;
     config: ConfigResponse;
     onSave: (config: ConfigUpdateRequest) => Promise<void>;
 }
@@ -75,7 +77,7 @@ const ConfigField: React.FC<ConfigFieldProps> = ({ label, description, value, on
     </Box>
 );
 
-export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ config, onSave }) => {
+export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ agentId, agentName, config, onSave }) => {
     const [formData, setFormData] = useState<ConfigUpdateRequest>({
         authenticationExitIntervalSeconds: config.authenticationExitIntervalSeconds,
         runningExitIntervalSeconds: config.runningExitIntervalSeconds,
@@ -95,6 +97,7 @@ export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ config, onSave }
     });
     const [collectorsDialogOpen, setCollectorsDialogOpen] = useState(false);
     const [instructionsDialogOpen, setInstructionsDialogOpen] = useState(false);
+    const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
 
     const handleChange = (field: keyof ConfigUpdateRequest) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.type === "number" ? Number(e.target.value) : e.target.value;
@@ -262,9 +265,6 @@ export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ config, onSave }
                                 }}
                             >
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                                    <Avatar sx={{ bgcolor: "success.main", width: 40, height: 40 }}>
-                                        <DocumentScannerIcon />
-                                    </Avatar>
                                     <Box>
                                         <Typography variant="subtitle1" fontWeight={600}>
                                             Metric Collectors
@@ -308,14 +308,10 @@ export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ config, onSave }
                                     </Paper>
                                 )}
                             </Box>
-                            <Alert severity="info" sx={{ mt: 2 }}>
-                                Available collectors depend on agent version
-                            </Alert>
                         </CardContent>
                     </Card>
                 </Grid>
 
-                {/* Instructions Card */}
                 <Grid size={{ xs: 12, md: 6 }}>
                     <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2 }}>
                         <CardContent>
@@ -328,9 +324,6 @@ export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ config, onSave }
                                 }}
                             >
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                                    <Avatar sx={{ bgcolor: "warning.main", width: 40, height: 40 }}>
-                                        <TerminalIcon />
-                                    </Avatar>
                                     <Box>
                                         <Typography variant="subtitle1" fontWeight={600}>
                                             Allowed Instructions
@@ -354,29 +347,28 @@ export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ config, onSave }
                                     ))
                                 ) : null}
                             </Box>
-                            {(!formData.allowedInstructions || formData.allowedInstructions.length === 0) && (
-                                <Paper
-                                    variant="outlined"
-                                    sx={{
-                                        p: 2,
-                                        mt: 1,
-                                        width: "100%",
-                                        textAlign: "center",
-                                        borderStyle: "dashed",
-                                    }}
-                                >
-                                    <Typography variant="body2" color="text.secondary">
-                                        Only Config instruction enabled
-                                    </Typography>
-                                </Paper>
-                            )}
-                            <Alert severity="info" sx={{ mt: 2 }}>
-                                Config instruction type is always allowed
-                            </Alert>
                         </CardContent>
                     </Card>
                 </Grid>
             </Grid>
+
+            <Card elevation={0} sx={{ mt: 3, border: "1px solid", borderColor: "divider", borderRadius: 2 }}>
+                <CardContent>
+                    <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+                        Security Actions
+                    </Typography>
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                        <Button
+                            variant="outlined"
+                            color="error"
+                            startIcon={<BlockIcon />}
+                            onClick={() => setRevokeDialogOpen(true)}
+                        >
+                            Revoke Certificate
+                        </Button>
+                    </Box>
+                </CardContent>
+            </Card>
 
             <Snackbar
                 open={snackbar.open}
@@ -405,6 +397,13 @@ export const AgentConfigTab: React.FC<AgentConfigTabProps> = ({ config, onSave }
                 selected={formData.allowedInstructions || []}
                 onClose={() => setInstructionsDialogOpen(false)}
                 onSave={(selected) => setFormData((prev) => ({ ...prev, allowedInstructions: selected }))}
+            />
+
+            <RevokeCertificateDialog
+                open={revokeDialogOpen}
+                onClose={() => setRevokeDialogOpen(false)}
+                agentId={agentId}
+                agentName={agentName}
             />
         </Box>
     );

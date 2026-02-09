@@ -1,6 +1,5 @@
 using Server.Api.Features.Config;
 using Server.Api.Features.Hardware;
-using Server.Domain;
 
 namespace Server.Api.Features.Agent;
 
@@ -13,7 +12,6 @@ public record AgentResponse(
   string CurrentTag,
   string SourceTag,
   string Version,
-  AgentState State,
   DateTimeOffset CreatedAt,
   DateTimeOffset LastUpdatedAt,
   DateTimeOffset? UpdatedAt);
@@ -27,17 +25,9 @@ public record AgentDetailResponse(
   string CurrentTag,
   string SourceTag,
   string Version,
-  AgentState State,
   DateTimeOffset CreatedAt,
   DateTimeOffset LastUpdatedAt,
   DateTimeOffset? UpdatedAt,
   ConfigResponse? Config,
   HardwareResponse? Hardware);
-
-/// <summary>
-/// Request model for updating an agent's state.
-/// </summary>
-/// <param name="NewState"></param>
-public record AgentUpdateStateRequest(
-  AgentState NewState);
 

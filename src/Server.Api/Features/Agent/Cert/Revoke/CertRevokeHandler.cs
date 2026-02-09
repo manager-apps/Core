@@ -5,10 +5,7 @@ using Server.Api.Infrastructure;
 
 namespace Server.Api.Features.Agent.Cert.Revoke;
 
-/// <summary>
-/// Handler for certificate revocation.
-/// </summary>
-public interface ICertRevokeHandler
+internal interface ICertRevokeHandler
 {
   /// <summary>
   /// Revokes all active certificates for an agent.

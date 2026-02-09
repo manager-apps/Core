@@ -2,11 +2,11 @@
 
 namespace Server.Api.Features.Hardware;
 
-public static class HardwareMapper
+internal static class HardwareMapper
 {
   extension(HardwareMessage hardware)
   {
-    public Domain.Hardware ToDomain()
+    internal Domain.Hardware ToDomain()
       => Domain.Hardware.Create(
           osVersion: hardware.OsVersion,
           machineName: hardware.MachineName,
@@ -16,7 +16,7 @@ public static class HardwareMapper
 
   extension(Domain.Hardware hardware)
   {
-    public HardwareResponse ToResponse()
+    internal HardwareResponse ToResponse()
       => new(
         Id: hardware.Id,
         AgentId: hardware.AgentId,

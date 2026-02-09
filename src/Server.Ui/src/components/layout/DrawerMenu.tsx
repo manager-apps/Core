@@ -10,7 +10,9 @@ import ListItemText from '@mui/material/ListItemText';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import TryIcon from '@mui/icons-material/Try';
 import LegendToggleIcon from '@mui/icons-material/LegendToggle';
-import { Icon } from '@mui/material';
+import { Box, Icon, Typography } from '@mui/material';
+import CircleIcon from '@mui/icons-material/Circle';
+import { getApiBaseUrl, getGrafanaBaseUrl } from '../../api/axios';
 
 
 interface DrawerMenuProps {
@@ -85,6 +87,21 @@ export default function DrawerMenu({ drawerWidth }: DrawerMenuProps) {
           </ListItem>
         ))}
       </List>
+
+      <Box sx={{ mt: 'auto', p: 2, borderTop: 1, borderColor: 'divider' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+          <CircleIcon sx={{ fontSize: 8, color: 'success.main' }} />
+          <Typography variant="caption" color="text.secondary" noWrap>
+            Grafana: {getGrafanaBaseUrl()}
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <CircleIcon sx={{ fontSize: 8, color: 'primary.main' }} />
+          <Typography variant="caption" color="text.secondary" noWrap>
+            API: {getApiBaseUrl()}
+          </Typography>
+        </Box>
+      </Box>
     </Drawer>
   );
 }

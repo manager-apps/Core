@@ -1,12 +1,12 @@
 namespace Server.Api.Features.Instruction;
 
-public static class InstructionExtension
+internal static class InstructionExtension
 {
-  public static void AddInstructionServices(this IServiceCollection services)
+  internal static void AddInstructionServices(this IServiceCollection services)
   {
   }
 
-  public static void MapInstructionEndpoints(this IEndpointRouteBuilder app)
+  internal static void MapInstructionEndpoints(this IEndpointRouteBuilder app)
   {
   }
 }

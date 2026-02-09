@@ -1,3 +1,12 @@
+
+import ComputerIcon from "@mui/icons-material/Computer";
+import MemoryIcon from "@mui/icons-material/Memory";
+import StorageIcon from "@mui/icons-material/Storage";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import UpdateIcon from "@mui/icons-material/Update";
+import LabelIcon from "@mui/icons-material/Label";
+import React from "react";
+import type {HardwareResponse} from "../../../types/hardware.ts";
 import {
     Box,
     Card,
@@ -5,26 +14,20 @@ import {
     Chip,
     Grid,
     Typography,
-    Switch,
-    FormControlLabel,
     Avatar,
     Paper,
     Divider,
 } from "@mui/material";
-import type { AgentDetailResponse, AgentState } from "../../../types/agent";
-import { AgentState as AgentStateEnum } from "../../../types/agent";
-import ComputerIcon from "@mui/icons-material/Computer";
-import MemoryIcon from "@mui/icons-material/Memory";
-import StorageIcon from "@mui/icons-material/Storage";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import UpdateIcon from "@mui/icons-material/Update";
-import LabelIcon from "@mui/icons-material/Label";
-import DnsIcon from "@mui/icons-material/Dns";
-import { useState } from "react";
 
 interface AgentOverviewTabProps {
-    agent: AgentDetailResponse;
-    onStateChange: (newState: AgentState) => Promise<void>;
+    agentId: number;
+    agentVersion: string;
+    agentName: string;
+    agentCreatedAt: string;
+    agentSourceTag: string;
+    agentCurrentTag: string;
+    agentLastUpdatedAt: string | undefined;
+    hardware: HardwareResponse;
 }
 
 const formatBytes = (bytes: number): string => {
@@ -32,11 +35,16 @@ const formatBytes = (bytes: number): string => {
     return `${gb.toFixed(2)} GB`;
 };
 
-const formatDate = (dateString: string): string => {
+const formatDate = (dateString: string | undefined): string => {
+    if (!dateString) 
+        return "-";
+    
     return new Date(dateString).toLocaleString();
 };
 
-const formatRelativeTime = (dateString: string): string => {
+const formatRelativeTime = (dateString: string | undefined): string => {
+    if (!dateString) 
+        return "-";
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -88,90 +96,24 @@ const StatCard: React.FC<StatCardProps> = ({ icon, title, value, subtitle, color
     </Paper>
 );
 
-export const AgentOverviewTab: React.FC<AgentOverviewTabProps> = ({ agent, onStateChange }) => {
-    const [loading, setLoading] = useState(false);
-
-    const handleStateToggle = async () => {
-        setLoading(true);
-        try {
-            const newState = agent.state === AgentStateEnum.Active ? AgentStateEnum.Inactive : AgentStateEnum.Active;
-            await onStateChange(newState);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const isActive = agent.state === AgentStateEnum.Active;
-
+export const AgentOverviewTab: React.FC<AgentOverviewTabProps> = ({
+    agentId,
+    agentVersion,
+    agentName,
+    agentLastUpdatedAt,
+    agentCreatedAt,
+    agentCurrentTag,
+    agentSourceTag,
+    hardware,
+}) => {
     return (
         <Box sx={{ p: 2 }}>
-            <Card
-                elevation={0}
-                sx={{
-                    mb: 3,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    borderRadius: 2,
-                }}
-            >
-                <CardContent sx={{ p: 3 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                            <Avatar
-                                sx={{
-                                    width: 64,
-                                    height: 64,
-                                    bgcolor: isActive ? "success.main" : "grey.400",
-                                    fontSize: 28,
-                                }}
-                            >
-                                <DnsIcon fontSize="large" />
-                            </Avatar>
-                            <Box>
-                                <Typography variant="h5" fontWeight={600}>
-                                    {agent.name}
-                                </Typography>
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
-                                    <Chip
-                                        label={isActive ? "Active" : "Inactive"}
-                                        color={isActive ? "success" : "default"}
-                                        size="small"
-                                        sx={{ fontWeight: 500 }}
-                                    />
-                                    <Typography variant="body2" color="text.secondary">
-                                        v{agent.version}
-                                    </Typography>
-                                </Box>
-                            </Box>
-                        </Box>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                            <Box sx={{ textAlign: "right" }}>
-                                <Typography variant="caption" color="text.secondary">
-                                    Last updated
-                                </Typography>
-                                <Typography variant="body2" fontWeight={500}>
-                                    {formatRelativeTime(agent.lastUpdatedAt)}
-                                </Typography>
-                            </Box>
-                            <FormControlLabel
-                                control={
-                                    <Switch checked={isActive} onChange={handleStateToggle} disabled={loading} color="success" />
-                                }
-                                label=""
-                                sx={{ m: 0 }}
-                            />
-                        </Box>
-                    </Box>
-                </CardContent>
-            </Card>
-
-            {/* Stats Grid */}
             <Grid container spacing={2} sx={{ mb: 3 }}>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <StatCard
                         icon={<ComputerIcon />}
                         title="Machine"
-                        value={agent.hardware.machineName || "Unknown"}
+                        value={hardware.machineName || "Unknown"}
                         color="primary.main"
                     />
                 </Grid>
@@ -179,7 +121,7 @@ export const AgentOverviewTab: React.FC<AgentOverviewTabProps> = ({ agent, onSta
                     <StatCard
                         icon={<MemoryIcon />}
                         title="Processors"
-                        value={agent.hardware.processorCount}
+                        value={hardware.processorCount}
                         subtitle="CPU Cores"
                         color="secondary.main"
                     />
@@ -188,7 +130,7 @@ export const AgentOverviewTab: React.FC<AgentOverviewTabProps> = ({ agent, onSta
                     <StatCard
                         icon={<StorageIcon />}
                         title="Memory"
-                        value={formatBytes(agent.hardware.totalMemoryBytes)}
+                        value={formatBytes(hardware.totalMemoryBytes)}
                         subtitle="Total RAM"
                         color="info.main"
                     />
@@ -196,15 +138,14 @@ export const AgentOverviewTab: React.FC<AgentOverviewTabProps> = ({ agent, onSta
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <StatCard
                         icon={<AccessTimeIcon />}
-                        title="Created"
-                        value={formatRelativeTime(agent.createdAt)}
-                        subtitle={formatDate(agent.createdAt)}
+                        title="Created / Updated"
+                        value={formatRelativeTime(agentCreatedAt) + " / " + formatRelativeTime(agentLastUpdatedAt)}
+                        subtitle={formatDate(agentCreatedAt) + " / " + formatDate(agentLastUpdatedAt)}
                         color="warning.main"
                     />
                 </Grid>
             </Grid>
 
-            {/* Details Cards */}
             <Grid container spacing={3}>
                 <Grid size={{ xs: 12, md: 6 }}>
                     <Card elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, height: "100%" }}>
@@ -218,7 +159,17 @@ export const AgentOverviewTab: React.FC<AgentOverviewTabProps> = ({ agent, onSta
                                         Agent ID
                                     </Typography>
                                     <Typography variant="body2" fontWeight={500}>
-                                        #{agent.id}
+                                        #{agentId}
+                                    </Typography>
+                                </Box>
+                                <Divider />
+
+                                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Name
+                                    </Typography>
+                                    <Typography variant="body2" fontWeight={500}>
+                                        {agentName}
                                     </Typography>
                                 </Box>
                                 <Divider />
@@ -226,8 +177,8 @@ export const AgentOverviewTab: React.FC<AgentOverviewTabProps> = ({ agent, onSta
                                     <Typography variant="body2" color="text.secondary">
                                         Current Tag
                                     </Typography>
-                                    {agent.currentTag ? (
-                                        <Chip icon={<LabelIcon />} label={agent.currentTag} size="small" variant="outlined" />
+                                    {agentCurrentTag ? (
+                                        <Chip icon={<LabelIcon />} label={agentCurrentTag} size="small" variant="outlined" />
                                     ) : (
                                         <Typography variant="body2" color="text.disabled">
                                             Not set
@@ -239,8 +190,8 @@ export const AgentOverviewTab: React.FC<AgentOverviewTabProps> = ({ agent, onSta
                                     <Typography variant="body2" color="text.secondary">
                                         Source Tag
                                     </Typography>
-                                    {agent.sourceTag ? (
-                                        <Chip icon={<LabelIcon />} label={agent.sourceTag} size="small" variant="outlined" />
+                                    {agentSourceTag ? (
+                                        <Chip icon={<LabelIcon />} label={agentSourceTag} size="small" variant="outlined" />
                                     ) : (
                                         <Typography variant="body2" color="text.disabled">
                                             Not set
@@ -252,7 +203,7 @@ export const AgentOverviewTab: React.FC<AgentOverviewTabProps> = ({ agent, onSta
                                     <Typography variant="body2" color="text.secondary">
                                         Version
                                     </Typography>
-                                    <Chip icon={<UpdateIcon />} label={`v${agent.version}`} size="small" color="primary" variant="outlined" />
+                                    <Chip icon={<UpdateIcon />} label={`v${agentVersion}`} size="small" color="primary" variant="outlined" />
                                 </Box>
                             </Box>
                         </CardContent>
@@ -271,7 +222,7 @@ export const AgentOverviewTab: React.FC<AgentOverviewTabProps> = ({ agent, onSta
                                         Machine Name
                                     </Typography>
                                     <Typography variant="body2" fontWeight={500}>
-                                        {agent.hardware.machineName || "-"}
+                                        {hardware.machineName || "-"}
                                     </Typography>
                                 </Box>
                                 <Divider />
@@ -280,7 +231,7 @@ export const AgentOverviewTab: React.FC<AgentOverviewTabProps> = ({ agent, onSta
                                         Operating System
                                     </Typography>
                                     <Typography variant="body2" fontWeight={500}>
-                                        {agent.hardware.osVersion || "-"}
+                                        {hardware.osVersion || "-"}
                                     </Typography>
                                 </Box>
                                 <Divider />
@@ -289,7 +240,7 @@ export const AgentOverviewTab: React.FC<AgentOverviewTabProps> = ({ agent, onSta
                                         Hardware Updated
                                     </Typography>
                                     <Typography variant="body2" fontWeight={500}>
-                                        {agent.hardware.updatedAt ? formatRelativeTime(agent.hardware.updatedAt) : "-"}
+                                        {hardware.updatedAt ? formatRelativeTime(hardware.updatedAt) : "-"}
                                     </Typography>
                                 </Box>
                             </Box>
@@ -297,6 +248,10 @@ export const AgentOverviewTab: React.FC<AgentOverviewTabProps> = ({ agent, onSta
                     </Card>
                 </Grid>
             </Grid>
+
+            
+
+            
         </Box>
     );
 };

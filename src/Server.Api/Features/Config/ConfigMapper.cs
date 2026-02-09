@@ -2,11 +2,11 @@
 
 namespace Server.Api.Features.Config;
 
-public static class ConfigMapper
+internal static class ConfigMapper
 {
   extension(Domain.Config config)
   {
-    public ConfigMessage ToMessage()
+    internal ConfigMessage ToMessage()
       => new(
         IterationDelaySeconds: config.IterationDelaySeconds,
         AuthenticationExitIntervalSeconds: config.AuthenticationExitIntervalSeconds,
@@ -18,7 +18,7 @@ public static class ConfigMapper
         AllowedCollectors: config.GetAllowedCollectorsList(),
         AllowedInstructions: config.GetAllowedInstructionsList());
 
-    public ConfigResponse ToResponse()
+    internal ConfigResponse ToResponse()
       => new(
         Id: config.Id,
         AgentId: config.AgentId,
@@ -35,7 +35,7 @@ public static class ConfigMapper
 
   extension(ConfigMessage config)
   {
-    public Domain.Config ToDomain()
+    internal Domain.Config ToDomain()
       => Domain.Config.Create(
         iterationDelaySeconds: config.IterationDelaySeconds,
         authenticationExitIntervalSeconds: config.AuthenticationExitIntervalSeconds,

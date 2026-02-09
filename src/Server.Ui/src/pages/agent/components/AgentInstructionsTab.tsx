@@ -168,7 +168,6 @@ const renderExpandedContent = (instruction: InstructionResponse) => (
         {instruction.output && (
             <>
                 <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <CheckCircleIcon fontSize="small" color="success" />
                     Output
                 </Typography>
                 <Paper

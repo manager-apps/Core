@@ -15,7 +15,6 @@ public static class AgentMapper
           SourceTag: agent.SourceTag,
           CurrentTag: agent.CurrentTag,
           Version: agent.Version,
-          State: agent.State,
           CreatedAt: agent.CreatedAt,
           LastUpdatedAt: agent.LastSeenAt,
           UpdatedAt: agent.UpdatedAt);
@@ -27,7 +26,6 @@ public static class AgentMapper
           SourceTag: agent.SourceTag,
           CurrentTag: agent.CurrentTag,
           Version: agent.Version,
-          State: agent.State,
           CreatedAt: agent.CreatedAt,
           LastUpdatedAt: agent.LastSeenAt,
           UpdatedAt: agent.UpdatedAt,

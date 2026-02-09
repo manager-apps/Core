@@ -3,7 +3,7 @@ using Server.Api.Infrastructure;
 
 namespace Server.Api.Features.Agent.GetAll;
 
-public interface IAgentGetAllHandler
+internal interface IAgentGetAllHandler
 {
   /// <summary>
   /// Get all agents

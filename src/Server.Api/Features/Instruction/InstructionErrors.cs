@@ -1,5 +1,5 @@
 namespace Server.Api.Features.Instruction;
 
-public class InstructionErrors
+internal class InstructionErrors
 {
 }

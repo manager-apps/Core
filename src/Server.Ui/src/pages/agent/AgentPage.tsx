@@ -1,9 +1,9 @@
 import { useParams } from "react-router-dom";
-import { createShellInstructionForAgent, createGpoInstructionForAgent, fetchAgentById, fetchInstructionsForAgent, updateAgentConfig, updateAgentState } from "../../api/agent";
+import { createShellInstructionForAgent, createGpoInstructionForAgent, fetchAgentById, fetchInstructionsForAgent, updateAgentConfig} from "../../api/agent";
 import { InstructionType } from "../../types/instruction";
 import { useEffect, useState } from "react";
 
-import type { AgentDetailResponse, AgentState as AgentStateType } from "../../types/agent";
+import type { AgentDetailResponse } from "../../types/agent";
 import type { InstructionResponse, CreateShellCommandRequest, CreateGpoSetRequest } from "../../types/instruction";
 import type { ConfigUpdateRequest } from "../../types/config";
 
@@ -82,12 +82,6 @@ export function AgentPage() {
         await loadAgentAndInstructions(agent.id);
     };
 
-    const handleStateChange = async (newState: AgentStateType) => {
-        if (!agent) return;
-        await updateAgentState(agent.id, { newState });
-        await loadAgentAndInstructions(agent.id);
-    };
-
     const handleCreateInstruction = async (type: number, payload: CreateShellCommandRequest | CreateGpoSetRequest) => {
         if (!agent) return;
         if (type === InstructionType.Shell) {
@@ -126,8 +120,14 @@ export function AgentPage() {
                     <TabPanel value={tabValue} index={0}>
                       {agent.hardware && agent.config ? (
                         <AgentOverviewTab
-                            agent={agent}
-                            onStateChange={handleStateChange} />
+                            agentId={agent.id}
+                            agentVersion={agent.version}
+                            agentName={agent.name}
+                            agentCreatedAt={agent.createdAt}
+                            agentCurrentTag={agent.currentTag}
+                            agentSourceTag={agent.sourceTag}
+                            agentLastUpdatedAt={agent.updatedAt}
+                            hardware={agent.hardware} />
                       ) : (
                         <Box sx={{ p: 2 }}>No details available for this agent.</Box>
                       )}
@@ -135,6 +135,8 @@ export function AgentPage() {
                     <TabPanel value={tabValue} index={1}>
                       { agent.config ? (
                         <AgentConfigTab
+                            agentId={agent.id}
+                            agentName={agent.name}
                             config={agent.config}
                             onSave={handleConfigSave} />
                       ) : (

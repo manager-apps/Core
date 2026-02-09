@@ -30,9 +30,6 @@ public class Agent
   [MaxLength(50)]
   public string Version { get; private set; } = null!;
 
-  [Required]
-  public AgentState State { get; private set; }
-
   public DateTimeOffset CreatedAt { get; private init; }
   public DateTimeOffset? UpdatedAt { get; private set; }
   public DateTimeOffset LastSeenAt { get; private set; }
@@ -66,7 +63,6 @@ public class Agent
       SourceTag = sourceTag,
       CurrentTag = sourceTag,
       Version = "1.0.0",
-      State = AgentState.Active,
       CreatedAt = DateTimeOffset.UtcNow,
       LastSeenAt = DateTimeOffset.UtcNow
     };
@@ -126,11 +122,9 @@ public class Agent
   /// Patch update
   /// </summary>
   public void Update(
-    string? sourceTag = null,
-    AgentState? state = null)
+    string? sourceTag = null)
   {
     SourceTag = sourceTag ?? SourceTag;
-    State = state ?? State;
     UpdatedAt = DateTimeOffset.UtcNow;
   }
 
@@ -145,29 +139,5 @@ public class Agent
     CurrentTag = currentTag;
     LastSeenAt = DateTimeOffset.UtcNow;
   }
-
-  /// <summary>
-  /// Sets the state of the agent.
-  /// </summary>
-  public void MarkAsActive()
-  {
-    State = AgentState.Active;
-    UpdatedAt = DateTimeOffset.UtcNow;
-  }
-
-  /// <summary>
-  /// Sets the state of the agent to inactive.
-  /// </summary>
-  public void MarkAsInactive()
-  {
-    State = AgentState.Inactive;
-    UpdatedAt = DateTimeOffset.UtcNow;
-  }
-
-  /// <summary>
-  /// Determines whether the agent can be authenticated.
-  /// </summary>
-  public bool CanAuthenticate()
-    => State is AgentState.Active;
   #endregion
 }

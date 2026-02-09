@@ -1,4 +1,4 @@
-import type { AgentDetailResponse, AgentResponse, AgentUpdateStateRequest } from "../types/agent";
+import type { AgentDetailResponse, AgentResponse } from "../types/agent";
 import type { ConfigUpdateRequest } from "../types/config";
 import type { CreateGpoSetRequest, CreateShellCommandRequest, InstructionResponse } from "../types/instruction";
 import api from "./axios";
@@ -30,7 +30,7 @@ export const updateAgentConfig = async (
   agentId: number,
   config: ConfigUpdateRequest
 ): Promise<void> => {
-  await api.put(`agents/${agentId}/config`, config);
+  await api.patch(`agents/${agentId}/config`, config);
 }
 
 export const createShellInstructionForAgent = async (
@@ -48,14 +48,5 @@ export const createGpoInstructionForAgent = async (
 ): Promise<InstructionResponse> => {
   const response = await api.post<InstructionResponse>(
     `agents/${agentId}/instructions/gpo`, payload);
-  return response.data;
-}
-
-export const updateAgentState = async (
-  agentId: number,
-  request: AgentUpdateStateRequest
-): Promise<AgentResponse> => {
-  const response = await api.put<AgentResponse>(
-    `agents/${agentId}/state`, request);
   return response.data;
 }

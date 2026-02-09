@@ -4,11 +4,11 @@ using Common.Messages;
 
 namespace Server.Api.Features.Instruction;
 
-public static class InstructionMapper
+internal static class InstructionMapper
 {
   extension(Server.Domain.Instruction instruction)
   {
-    public InstructionResponse ToResponse() =>
+    internal InstructionResponse ToResponse() =>
       new(
         Id: instruction.Id,
         AgentId: instruction.AgentId,
@@ -23,7 +23,7 @@ public static class InstructionMapper
 
   extension(CreateInstructionRequest request)
   {
-    public Server.Domain.Instruction ToDomain() =>
+    internal Server.Domain.Instruction ToDomain() =>
       Domain.Instruction.Create(
         agentId: request.AgentId,
         type: request.Type,
@@ -32,7 +32,7 @@ public static class InstructionMapper
 
   extension(CreateAgentInstructionRequest request)
   {
-    public Server.Domain.Instruction ToDomain(long agentId) =>
+    internal Server.Domain.Instruction ToDomain(long agentId) =>
       Domain.Instruction.Create(
         agentId: agentId,
         type: request.Type,
@@ -41,7 +41,7 @@ public static class InstructionMapper
 
   extension(CreateShellCommandRequest request)
   {
-    public Server.Domain.Instruction ToDomain(long agentId)
+    internal Server.Domain.Instruction ToDomain(long agentId)
     {
       var payload = new ShellCommandPayload(request.Command, request.Timeout);
       var payloadJson = JsonSerializer.Serialize<InstructionPayload>(payload, JsonOptions.Default);
@@ -54,7 +54,7 @@ public static class InstructionMapper
 
   extension(CreateGpoSetRequest request)
   {
-    public Server.Domain.Instruction ToDomain(long agentId)
+    internal Server.Domain.Instruction ToDomain(long agentId)
     {
       var payload = new GpoSetPayload(request.Name, request.Value);
       var payloadJson = JsonSerializer.Serialize<InstructionPayload>(payload, JsonOptions.Default);

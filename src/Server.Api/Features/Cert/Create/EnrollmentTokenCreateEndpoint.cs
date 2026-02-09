@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Server.Api.Common.Extensions;
 using Server.Api.Common.Result;
-using Server.Api.Features.Cert;
 
-namespace Server.Api.Features.Agent.Cert.Create;
+namespace Server.Api.Features.Cert.Create;
 
-public static class EnrollmentTokenCreateEndpoint
+internal static class EnrollmentTokenCreateEndpoint
 {
-  public static void MapCreateEnrollmentTokenEndpoint(this IEndpointRouteBuilder app)
+  internal static void MapCreateEnrollmentTokenEndpoint(this IEndpointRouteBuilder app)
   {
-    app.MapPost("/certs/tokens", async (
+    app.MapPost("/tokens", async (
       [FromBody] CreateEnrollmentTokenRequest request,
       [FromServices] IEnrollmentTokenCreateHandler handler,
       CancellationToken cancellationToken) =>
@@ -16,7 +16,9 @@ public static class EnrollmentTokenCreateEndpoint
       var result = await handler.HandleAsync(request, cancellationToken);
       return result.ToApiResult();
     })
+    .WithTags("User")
     .Produces<EnrollmentTokenResponse>(StatusCodes.Status201Created)
-    .ProducesProblem(StatusCodes.Status400BadRequest);
+    .ProducesProblem(StatusCodes.Status400BadRequest)
+    .MapToApiVersion(ApiVersioningExtension.V1);
   }
 }

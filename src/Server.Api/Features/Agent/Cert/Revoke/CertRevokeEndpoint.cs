@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Server.Api.Common.Extensions;
 using Server.Api.Common.Result;
 using Server.Api.Features.Cert;
 
 namespace Server.Api.Features.Agent.Cert.Revoke;
 
-public static class CertRevokeEndpoint
+internal static class CertRevokeEndpoint
 {
-  public static void MapRevokeCertificateEndpoint(this IEndpointRouteBuilder app)
+  internal static void MapRevokeCertificateEndpoint(this IEndpointRouteBuilder app)
   {
     app.MapPost("/{agentId:long}/certs/revoke", async (
       [FromRoute] long agentId,
@@ -17,7 +18,9 @@ public static class CertRevokeEndpoint
       var result = await handler.HandleAsync(agentId, request.Reason, cancellationToken);
       return result.ToApiResult();
     })
+    .WithTags("User")
     .Produces<bool>()
-    .ProducesProblem(StatusCodes.Status404NotFound);
+    .ProducesProblem(StatusCodes.Status404NotFound)
+    .MapToApiVersion(ApiVersioningExtension.V1);
   }
 }

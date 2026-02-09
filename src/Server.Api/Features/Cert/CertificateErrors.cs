@@ -2,8 +2,8 @@
 
 namespace Server.Api.Features.Cert;
 
-public static class CertificateErrors
+internal static class CertificateErrors
 {
-  public static Error CertificateNotFound() =>
+  internal static Error CertificateNotFound() =>
     Error.NotFound("Certificate not found.");
 }

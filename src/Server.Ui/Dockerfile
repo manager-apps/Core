@@ -8,19 +8,17 @@ COPY . .
 RUN npm run build
 
 FROM nginx:alpine AS production
-
-# Copy built files
 COPY --from=build /app/dist /usr/share/nginx/html
 
 RUN echo '#!/bin/sh' > /docker-entrypoint.d/40-inject-env.sh && \
     echo 'cat > /usr/share/nginx/html/env-config.js << EOF' >> /docker-entrypoint.d/40-inject-env.sh && \
     echo 'window.__ENV__ = {' >> /docker-entrypoint.d/40-inject-env.sh && \
-    echo '  API_URL: "${API_URL:-http://localhost:5140/api/v1}"' >> /docker-entrypoint.d/40-inject-env.sh && \
+    echo '  API_URL: "${API_URL}"' >> /docker-entrypoint.d/40-inject-env.sh && \
+    echo '  GRAFANA_URL: "${GRAFANA_URL}"' >> /docker-entrypoint.d/40-inject-env.sh && \
     echo '};' >> /docker-entrypoint.d/40-inject-env.sh && \
     echo 'EOF' >> /docker-entrypoint.d/40-inject-env.sh && \
     chmod +x /docker-entrypoint.d/40-inject-env.sh
 
-# Nginx config for SPA routing
 RUN echo 'server { \
     listen 80; \
     listen [::]:80; \
