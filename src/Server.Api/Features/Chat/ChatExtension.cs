@@ -1,6 +1,4 @@
-﻿using Server.Api.Common.Extensions;
-
-namespace Server.Api.Features.Chat;
+﻿namespace Server.Api.Features.Chat;
 
 internal static class ChatExtension
 {

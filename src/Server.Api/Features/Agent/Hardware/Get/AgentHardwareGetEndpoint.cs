@@ -5,12 +5,12 @@ using Server.Api.Features.Hardware;
 
 namespace Server.Api.Features.Agent.Hardware.Get;
 
-internal static class HardwareGetEndpoint
+internal static class AgentHardwareGetEndpoint
 {
   internal static void MapHardwareGetEndpoint(this IEndpointRouteBuilder app)
     => app.MapGet("{agentId:long}/hardware", async (
         [FromRoute] long agentId,
-        [FromServices] IHardwareGetHandler handler,
+        [FromServices] IAgentHardwareGetHandler handler,
         CancellationToken ct) =>
         (await handler.HandleAsync(agentId, ct)).ToApiResult())
       .Produces<HardwareResponse>()

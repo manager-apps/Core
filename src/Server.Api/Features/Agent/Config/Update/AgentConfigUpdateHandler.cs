@@ -9,7 +9,7 @@ using Server.Domain;
 
 namespace Server.Api.Features.Agent.Config.Update;
 
-internal interface IConfigUpdateHandler
+internal interface IAgentConfigUpdateHandler
 {
   /// <summary>
   /// Handles the update of an agent's config and creates a new
@@ -21,10 +21,10 @@ internal interface IConfigUpdateHandler
     CancellationToken cancellationToken);
 }
 
-internal class ConfigUpdateHandler(
-  ILogger<ConfigUpdateHandler> logger,
+internal class AgentConfigUpdateHandler(
+  ILogger<AgentConfigUpdateHandler> logger,
   AppDbContext dbContext
-) : IConfigUpdateHandler {
+) : IAgentConfigUpdateHandler {
   public async Task<Result<ConfigResponse>> HandleAsync(
     long agentId,
     ConfigUpdateRequest request,
@@ -55,7 +55,8 @@ internal class ConfigUpdateHandler(
     var instruction = Server.Domain.Instruction.Create(
       agentId: agentId,
       type: InstructionType.Config,
-      payloadJson: JsonSerializer.Serialize<InstructionPayload>(payload, JsonOptions.Default));
+      payloadJson: JsonSerializer
+        .Serialize<InstructionPayload>(payload, JsonOptions.Default));
 
     dbContext.Instructions.Add(instruction);
     await dbContext.SaveChangesAsync(cancellationToken);

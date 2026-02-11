@@ -24,7 +24,7 @@ internal class InstructionGetByIdHandler(
       .FindAsync([instructionId], cancellationToken);
 
     if(instruction is null)
-      return InstructionErrors.NotFound(instructionId);
+      return InstructionErrors.NotFound();
 
     return instruction.ToResponse();
   }

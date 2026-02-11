@@ -5,7 +5,7 @@ using Server.Api.Infrastructure;
 
 namespace Server.Api.Features.Agent.Config.Get;
 
-internal interface IConfigGetHandler
+internal interface IAgentConfigGetHandler
 {
   /// <summary>
   /// Handles the retrieval of an agent's config
@@ -15,9 +15,9 @@ internal interface IConfigGetHandler
     CancellationToken cancellationToken);
 }
 
-internal class ConfigGetHandler(
+internal class AgentConfigGetHandler(
   AppDbContext dbContext
-) : IConfigGetHandler {
+) : IAgentConfigGetHandler {
   public async Task<Result<ConfigResponse>> HandleAsync(
     long agentId,
     CancellationToken cancellationToken)
@@ -26,6 +26,7 @@ internal class ConfigGetHandler(
       .AsNoTracking()
       .Include(a => a.Config)
       .FirstOrDefaultAsync(a => a.Id == agentId, cancellationToken);
+
     if (agent is null)
       return AgentErrors.NotFound();
 

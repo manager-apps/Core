@@ -5,17 +5,14 @@ using Server.Api.Features.Config;
 
 namespace Server.Api.Features.Agent.Config.Get;
 
-internal static class ConfigGetEndpoint
+internal static class AgentConfigGetEndpoint
 {
   internal static void MapConfigGetEndpoint(this IEndpointRouteBuilder app)
     => app.MapGet("{agentId}/config", async (
       [FromRoute] long agentId,
-      [FromServices] IConfigGetHandler handler,
-      CancellationToken ct) =>
-    {
-      var result = await handler.HandleAsync(agentId, ct);
-      return result.ToApiResult();
-    })
+      [FromServices] IAgentConfigGetHandler handler,
+      CancellationToken ct)
+      => (await handler.HandleAsync(agentId, ct)).ToApiResult())
     .Produces<ConfigResponse>()
     .ProducesProblem(StatusCodes.Status404NotFound)
     .MapToApiVersion(ApiVersioningExtension.V1);

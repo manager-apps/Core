@@ -5,24 +5,24 @@ using Server.Api.Infrastructure;
 
 namespace Server.Api.Features.Agent.Cert.Revoke;
 
-internal interface ICertRevokeHandler
+internal interface IAgentCertRevokeHandler
 {
   /// <summary>
   /// Revokes all active certificates for an agent.
   /// </summary>
   Task<Result<bool>> HandleAsync(
     long agentId,
-    string reason,
+    RevokeRequest request,
     CancellationToken cancellationToken);
 }
 
-internal sealed class CertRevokeHandler(
-  ILogger<CertRevokeHandler> logger,
-  AppDbContext dbContext) : ICertRevokeHandler
-{
+internal sealed class AgentCertRevokeHandler(
+  ILogger<AgentCertRevokeHandler> logger,
+  AppDbContext dbContext
+) : IAgentCertRevokeHandler {
   public async Task<Result<bool>> HandleAsync(
     long agentId,
-    string reason,
+    RevokeRequest request,
     CancellationToken cancellationToken)
   {
     var agent = await dbContext.Agents
@@ -35,20 +35,19 @@ internal sealed class CertRevokeHandler(
                   c.IsActive && c.RevokedAt == null)
       .ToListAsync(cancellationToken);
     if (certificates.Count == 0)
-      return CertificateErrors.CertificateNotFound();
+      return CertificateErrors.NotFound();
 
     foreach (var cert in certificates)
     {
-      cert.Revoke(reason);
+      cert.Revoke(request.Reason);
     }
-
     await dbContext.SaveChangesAsync(cancellationToken);
 
     logger.LogInformation(
       "Revoked {Count} certificate(s) for agent: {AgentName}. Reason: {Reason}",
       certificates.Count,
       agent.Name,
-      reason);
+      request.Reason);
 
     return true;
   }

@@ -4,12 +4,12 @@ using Server.Api.Features.Instruction;
 
 namespace Server.Api.Features.Agent.Instruction.GetAll;
 
-internal static class InstructionsGetAllEndpoint
+internal static class AgentInstructionsGetAllEndpoint
 {
   internal static void MapGetAllInstructionsEndpoint(this IEndpointRouteBuilder app)
     => app.MapGet("{agentId:long}/instructions", async (
       [FromRoute] long agentId,
-      [FromServices] IInstructionsGetAllHandler handler,
+      [FromServices] IAgentInstructionsGetAllHandler handler,
       CancellationToken cancellationToken) =>
     {
       var instructions = await handler.HandleAsync(agentId, cancellationToken);

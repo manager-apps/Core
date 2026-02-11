@@ -5,13 +5,13 @@ using Server.Api.Features.Config;
 
 namespace Server.Api.Features.Agent.Config.Update;
 
-internal static class ConfigUpdateEndpoint
+internal static class AgentConfigUpdateEndpoint
 {
   internal static void MapConfigUpdateEndpoint(this IEndpointRouteBuilder app)
     => app.MapPatch("{agentId:long}/config", async (
         [FromRoute] long agentId,
         [FromBody] ConfigUpdateRequest request,
-        [FromServices] IConfigUpdateHandler handler,
+        [FromServices] IAgentConfigUpdateHandler handler,
         CancellationToken ct) =>
       {
         var result = await handler.HandleAsync(agentId, request, ct);

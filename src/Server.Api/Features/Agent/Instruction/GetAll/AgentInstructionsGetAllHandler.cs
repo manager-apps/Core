@@ -4,7 +4,7 @@ using Server.Api.Infrastructure;
 
 namespace Server.Api.Features.Agent.Instruction.GetAll;
 
-internal interface IInstructionsGetAllHandler
+internal interface IAgentInstructionsGetAllHandler
 {
   /// <summary>
   /// Handles the retrieval of all instructions for a given agent
@@ -14,10 +14,10 @@ internal interface IInstructionsGetAllHandler
     CancellationToken cancellationToken);
 }
 
-internal class InstructionsGetAllHandler(
-  ILogger<InstructionsGetAllHandler> logger,
+internal class AgentInstructionsGetAllHandler(
+  ILogger<AgentInstructionsGetAllHandler> logger,
   AppDbContext context
-) : IInstructionsGetAllHandler {
+) : IAgentInstructionsGetAllHandler {
   public async Task<IEnumerable<InstructionResponse>> HandleAsync(
     long agentId,
     CancellationToken cancellationToken)

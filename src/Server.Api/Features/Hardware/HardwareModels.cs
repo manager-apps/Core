@@ -1,6 +1,5 @@
 ﻿namespace Server.Api.Features.Hardware;
 
-
 public record HardwareResponse(
   long Id,
   long AgentId,

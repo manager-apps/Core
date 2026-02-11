@@ -5,7 +5,7 @@ using Server.Api.Infrastructure;
 
 namespace Server.Api.Features.Agent.Hardware.Get;
 
-internal interface IHardwareGetHandler
+internal interface IAgentHardwareGetHandler
 {
   /// <summary>
   /// Handles the retrieval of an agent's hardware information
@@ -15,9 +15,9 @@ internal interface IHardwareGetHandler
     CancellationToken cancellationToken);
 }
 
-internal class HardwareGetHandler(
+internal class AgentHardwareGetHandler(
   AppDbContext dbContext
-) : IHardwareGetHandler {
+) : IAgentHardwareGetHandler {
   public async Task<Result<HardwareResponse>> HandleAsync(
     long agentId,
     CancellationToken cancellationToken)

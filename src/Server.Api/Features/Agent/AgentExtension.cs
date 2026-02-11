@@ -15,16 +15,12 @@ public static class AgentExtension
   {
     services.AddScoped<IAgentGetAllHandler, AgentGetAllHandler>();
     services.AddScoped<IAgentGetByIdHandler, AgentGetByIdHandler>();
-
-    services.AddScoped<IInstructionsGetAllHandler, InstructionsGetAllHandler>();
+    services.AddScoped<IAgentInstructionsGetAllHandler, AgentInstructionsGetAllHandler>();
     services.AddScoped<IAgentInstructionCreateHandler, AgentInstructionCreateHandler>();
-
-    services.AddScoped<IConfigGetHandler, ConfigGetHandler>();
-    services.AddScoped<IConfigUpdateHandler, ConfigUpdateHandler>();
-
-    services.AddScoped<IHardwareGetHandler, HardwareGetHandler>();
-
-    services.AddScoped<ICertRevokeHandler, CertRevokeHandler>();
+    services.AddScoped<IAgentConfigGetHandler, AgentConfigGetHandler>();
+    services.AddScoped<IAgentConfigUpdateHandler, AgentConfigUpdateHandler>();
+    services.AddScoped<IAgentHardwareGetHandler, AgentHardwareGetHandler>();
+    services.AddScoped<IAgentCertRevokeHandler, AgentCertRevokeHandler>();
   }
 
   public static void MapAgentEndpoints(this IEndpointRouteBuilder app)
@@ -34,15 +30,11 @@ public static class AgentExtension
 
     group.MapGetAllAgentsEndpoint();
     group.MapGetByIdAgentEndpoint();
-
     group.MapGetAllInstructionsEndpoint();
     group.MapCreateInstructionEndpoint();
-
     group.MapConfigGetEndpoint();
     group.MapConfigUpdateEndpoint();
-
     group.MapHardwareGetEndpoint();
-
     group.MapRevokeCertificateEndpoint();
   }
 }

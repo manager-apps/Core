@@ -57,9 +57,7 @@ internal class ChatHandler : IChatHandler
   public ChatHandler(
     ILogger<ChatHandler> logger,
     IAgentGetAllHandler getAllAgentsHandler,
-    IAgentGetByIdHandler getAgentByIdHandler,
-    IAgentInstructionCreateHandler instructionCreateHandler,
-    IInstructionsGetAllHandler getAgentInstructionsHandler,
+    IAgentInstructionsGetAllHandler getAgentInstructionsHandler,
     IInstructionGetByIdHandler getInstructionByIdHandler,
     ChatClient client
   ) {
@@ -68,59 +66,6 @@ internal class ChatHandler : IChatHandler
 
     _toolHandlers = new Dictionary<string, Tool>
     {
-      ["GetAgentById"] = new(
-        "Get detailed information about a specific agent, including its status, tags, versions, last seen time, and recent metrics.",
-        Parameters: BinaryData.FromString(
-        """
-          {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "agentId": {
-                "type": "integer",
-                "description": "The ID of the agent to retrieve"
-              }
-            },
-            "required": ["agentId"]
-          }
-        """),
-        async (args, ct) =>
-        {
-          _logger.LogInformation("GetAgentById called with args: '{Args}'", args);
-          if (string.IsNullOrWhiteSpace(args))
-          {
-            _logger.LogWarning("GetAgentById received empty arguments");
-            return JsonSerializer.Serialize(new
-            {
-              success = false,
-              error = "No arguments provided. Please specify agentId."
-            });
-          }
-          try
-          {
-            var json = JsonDocument.Parse(args);
-            var agentId = json.RootElement.GetProperty("agentId").GetInt64();
-
-            var agent = await getAgentByIdHandler.HandleAsync(agentId, ct);
-            if (agent.IsSuccess)
-            {
-              return JsonSerializer.Serialize(new { success = true, agent = agent.Value });
-            }
-
-            return JsonSerializer.Serialize(new { success = false, error = agent.Error });
-          }
-          catch (JsonException ex)
-          {
-            _logger.LogError(ex, "Failed to parse GetAgentById arguments: '{Args}'", args);
-            return JsonSerializer.Serialize(new
-            {
-              success = false,
-              error = $"Invalid JSON arguments: {ex.Message}"
-            });
-          }
-        }
-      ),
-
       ["GetAgentInstructions"] = new(
         "Get a list of all instructions for a specific agent, including their status, types, parameters, and results.",
         Parameters: BinaryData.FromString(
@@ -248,75 +193,7 @@ internal class ChatHandler : IChatHandler
         {
           var agents = await getAllAgentsHandler.HandleAsync(ct);
           return JsonSerializer.Serialize(agents);
-        }),
-
-      ["CreateShellInstruction"] = new(
-        "Create a shell command instruction for a specific agent to execute. Use this when user asks to run commands, check system info, get IP address, or perform any task on a Windows agent. Agents use PowerShell.",
-        Parameters: BinaryData.FromString(
-        """
-          {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "agentId": {
-                "type": "integer",
-                "description": "The ID of the agent that should execute this command"
-              },
-              "command": {
-                "type": "string",
-                "description": "The PowerShell command to execute on Windows agent (e.g., 'ipconfig', 'Get-NetIPAddress', 'hostname', 'systeminfo')"
-              },
-              "timeout": {
-                "type": "integer",
-                "description": "Timeout in seconds (default: 30)",
-                "default": 30
-              }
-            },
-            "required": ["agentId", "command"]
-          }
-        """),
-        async (args, ct) =>
-        {
-          _logger.LogInformation("CreateShellInstruction called with args: '{Args}'", args);
-          if (string.IsNullOrWhiteSpace(args))
-          {
-            _logger.LogWarning("CreateShellInstruction received empty arguments");
-            return JsonSerializer.Serialize(new
-            {
-              success = false,
-              error = "No arguments provided. Please specify agentId and command."
-            });
-          }
-          try
-          {
-            var json = JsonDocument.Parse(args);
-            var agentId = json.RootElement.GetProperty("agentId").GetInt64();
-            var command = json.RootElement.GetProperty("command").GetString()!;
-            var timeout = json.RootElement.TryGetProperty("timeout", out var timeoutEl)
-              ? timeoutEl.GetInt32()
-              : 30;
-
-            var request = new CreateShellCommandRequest(command, timeout * 1000);
-            var result = await instructionCreateHandler.HandleShellCommandAsync(agentId, request, ct);
-            if (!result.IsSuccess)
-              return JsonSerializer.Serialize(new { success = false, error = result.Error });
-            return JsonSerializer.Serialize(new
-            {
-              success = true,
-              instructionId = result.Value!.Id,
-              message = $"Shell instruction created successfully with ID {result.Value.Id.ToString()}"
-            });
-          }
-          catch (JsonException ex)
-          {
-            _logger.LogError(ex, "Failed to parse CreateShellInstruction arguments: '{Args}'", args);
-            return JsonSerializer.Serialize(new
-            {
-              success = false,
-              error = $"Invalid JSON arguments: {ex.Message}"
-            });
-          }
-        }),
+        })
     };
   }
 
@@ -346,7 +223,8 @@ internal class ChatHandler : IChatHandler
     {
       var completion = await _client.CompleteChatAsync(messages, chatOptions, cancellationToken);
 
-      if (completion.Value.Content.Count > 0 && !string.IsNullOrEmpty(completion.Value.Content[0].Text))
+      if (completion.Value.Content.Count > 0 &&
+          !string.IsNullOrEmpty(completion.Value.Content[0].Text))
       {
         var text = completion.Value.Content[0].Text;
         foreach (var c in text)
@@ -358,11 +236,9 @@ internal class ChatHandler : IChatHandler
         messages.Add(ChatMessage.CreateAssistantMessage(text));
       }
 
-      if (completion.Value.FinishReason != ChatFinishReason.ToolCalls)
+      if (completion.Value.FinishReason != ChatFinishReason.ToolCalls ||
+          completion.Value.ToolCalls.Count == 0)
         yield break;
-
-      if (completion.Value.ToolCalls.Count == 0)
-        throw new InvalidOperationException("FinishReason == ToolCalls, but no tool calls were received.");
 
       messages.Add(new AssistantChatMessage(completion.Value));
       foreach (var toolCall in completion.Value.ToolCalls)
