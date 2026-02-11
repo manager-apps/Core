@@ -21,9 +21,14 @@ public class CommandLineOptions
     public string Version { get; set; } = "1.0.0";
 
     /// <summary>
-    /// Server URL to configure.
+    /// Server URL with certificate to configure (for secured requests).
     /// </summary>
-    public string? ServerUrl { get; set; }
+    public string? ServerCertificatedUrl { get; set; }
+
+    /// <summary>
+    /// Server URL without certificate to configure (for non-secured requests).
+    /// </summary>
+    public string? ServerNotCertificatedUrl { get; set; }
 
     /// <summary>
     /// Agent name to configure.

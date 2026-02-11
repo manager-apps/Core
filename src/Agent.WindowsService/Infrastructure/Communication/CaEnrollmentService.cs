@@ -3,14 +3,10 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Agent.WindowsService.Abstraction;
+using Agent.WindowsService.Config;
 
 namespace Agent.WindowsService.Infrastructure.Communication;
 
-
-
-/// <summary>
-/// Implementation of certificate enrollment service.
-/// </summary>
 public class CaEnrollmentService(
   ILogger<CaEnrollmentService> logger,
   ICertificateStore certificateStore,
@@ -38,8 +34,7 @@ public class CaEnrollmentService(
           CsrPem = csrPem
         };
 
-        var enrollmentUrl = ConvertToEnrollmentUrl(serverUrl);
-        var url = $"{enrollmentUrl.TrimEnd('/')}/api/v1/agents/certificates/enroll/token";
+        var url = UrlConfig.PostEnrollmentUrl(serverUrl);
         logger.LogDebug("Enrollment URL: {Url}", url);
 
         using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
@@ -56,7 +51,8 @@ public class CaEnrollmentService(
           return false;
         }
 
-        var enrollmentResponse = await response.Content.ReadFromJsonAsync<CertificateEnrollmentResponse>(
+        var enrollmentResponse = await response.Content
+          .ReadFromJsonAsync<CertificateEnrollmentResponse>(
           cancellationToken: cancellationToken);
         if (enrollmentResponse is null)
         {
@@ -103,7 +99,6 @@ public class CaEnrollmentService(
       }
 
       var agentName = currentCert.GetNameInfo(X509NameType.SimpleName, false);
-
       var (csrPem, privateKey) = GenerateCsr(agentName);
       using (privateKey)
       {
@@ -112,8 +107,7 @@ public class CaEnrollmentService(
           CsrPem = csrPem
         };
 
-        // tood: via config
-        var url = $"{serverUrl.TrimEnd('/')}/api/v1/agents/certificates/renew";
+        var url = UrlConfig.PostRenewalUrl(serverUrl);
         using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
         httpRequest.Content = JsonContent.Create(request);
 
@@ -160,7 +154,6 @@ public class CaEnrollmentService(
     CancellationToken cancellationToken)
   {
     logger.LogInformation("Checking if the certificate is revoked");
-
     try
     {
       var currentCert = certificateStore.GetClientCertificate();
@@ -171,21 +164,20 @@ public class CaEnrollmentService(
       }
 
       var thumbprint = currentCert.Thumbprint;
-      var url = $"{serverUrl.TrimEnd('/')}/api/v1/agents/certificates/revocation/{thumbprint}";
+      var url = UrlConfig.GetRevocationCheckUrl(serverUrl, thumbprint);
       logger.LogDebug("Revocation check URL: {Url}", url);
 
       using var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
       var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
-
       if (!response.IsSuccessStatusCode)
       {
         logger.LogError("Failed to check revocation status. Status: {Status}", response.StatusCode);
         return false;
       }
 
-      var revocationResponse = await response.Content.ReadFromJsonAsync<CertRevocationResponse>(
+      var revocationResponse = await response.Content
+        .ReadFromJsonAsync<CertRevocationResponse>(
         cancellationToken: cancellationToken);
-
       if (revocationResponse is null)
       {
         logger.LogError("Invalid revocation response from server");
@@ -206,30 +198,7 @@ public class CaEnrollmentService(
     }
   }
 
-  public async Task<bool> ValidateCertificateAsync(string serverUrl, CancellationToken cancellationToken)
-  {
-    try
-    {
-      logger.LogInformation("Validating certificate with server at {ServerUrl}", serverUrl);
-
-      var response = await _httpClient.GetAsync($"{serverUrl}/api/v1/certificates/validate", cancellationToken);
-      if (response.IsSuccessStatusCode)
-      {
-        logger.LogInformation("Certificate validation succeeded.");
-        return true;
-      }
-
-      logger.LogWarning("Certificate validation failed with status code {StatusCode}", response.StatusCode);
-      return false;
-    }
-    catch (Exception ex)
-    {
-      logger.LogError(ex, "Error occurred during certificate validation.");
-      return false;
-    }
-  }
-
-  public (string CsrPem, RSA PrivateKey) GenerateCsr(string agentName)
+  private (string CsrPem, RSA PrivateKey) GenerateCsr(string agentName)
   {
     var rsa = RSA.Create(2048);
     var subjectName = new X500DistinguishedName($"CN={agentName}");
@@ -256,19 +225,6 @@ public class CaEnrollmentService(
 
     logger.LogDebug("Generated CSR for {AgentName}", agentName);
     return (csrPem.ToString(), rsa);
-  }
-
-  /// <summary>
-  /// Converts HTTPS mTLS URL (port 5141) to HTTP enrollment URL (port 5140).
-  /// Enrollment doesn't require client certificate.
-  /// </summary>
-  private static string ConvertToEnrollmentUrl(string serverUrl)
-  {
-    // Convert https://host:5141 -> http://host:5140
-    var uri = new Uri(serverUrl);
-    var port = uri.Port == 5141 ? 5140 : uri.Port;
-    var scheme = uri.Port == 5141 ? "http" : uri.Scheme;
-    return $"{scheme}://{uri.Host}:{port}";
   }
 }
 

@@ -26,6 +26,7 @@ internal class HardwareGetHandler(
       .AsNoTracking()
       .Include(a => a.Hardware)
       .FirstOrDefaultAsync(a => a.Id == agentId, cancellationToken);
+
     if (agent is null)
       return AgentErrors.NotFound();
 

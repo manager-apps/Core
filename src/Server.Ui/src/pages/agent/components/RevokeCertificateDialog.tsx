@@ -11,11 +11,9 @@ import {
     IconButton,
     Typography,
     Divider,
-    Avatar,
     Paper,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import BlockIcon from "@mui/icons-material/Block";
 import { revokeCertificate } from "../../../api/certificate";
 
 interface RevokeCertificateDialogProps {

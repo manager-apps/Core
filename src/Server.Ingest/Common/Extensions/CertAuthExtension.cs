@@ -3,13 +3,12 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.Extensions.Options;
 using Server.Ingest.Common.Interfaces;
-using Server.Ingest.Features.Cert;
 
 namespace Server.Ingest.Common.Extensions;
 
-public static class CertAuthExtension
+internal static class CertAuthExtension
 {
-    public static void AddCertificateAuthentication(this IServiceCollection services)
+    internal static void AddCertificateAuthentication(this IServiceCollection services)
     {
         services.AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme)
             .AddCertificate();

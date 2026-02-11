@@ -1,6 +1,6 @@
 using Microsoft.OpenApi;
 
-namespace Server.Api.Common.Extensions;
+namespace Server.Ingest.Common.Extensions;
 
 public static class SwaggerExtension
 {
@@ -13,9 +13,9 @@ public static class SwaggerExtension
       {
         options.SwaggerDoc("v1", new OpenApiInfo
         {
-          Title = "Manager API",
+          Title = "Ingest API",
           Version = "v1",
-          Description = "API for managing agents, instructions, and configurations"
+          Description = "API for ingesting data from agents"
         });
       });
     }

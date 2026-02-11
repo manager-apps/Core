@@ -13,7 +13,6 @@ internal static class HardwareGetEndpoint
         [FromServices] IHardwareGetHandler handler,
         CancellationToken ct) =>
         (await handler.HandleAsync(agentId, ct)).ToApiResult())
-      .WithTags("User")
       .Produces<HardwareResponse>()
       .ProducesProblem(StatusCodes.Status404NotFound)
       .MapToApiVersion(ApiVersioningExtension.V1);

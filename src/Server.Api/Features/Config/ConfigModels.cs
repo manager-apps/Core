@@ -10,8 +10,8 @@ public record ConfigResponse(
   int InstructionsExecutionLimit,
   int InstructionResultsSendLimit,
   int MetricsSendLimit,
-  List<string> AllowedCollectors,
-  List<string> AllowedInstructions);
+  IReadOnlyList<string> AllowedCollectors,
+  IReadOnlyList<string> AllowedInstructions);
 
 public record ConfigUpdateRequest(
   int? AuthenticationExitIntervalSeconds = null,
@@ -20,6 +20,6 @@ public record ConfigUpdateRequest(
   int? InstructionsExecutionLimit = null,
   int? InstructionResultsSendLimit = null,
   int? MetricsSendLimit = null,
-  List<string>? AllowedCollectors = null,
-  List<string>? AllowedInstructions = null);
+  IReadOnlyList<string>? AllowedCollectors = null,
+  IReadOnlyList<string>? AllowedInstructions = null);
 

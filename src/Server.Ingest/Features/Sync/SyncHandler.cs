@@ -30,9 +30,14 @@ internal sealed class SyncHandler(
     SyncMessageRequest request,
     CancellationToken cancellationToken)
   {
+    logger.LogInformation("Received sync message from agent: {AgentName}", agent.Identity?.Name);
+
     var agentName = agent.Identity?.Name;
     if (string.IsNullOrEmpty(agentName))
+    {
+      logger.LogWarning("Unauthorized sync attempt with missing or invalid agent identity.");
       return Error.Unauthorized("Agent identity is missing or invalid.");
+    }
 
     var agentEntity = await dbContext.Agents
       .AsSplitQuery()
@@ -40,7 +45,10 @@ internal sealed class SyncHandler(
       .Include(a => a.Config)
       .FirstOrDefaultAsync(a => a.Name == agentName, cancellationToken);
     if (agentEntity is null)
+    {
+      logger.LogWarning("Sync attempt for non-existent agent: {AgentName}", agentName);
       return Error.NotFound("Agent not found.");
+    }
 
     if (agentEntity.Hardware is null)
     {
@@ -101,7 +109,6 @@ internal sealed class SyncHandler(
       agentName,
       request.Hardware.MachineName,
       request.Hardware.ProcessorCount);
-
     if (!agentEntity.TryGetConfig(out var agentConfig) || agentConfig is null)
     {
       logger.LogError("Config is missing for agent {AgentName} after sync", agentName);

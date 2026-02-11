@@ -7,9 +7,6 @@ using Server.Ingest.Features.Cert.Status;
 
 namespace Server.Ingest.Features.Cert;
 
-/// <summary>
-/// Extension methods for registering certificate endpoints.
-/// </summary>
 public static class CertExtension
 {
     public static void AddCertServices(this IServiceCollection services)
@@ -24,7 +21,7 @@ public static class CertExtension
     public static void MapCertEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGetCaEndpoint();
-        app.MapCertEnrollEndpoints();
+        app.MapEnrollWithToken();
         app.MapCertRenewEndpoint();
         app.MapCertStatusEndpoint();
         app.MapCertRevocationEndpoint();

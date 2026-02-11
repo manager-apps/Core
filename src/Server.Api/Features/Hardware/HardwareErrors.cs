@@ -2,8 +2,8 @@
 
 namespace Server.Api.Features.Hardware;
 
-internal class HardwareErrors
+internal static class HardwareErrors
 {
   internal static Error NotFound()
-    => Error.NotFound("Hardware information not found");
+    => Error.NotFound("Hardware not found.");
 }

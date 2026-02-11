@@ -142,6 +142,10 @@ const columns: StyledTableColumn<InstructionResponse>[] = [
 
 const renderExpandedContent = (instruction: InstructionResponse) => (
     <>
+        <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+            Instruction ID: #{instruction.id}
+        </Typography>
+
         <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             Payload
         </Typography>

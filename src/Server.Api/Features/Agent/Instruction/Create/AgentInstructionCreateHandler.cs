@@ -4,7 +4,7 @@ using Server.Api.Infrastructure;
 
 namespace Server.Api.Features.Agent.Instruction.Create;
 
-internal interface IInstructionCreateHandler
+internal interface IAgentInstructionCreateHandler
 {
   /// <summary>
   /// Creates a shell command instruction for the specified agent.
@@ -23,10 +23,10 @@ internal interface IInstructionCreateHandler
     CancellationToken cancellationToken);
 }
 
-internal class InstructionCreateHandler (
-  ILogger<InstructionCreateHandler> logger,
+internal class AgentInstructionCreateHandler (
+  ILogger<AgentInstructionCreateHandler> logger,
   AppDbContext dbContext
-) : IInstructionCreateHandler {
+) : IAgentInstructionCreateHandler {
   public async Task<Result<InstructionResponse>> HandleShellCommandAsync(
     long agentId,
     CreateShellCommandRequest request,

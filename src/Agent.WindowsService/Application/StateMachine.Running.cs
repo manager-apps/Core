@@ -32,7 +32,7 @@ public partial class StateMachine
       );
 
       var response = await _serverClient.Post<ReportMessageResponse, ReportMessageRequest>(
-        url: UrlConfig.PostReportUrl(config.ServerUrl),
+        url: UrlConfig.PostReportUrl(config.ServerCertificatedUrl),
         data: reportData,
         metadata: new RequestMetadata
         {

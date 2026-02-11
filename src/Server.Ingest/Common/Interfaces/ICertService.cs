@@ -22,26 +22,4 @@ public interface ICertService
     string thumbprint,
     string? expectedAgentName,
     CancellationToken cancellationToken);
-
-  /// <summary>
-  /// Finds an agent by name.
-  /// </summary>
-  Task<Agent?> FindAgentAsync(
-    string agentName,
-    CancellationToken cancellationToken);
-
-  /// <summary>
-  /// Gets or creates an agent with the specified name.
-  /// </summary>
-  Task<Agent> GetOrCreateAgentAsync(
-    string agentName,
-    CancellationToken cancellationToken);
-
-  /// <summary>
-  /// Finds a valid enrollment token for the specified agent.
-  /// </summary>
-  Task<EnrollmentToken?> FindValidTokenAsync(
-    string agentName,
-    string enrollmentToken,
-    CancellationToken cancellationToken);
 }

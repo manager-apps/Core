@@ -109,7 +109,6 @@ export function ChatPage() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 112px)' }}>
-      {/* Header */}
       <Paper
         elevation={0}
         sx={{
@@ -150,7 +149,6 @@ export function ChatPage() {
         </Box>
       </Paper>
 
-      {/* Messages Area */}
       <Paper
         elevation={0}
         sx={{

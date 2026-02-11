@@ -5,21 +5,20 @@ using Server.Api.Common.Result;
 
 namespace Server.Api.Features.Agent.Instruction.Create;
 
-internal static class InstructionCreateEndpoint
+internal static class AgentInstructionCreateEndpoint
 {
   internal static void MapCreateInstructionEndpoint(this IEndpointRouteBuilder app)
   {
     app.MapPost("{agentId}/instructions/shell", async (
         [FromRoute] long agentId,
         [FromBody] CreateShellCommandRequest request,
-        [FromServices] IInstructionCreateHandler handler,
+        [FromServices] IAgentInstructionCreateHandler handler,
         CancellationToken ct) =>
       {
         var result = await handler.HandleShellCommandAsync(agentId, request, ct);
         return result.ToApiResult(
           createdUri: $"/instructions/{result.Value?.Id}");
       })
-      .WithTags("User")
       .Produces<InstructionResponse>(StatusCodes.Status201Created)
       .ProducesProblem(StatusCodes.Status400BadRequest)
       .ProducesProblem(StatusCodes.Status404NotFound)
@@ -28,14 +27,13 @@ internal static class InstructionCreateEndpoint
     app.MapPost("{agentId}/instructions/gpo", async (
         [FromRoute] long agentId,
         [FromBody] CreateGpoSetRequest request,
-        [FromServices] IInstructionCreateHandler handler,
+        [FromServices] IAgentInstructionCreateHandler handler,
         CancellationToken ct) =>
       {
         var result = await handler.HandleGpoSetAsync(agentId, request, ct);
         return result.ToApiResult(
           createdUri: $"/instructions/{result.Value?.Id}");
       })
-      .WithTags("User")
       .Produces<InstructionResponse>(StatusCodes.Status201Created)
       .ProducesProblem(StatusCodes.Status400BadRequest)
       .ProducesProblem(StatusCodes.Status404NotFound)

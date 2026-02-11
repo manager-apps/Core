@@ -3,11 +3,11 @@ using Server.Ingest.Infrastructure;
 
 namespace Server.Ingest.Common.Extensions;
 
-public static class DatabaseExtension
+internal static class DatabaseExtension
 {
   extension(IServiceCollection services)
   {
-    public void AddPsqlDatabase(IConfiguration configuration)
+    internal void AddPsqlDatabase(IConfiguration configuration)
     {
       var connectionString = configuration["Database:Postgres:ConnectionString"]!;
       services.AddDbContext<AppDbContext>(options =>

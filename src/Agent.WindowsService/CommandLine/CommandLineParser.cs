@@ -25,9 +25,14 @@ public static class CommandLineParser
           options.RunService = false;
           break;
 
-        case "--server-url":
+        case "--server-cert-url":
           if (i + 1 < args.Length)
-            options.ServerUrl = args[++i];
+            options.ServerCertificatedUrl = args[++i];
+          break;
+
+        case "--server-not-cert-url":
+          if (i + 1 < args.Length)
+            options.ServerNotCertificatedUrl = args[++i];
           break;
 
         case "--set-version":

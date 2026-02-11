@@ -5,5 +5,5 @@ namespace Server.Api.Features.Config;
 internal static class ConfigErrors
 {
   internal static Error NotFound()
-    => Error.NotFound("Config not found");
+    => Error.NotFound($"Config was not found.");
 }

@@ -44,7 +44,7 @@ const firstList: MenuItem[] = [
     text: 'Chat',
     path: '/chat',
     icon: <Icon component={TryIcon} />,
-    disabled: true
+    disabled: false
   },
 ];
 

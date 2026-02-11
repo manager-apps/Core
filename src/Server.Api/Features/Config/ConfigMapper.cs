@@ -32,19 +32,4 @@ internal static class ConfigMapper
         AllowedCollectors: config.GetAllowedCollectorsList().ToList(),
         AllowedInstructions: config.GetAllowedInstructionsList().ToList());
   }
-
-  extension(ConfigMessage config)
-  {
-    internal Domain.Config ToDomain()
-      => Domain.Config.Create(
-        iterationDelaySeconds: config.IterationDelaySeconds,
-        authenticationExitIntervalSeconds: config.AuthenticationExitIntervalSeconds,
-        runningExitIntervalSeconds: config.RunningExitIntervalSeconds,
-        executionExitIntervalSeconds: config.ExecutionExitIntervalSeconds,
-        instructionsExecutionLimit: config.InstructionsExecutionLimit,
-        instructionResultsSendLimit: config.InstructionResultsSendLimit,
-        metricsSendLimit: config.MetricsSendLimit,
-        allowedCollectors: config.AllowedCollectors,
-        allowedInstructions: config.AllowedInstructions);
-  }
 }

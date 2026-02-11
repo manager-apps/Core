@@ -10,14 +10,9 @@ RUN npm run build
 FROM nginx:alpine AS production
 COPY --from=build /app/dist /usr/share/nginx/html
 
-RUN echo '#!/bin/sh' > /docker-entrypoint.d/40-inject-env.sh && \
-    echo 'cat > /usr/share/nginx/html/env-config.js << EOF' >> /docker-entrypoint.d/40-inject-env.sh && \
-    echo 'window.__ENV__ = {' >> /docker-entrypoint.d/40-inject-env.sh && \
-    echo '  API_URL: "${API_URL}"' >> /docker-entrypoint.d/40-inject-env.sh && \
-    echo '  GRAFANA_URL: "${GRAFANA_URL}"' >> /docker-entrypoint.d/40-inject-env.sh && \
-    echo '};' >> /docker-entrypoint.d/40-inject-env.sh && \
-    echo 'EOF' >> /docker-entrypoint.d/40-inject-env.sh && \
+RUN printf '#!/bin/sh\nset -eu\ncat > /usr/share/nginx/html/env-config.js <<EOF\nwindow.__ENV__ = {\n  API_URL: "${API_URL}",\n  GRAFANA_URL: "${GRAFANA_URL}"\n};\nEOF\n' > /docker-entrypoint.d/40-inject-env.sh && \
     chmod +x /docker-entrypoint.d/40-inject-env.sh
+
 
 RUN echo 'server { \
     listen 80; \

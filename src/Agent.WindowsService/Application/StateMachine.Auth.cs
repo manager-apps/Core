@@ -12,7 +12,7 @@ public partial class StateMachine
       var config = await _configStore.GetAsync(Token);
       if (_certificateStore.HasValidCertificate())
       {
-        if (await _icaEnrollmentService.IsCertificateRevokedAsync(config.ServerUrl, Token))
+        if (await _icaEnrollmentService.IsCertificateRevokedAsync(config.ServerNotCertificatedUrl, Token))
         {
           _logger.LogWarning("Certificate is revoked. Transitioning to re-enrollment state.");
           await ReEnrollCertificateAsync(config);
@@ -35,7 +35,6 @@ public partial class StateMachine
         return;
       }
 
-      // No valid certificate, so we need to enroll using enrollment token
       _logger.LogInformation("No valid certificate found, initiating enrollment");
       if (string.IsNullOrEmpty(config.EnrollmentToken))
       {
@@ -45,7 +44,7 @@ public partial class StateMachine
       }
 
       var enrollmentSuccess = await _icaEnrollmentService.EnrollWithTokenAsync(
-        config.ServerUrl,
+        config.ServerNotCertificatedUrl,
         config.AgentName,
         config.EnrollmentToken,
         Token);
@@ -100,7 +99,7 @@ public partial class StateMachine
     try
     {
       var success = await _icaEnrollmentService.RenewAsync(
-        config.ServerUrl,
+        config.ServerNotCertificatedUrl,
         Token);
       if (success)
       {
@@ -132,7 +131,7 @@ public partial class StateMachine
       await _certificateStore.DeleteCertificateAsync(Token);
 
       var enrollmentSuccess = await _icaEnrollmentService.EnrollWithTokenAsync(
-        config.ServerUrl,
+        config.ServerNotCertificatedUrl,
         config.AgentName,
         config.EnrollmentToken,
         Token);

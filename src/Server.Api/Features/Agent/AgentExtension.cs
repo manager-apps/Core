@@ -17,7 +17,7 @@ public static class AgentExtension
     services.AddScoped<IAgentGetByIdHandler, AgentGetByIdHandler>();
 
     services.AddScoped<IInstructionsGetAllHandler, InstructionsGetAllHandler>();
-    services.AddScoped<IInstructionCreateHandler, InstructionCreateHandler>();
+    services.AddScoped<IAgentInstructionCreateHandler, AgentInstructionCreateHandler>();
 
     services.AddScoped<IConfigGetHandler, ConfigGetHandler>();
     services.AddScoped<IConfigUpdateHandler, ConfigUpdateHandler>();

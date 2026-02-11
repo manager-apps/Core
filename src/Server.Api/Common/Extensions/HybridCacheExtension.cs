@@ -9,7 +9,9 @@ public static class HybridCacheExtension
   {
     public void AddHybridCache(IConfiguration configuration)
     {
-      var redisOption = configuration.GetSection("Cache:Redis").Get<RedisOption>()!;
+      var redisOption = configuration
+        .GetSection(RedisOption.SectionName)
+        .Get<RedisOption>()!;
 
       services.AddStackExchangeRedisCache(
         options =>

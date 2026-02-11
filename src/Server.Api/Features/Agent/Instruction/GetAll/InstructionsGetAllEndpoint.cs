@@ -15,7 +15,6 @@ internal static class InstructionsGetAllEndpoint
       var instructions = await handler.HandleAsync(agentId, cancellationToken);
       return Results.Ok(instructions);
     })
-    .WithTags("User")
     .Produces<IEnumerable<InstructionResponse>>()
     .MapToApiVersion(ApiVersioningExtension.V1);
 }

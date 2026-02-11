@@ -11,7 +11,6 @@ internal static class AgentsGetAllEndpoint
           [FromServices] IAgentGetAllHandler handler,
           CancellationToken ct)
           => await handler.HandleAsync(ct))
-      .WithTags("User")
       .Produces<IEnumerable<AgentResponse>>()
       .MapToApiVersion(ApiVersioningExtension.V1);
 }

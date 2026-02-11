@@ -1,8 +1,6 @@
 ﻿namespace Server.Api.Features.Hardware;
 
-/// <summary>
-/// Response model for hardware information of an agent.
-/// </summary>
+
 public record HardwareResponse(
   long Id,
   long AgentId,

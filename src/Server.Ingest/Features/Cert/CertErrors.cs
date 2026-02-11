@@ -10,6 +10,9 @@ public static class CertErrors
     public static Error AgentNotFound() =>
        Error.NotFound("Agent not found for the provided credentials.");
 
+    public static Error AgentUnauthorized() =>
+      Error.Unauthorized("Agent is not authorized to enroll for a certificate.");
+
     public static Error InvalidCredentials()
       => Error.Unauthorized("Invalid credentials provided for certificate enrollment.");
 

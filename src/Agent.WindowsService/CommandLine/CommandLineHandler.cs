@@ -26,7 +26,8 @@ public static class CommandLineHandler
         {
             await InitializeConfigurationAsync(
               options.Version,
-              options.ServerUrl,
+              options.ServerCertificatedUrl,
+              options.ServerNotCertificatedUrl,
               options.AgentName,
               options.Tag,
               options.EnrollmentToken);
@@ -44,7 +45,8 @@ public static class CommandLineHandler
 
     private static async Task InitializeConfigurationAsync(
       string version,
-      string? serverUrl,
+      string? serverCertificatedUrl,
+      string? serverNotCertificatedUrl,
       string? agentName,
       string? tag,
       string? enrollmentToken = null)
@@ -53,7 +55,8 @@ public static class CommandLineHandler
       {
           Version = version,
           AgentName = agentName ?? $"{Environment.MachineName}_{Guid.NewGuid():N}",
-          ServerUrl = serverUrl ?? "https://localhost:5141",
+          ServerCertificatedUrl = serverCertificatedUrl ?? "https://localhost:5001",
+          ServerNotCertificatedUrl = serverNotCertificatedUrl ?? "http://localhost:5000",
           Tag = tag ?? "",
           EnrollmentToken = enrollmentToken
       };

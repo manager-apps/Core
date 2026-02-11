@@ -1,19 +1,7 @@
-﻿using Common.Messages;
-
-namespace Server.Api.Features.Hardware;
+﻿namespace Server.Api.Features.Hardware;
 
 internal static class HardwareMapper
 {
-  extension(HardwareMessage hardware)
-  {
-    internal Domain.Hardware ToDomain()
-      => Domain.Hardware.Create(
-          osVersion: hardware.OsVersion,
-          machineName: hardware.MachineName,
-          processorCount: hardware.ProcessorCount,
-          totalMemoryBytes: hardware.TotalMemoryBytes);
-  }
-
   extension(Domain.Hardware hardware)
   {
     internal HardwareResponse ToResponse()

@@ -182,7 +182,7 @@ export function CreateEnrollmentTokenDialog({ open, onClose }: CreateEnrollmentT
                             }}
                         >
                             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                                <Alert severity="success" sx={{ borderRadius: 1 }}>
+                                <Alert severity="success" sx={{ borderRadius: 1 }} icon={null}>
                                     Enrollment token created successfully!
                                 </Alert>
                                 <Box>

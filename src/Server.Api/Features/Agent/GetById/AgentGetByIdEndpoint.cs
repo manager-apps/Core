@@ -13,7 +13,6 @@ internal static class AgentGetByIdEndpoint
             [FromServices] IAgentGetByIdHandler handler,
             CancellationToken ct)
           => (await handler.HandleAsync(agentId, ct)).ToApiResult())
-      .WithTags("User")
       .Produces<AgentDetailResponse>()
       .ProducesProblem(StatusCodes.Status404NotFound)
       .MapToApiVersion(ApiVersioningExtension.V1);

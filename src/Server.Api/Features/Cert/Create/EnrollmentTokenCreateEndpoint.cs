@@ -16,7 +16,6 @@ internal static class EnrollmentTokenCreateEndpoint
       var result = await handler.HandleAsync(request, cancellationToken);
       return result.ToApiResult();
     })
-    .WithTags("User")
     .Produces<EnrollmentTokenResponse>(StatusCodes.Status201Created)
     .ProducesProblem(StatusCodes.Status400BadRequest)
     .MapToApiVersion(ApiVersioningExtension.V1);

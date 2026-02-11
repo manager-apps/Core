@@ -11,7 +11,8 @@
 
 #define ServiceName "DciAgentService"
 #define ServiceDisplayName "DCI Agent Service"
-#define DefaultServerUrl "https://localhost:5141"
+#define DefaultServerCertUrl "https://localhost:5141"
+#define DefaultServerNotCertUrl "http://localhost:5140"
 
 [Setup]
 AppId={{12345678-1234-1234-1234-123456789012}}
@@ -61,6 +62,7 @@ Filename: "sc.exe"; Parameters: "delete {#ServiceName}"; Flags: runhidden waitun
 [Code]
 var
   ConfigPage: TInputQueryWizardPage;
+  CertPage: TInputQueryWizardPage;
   OverwritePage: TWizardPage;
   KeepExistingRadio: TRadioButton;
   OverwriteRadio: TRadioButton;
@@ -128,13 +130,13 @@ begin
     Exit;
   end;
 
-  if Assigned(ConfigPage) and (ConfigPage.Values[3] <> '') then
+  if Assigned(CertPage) and (CertPage.Values[0] <> '') then
     Result := True;
 end;
 
 function GetConfigParams(Param: string): string;
 var
-  ServerUrl, Tag, AgentName, EnrollmentToken: string;
+  ServerCertUrl, ServerNotCertUrl, Tag, AgentName, EnrollmentToken: string;
 begin
   if not ShouldOverwriteConfig() then
   begin
@@ -142,7 +144,8 @@ begin
     Exit;
   end;
 
-  ServerUrl := GetCommandLineParam('/SERVERURL');
+  ServerCertUrl := GetCommandLineParam('/SERVERCERTURL');
+  ServerNotCertUrl := GetCommandLineParam('/SERVERNOTCERTURL');
   Tag := GetCommandLineParam('/TAG');
   AgentName := GetCommandLineParam('/AGENTNAME');
   EnrollmentToken := GetCommandLineParam('/ENROLLMENTTOKEN');
@@ -150,20 +153,27 @@ begin
   if not WizardSilent then
   begin
     if (ConfigPage.Values[0] <> '') then
-      ServerUrl := ConfigPage.Values[0];
+      ServerCertUrl := ConfigPage.Values[0];
     if (ConfigPage.Values[1] <> '') then
-      Tag := ConfigPage.Values[1];
+      ServerNotCertUrl := ConfigPage.Values[1];
     if (ConfigPage.Values[2] <> '') then
-      AgentName := ConfigPage.Values[2];
-    if (ConfigPage.Values[4] <> '') then
-      EnrollmentToken := ConfigPage.Values[4];
+      Tag := ConfigPage.Values[2];
+    if (ConfigPage.Values[3] <> '') then
+      AgentName := ConfigPage.Values[3];
+    if Assigned(CertPage) and (CertPage.Values[1] <> '') then
+      EnrollmentToken := CertPage.Values[1];
   end;
 
   Result := '--init-config';
-  if ServerUrl <> '' then
-    Result := Result + ' --server-url "' + ServerUrl + '"'
+  if ServerCertUrl <> '' then
+    Result := Result + ' --server-cert-url "' + ServerCertUrl + '"'
   else
-    Result := Result + ' --server-url "{#DefaultServerUrl}"';
+    Result := Result + ' --server-cert-url "{#DefaultServerCertUrl}"';
+
+  if ServerNotCertUrl <> '' then
+    Result := Result + ' --server-not-cert-url "' + ServerNotCertUrl + '"'
+  else
+    Result := Result + ' --server-not-cert-url "{#DefaultServerNotCertUrl}"';
 
   if AgentName <> '' then
     Result := Result + ' --agent-name "' + AgentName + '"';
@@ -189,10 +199,10 @@ begin
 
   if not WizardSilent then
   begin
-    if Assigned(ConfigPage) then
+    if Assigned(CertPage) then
     begin
-      if ConfigPage.Values[3] <> '' then
-        CertPath := ConfigPage.Values[3];
+      if CertPage.Values[0] <> '' then
+        CertPath := CertPage.Values[0];
     end;
   end;
 
@@ -248,30 +258,38 @@ begin
   if ConfigExists then
     ConfigPage := CreateInputQueryPage(OverwritePage.ID,
       'Agent Configuration', 'Configure the DCI Agent settings',
-      'Enter the configuration values below:')
+      'Enter the basic configuration values below:')
   else
     ConfigPage := CreateInputQueryPage(wpSelectDir,
       'Agent Configuration', 'Configure the DCI Agent settings',
-      'Enter the configuration values below:');
+      'Enter the basic configuration values below:');
 
-  ConfigPage.Add('Server URL:', False);
+  ConfigPage.Add('Server Cert URL:', False);
+  ConfigPage.Add('Server Not Cert URL:', False);
   ConfigPage.Add('Source Tag:', False);
   ConfigPage.Add('Agent Name (must be unique):', False);
-  ConfigPage.Add('Certificate Path (optional, for pre-provisioned cert):', False);
-  ConfigPage.Add('Enrollment Token (required for initial setup):', True);
 
-  ConfigPage.Values[0] := '{#DefaultServerUrl}';
-  ConfigPage.Values[1] := '';
+  ConfigPage.Values[0] := '{#DefaultServerCertUrl}';
+  ConfigPage.Values[1] := '{#DefaultServerNotCertUrl}';
   ConfigPage.Values[2] := '';
   ConfigPage.Values[3] := '';
-  ConfigPage.Values[4] := '';
+
+  CertPage := CreateInputQueryPage(ConfigPage.ID,
+    'Certificate Configuration', 'Configure certificate and enrollment',
+    'Enter certificate and enrollment token information:');
+
+  CertPage.Add('Certificate Path (optional, for pre-provisioned cert):', False);
+  CertPage.Add('Enrollment Token (required for initial setup):', True);
+
+  CertPage.Values[0] := '';
+  CertPage.Values[1] := '';
 end;
 
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
   Result := False;
   if WizardSilent then Exit;
-  if ConfigExists and (PageID = ConfigPage.ID) then
+  if ConfigExists and ((PageID = ConfigPage.ID) or (PageID = CertPage.ID)) then
   begin
     if Assigned(KeepExistingRadio) and KeepExistingRadio.Checked then
       Result := True;

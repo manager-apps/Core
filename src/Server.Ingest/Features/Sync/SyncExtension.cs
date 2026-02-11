@@ -9,9 +9,6 @@ public static class SyncExtension
 
   public static void MapSyncEndpoints(this IEndpointRouteBuilder app)
   {
-    var group = app.MapGroup("/api/v1/agents")
-      .WithTags("Agent");
-
-    group.MapSyncEndpoint();
+    app.MapSyncEndpoint();
   }
 }

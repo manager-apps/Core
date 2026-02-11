@@ -1,8 +1,8 @@
-import axios from "./axios";
+import axios, { getApiBaseUrl } from "./axios";
 import type { ChatRequest, ChatResponse } from "../types/chat";
 
 export const sendChatMessage = async (request: ChatRequest): Promise<ChatResponse> => {
-    const response = await axios.post<ChatResponse>("/api/chat", request);
+    const response = await axios.post<ChatResponse>("/chat", request);
     return response.data;
 };
 
@@ -11,7 +11,11 @@ export const streamChatMessage = async (
     onChunk: (chunk: string) => void,
     signal?: AbortSignal
 ): Promise<void> => {
-    const response = await fetch("/api/chat/stream", {
+    // Get the base URL and construct the full URL
+    const baseUrl = getApiBaseUrl();
+    const url = `${baseUrl}/chat/stream`;
+
+    const response = await fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -21,7 +25,8 @@ export const streamChatMessage = async (
     });
 
     if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`Chat API error (${response.status}): ${errorText || response.statusText}`);
     }
 
     const reader = response.body?.getReader();

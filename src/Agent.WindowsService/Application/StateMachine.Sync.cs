@@ -34,9 +34,8 @@ public partial class StateMachine
 
       _logger.LogInformation("Synchronizing state with server");
 
-      var authToken = _certificateStore.GetClientCertificate()?.Thumbprint ?? string.Empty;
       var response = await _serverClient.Post<SyncMessageResponse, SyncMessageRequest>(
-        url: $"{config.ServerUrl.TrimEnd('/')}/api/v1/agents/sync",
+        url: UrlConfig.PostSyncUrl(config.ServerCertificatedUrl),
         data: syncRequest,
         metadata: new RequestMetadata
         {

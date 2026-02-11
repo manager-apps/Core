@@ -17,7 +17,6 @@ internal static class ConfigUpdateEndpoint
         var result = await handler.HandleAsync(agentId, request, ct);
         return result.ToApiResult();
       })
-      .WithTags("User")
       .Produces<ConfigResponse>()
       .ProducesProblem(StatusCodes.Status400BadRequest)
       .ProducesProblem(StatusCodes.Status404NotFound)

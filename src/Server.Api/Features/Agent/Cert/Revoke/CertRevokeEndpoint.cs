@@ -18,7 +18,6 @@ internal static class CertRevokeEndpoint
       var result = await handler.HandleAsync(agentId, request.Reason, cancellationToken);
       return result.ToApiResult();
     })
-    .WithTags("User")
     .Produces<bool>()
     .ProducesProblem(StatusCodes.Status404NotFound)
     .MapToApiVersion(ApiVersioningExtension.V1);

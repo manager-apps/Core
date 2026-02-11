@@ -5,7 +5,7 @@
 /// <summary>
 /// Response containing the issued certificate.
 /// </summary>
-public record CertEnrollResponse(
+public sealed record CertEnrollResponse(
   string CertificatePem,
   string CaCertificatePem,
   DateTimeOffset ExpiresAt);
@@ -48,3 +48,11 @@ public sealed record CertStatusResponse(
 
 #endregion
 
+#region Revocation Models
+
+public sealed record CertRevocationResponse(
+  bool IsRevoked,
+  DateTimeOffset? RevokedAt,
+  string? Reason);
+
+#endregion

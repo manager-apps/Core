@@ -12,6 +12,9 @@ namespace Server.Ingest.Features.Report.Create;
 
 internal interface IReportCreateHandler
 {
+  /// <summary>
+  /// Handles incoming report messages from agents, processes metrics and instruction results,
+  /// </summary>
   Task<Result<ReportMessageResponse>> HandleAsync(
     ClaimsPrincipal agent,
     ReportMessageRequest request,
@@ -28,15 +31,23 @@ internal class ReportCreateHandler(
     ReportMessageRequest request,
     CancellationToken cancellationToken)
   {
+    logger.LogInformation("Received report message from agent: {AgentName}", agent.Identity?.Name);
+
     var agentName = agent.Identity?.Name!;
     if (string.IsNullOrEmpty(agentName))
+    {
+      logger.LogWarning("Unauthorized report message attempt with missing or invalid agent identity.");
       return ReportErrors.AgentUnauthorized();
+    }
 
     var agentInDb = await dbContext.Agents
       .AsNoTracking()
       .FirstOrDefaultAsync(a => a.Name == agentName, cancellationToken);
     if (agentInDb is null)
+    {
+      logger.LogWarning("Report message attempt for non-existent agent: {AgentName}", agentName);
       return ReportErrors.AgentNotFound();
+    }
 
     foreach (var metric in request.Metrics)
       dbContext.OutboxMessages.Add(OutboxMessage.Create(
@@ -77,8 +88,7 @@ internal class ReportCreateHandler(
   }
 }
 
-// todo: make some common utility proj and put it there
-public static class InstructionUtils
+static class InstructionUtils
 {
   private static readonly JsonSerializerOptions JsonOptions = new()
   {
@@ -86,9 +96,6 @@ public static class InstructionUtils
     WriteIndented = false
   };
 
-  /// <summary>
-  /// Deserializes the instruction payload from the given JSON string based on the instruction type.
-  /// </summary>
   public static InstructionPayload DeserializePayload(InstructionType type, string json)
   {
     return type switch

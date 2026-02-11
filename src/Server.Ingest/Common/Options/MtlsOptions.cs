@@ -9,7 +9,6 @@ public class MtlsOptions
   public string? CaCommonName { get; set; } = "Manager Internal CA";
   public string? ServerCertificatePath { get; set; }
   public string? ServerCertificatePassword { get; set; }
-
   public int MtlsPort { get; set; } = 8443;
   public int CertificateValidityDays { get; set; } = 365;
   public int RenewalThresholdDays { get; set; } = 30;

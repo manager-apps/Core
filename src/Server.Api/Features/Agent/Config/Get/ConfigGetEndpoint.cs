@@ -16,7 +16,6 @@ internal static class ConfigGetEndpoint
       var result = await handler.HandleAsync(agentId, ct);
       return result.ToApiResult();
     })
-    .WithTags("User")
     .Produces<ConfigResponse>()
     .ProducesProblem(StatusCodes.Status404NotFound)
     .MapToApiVersion(ApiVersioningExtension.V1);

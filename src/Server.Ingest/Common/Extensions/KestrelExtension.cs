@@ -5,12 +5,9 @@ using Server.Ingest.Common.Options;
 
 namespace Server.Ingest.Common.Extensions;
 
-/// <summary>
-/// Extension methods for Kestrel configuration with mTLS support.
-/// </summary>
-public static class KestrelExtension
+internal static class KestrelExtension
 {
-  public static void ConfigureKestrelWithMtls(this WebApplicationBuilder builder)
+  internal static void ConfigureKestrelWithMtls(this WebApplicationBuilder builder)
   {
     var mtlsOptions = builder.Configuration
       .GetSection(MtlsOptions.SectionName)
