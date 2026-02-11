@@ -12,9 +12,7 @@ public class CaEnrollmentService(
   ICertificateStore certificateStore,
   IHttpClientFactory httpClientFactory
 ) : ICaEnrollmentService {
-
   private readonly HttpClient _httpClient = httpClientFactory.CreateClient("CertificateEnrollment");
-
   public async Task<bool> EnrollWithTokenAsync(
     string serverUrl,
     string agentName,

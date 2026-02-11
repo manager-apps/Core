@@ -1,8 +1,13 @@
-﻿namespace Server.Domain;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
+
+namespace Server.Domain;
 
 /// <summary>
 /// Represents a one-time enrollment token for agent certificate provisioning.
 /// </summary>
+[Index(nameof(AgentName))]
+[Index(nameof(TokenHash), IsUnique = true)]
 public class EnrollmentToken
 {
   public Guid Id { get; init; }
@@ -20,6 +25,8 @@ public class EnrollmentToken
   /// <summary>
   /// The agent name this token is intended for.
   /// </summary>
+  [Required]
+  [MaxLength(200)]
   public string AgentName { get; private init; } = null!;
 
   /// <summary>

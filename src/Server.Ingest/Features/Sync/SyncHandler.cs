@@ -7,9 +7,6 @@ using Server.Ingest.Infrastructure;
 
 namespace Server.Ingest.Features.Sync;
 
-/// <summary>
-/// Handler for agent synchronization.
-/// </summary>
 public interface ISyncHandler
 {
   /// <summary>

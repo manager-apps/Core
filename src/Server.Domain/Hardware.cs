@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Server.Domain;
 
+[Index(nameof(AgentId), IsUnique = true)]
 public class Hardware
 {
   public long Id { get; init; }

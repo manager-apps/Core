@@ -116,12 +116,13 @@ public class Config
     InstructionsExecutionLimit = instructionsExecutionLimit ?? InstructionsExecutionLimit;
     InstructionResultsSendLimit = instructionResultsSendLimit ?? InstructionResultsSendLimit;
     MetricsSendLimit = metricsSendLimit ?? MetricsSendLimit;
-
     if (allowedCollectors is not null)
-      AllowedCollectors = allowedCollectors.Count > 0 ? string.Join(",", allowedCollectors) : null;
+      AllowedCollectors = allowedCollectors.Count > 0
+        ? string.Join(",", allowedCollectors) : null;
 
     if (allowedInstructions is not null)
-      AllowedInstructions = allowedInstructions.Count > 0 ? string.Join(",", allowedInstructions) : null;
+      AllowedInstructions = allowedInstructions.Count > 0
+        ? string.Join(",", allowedInstructions) : null;
 
     UpdatedAt = DateTimeOffset.UtcNow;
   }

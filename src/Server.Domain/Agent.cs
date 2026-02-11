@@ -3,12 +3,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Server.Domain;
 
-public enum AgentState
-{
-  Inactive = 1,
-  Active
-}
-
 [Index(nameof(Name), IsUnique = true)]
 public class Agent
 {
