@@ -30,7 +30,7 @@ Communication between the agent and the server is established via mTLS, ensuring
 the agent will store the collected metrics locally and send them to the server once the connection is re-established.
 The response for metric request is instructions to execute, which can be used to dynamically configure the agent's behavior and control its operations.
 
-<img width="1402" height="924" alt="image" src="https://github.com/user-attachments/assets/378ed85a-0e8b-40ee-a5ee-b698fac34b54" />
+<img width="1398" height="310" alt="image" src="https://github.com/user-attachments/assets/68aaa73c-2ccd-44d6-96ba-0f96d142d168" />
 
 After the tls connection is established, the agent will synchronize the hardware and config information with the server, allowing the server to have
 an up-to-date view of the agent's environment and capabilities.
