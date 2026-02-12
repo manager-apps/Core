@@ -28,9 +28,21 @@ integrated with AI assistant describe instruction problem and solution.
 Agent is designed to run as a Windows service, allowing it to operate in the background and start automatically when the system boots up.
 Communication between the agent and the server is established via mTLS, ensuring secure data transmission. When there is no connection with server,
 the agent will store the collected metrics locally and send them to the server once the connection is re-established.
-The response for metric request is instructions to execute, which can be used to dynamically configure the agent's behavior and control its operations
+The response for metric request is instructions to execute, which can be used to dynamically configure the agent's behavior and control its operations.
 
 <img width="1402" height="924" alt="image" src="https://github.com/user-attachments/assets/378ed85a-0e8b-40ee-a5ee-b698fac34b54" />
+
+After the tls connection is established, the agent will synchronize the hardware and config information with the server, allowing the server to have
+an up-to-date view of the agent's environment and capabilities.
+
+sync will be added here
+
+The agent can execute custom instructions:
+- Shell command: execute shell command and return the result to server.
+
+- Config update: update the agent's configuration, can configure metric collectors, instruction executors, and other settings.
+
+- GPO update: update the agent's Windows Group Policy Object (GPO)
 
 <img width="1850" height="1054" alt="image" src="https://github.com/user-attachments/assets/a647b98a-cc76-4907-9c74-5104dbe8e927" />
 <img width="1866" height="1049" alt="image" src="https://github.com/user-attachments/assets/9aa6839a-ad61-42d7-ad06-bccb68396108" />
