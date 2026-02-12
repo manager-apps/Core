@@ -25,17 +25,24 @@ internal sealed class AgentCertRevokeHandler(
     RevokeRequest request,
     CancellationToken cancellationToken)
   {
+    logger.LogInformation("Revocation request for agent ID: {AgentId}. Reason: {Reason}", agentId, request.Reason);
     var agent = await dbContext.Agents
       .FindAsync([agentId], cancellationToken);
     if (agent is null)
+    {
+      logger.LogWarning("Revocation attempt for non-existent agent ID: {AgentId}", agentId);
       return AgentErrors.NotFound();
+    }
 
     var certificates = await dbContext.Certificates
       .Where(c => c.AgentId == agent.Id &&
                   c.IsActive && c.RevokedAt == null)
       .ToListAsync(cancellationToken);
     if (certificates.Count == 0)
+    {
+      logger.LogInformation("No active certificates found to revoke for agent ID: {AgentId}", agentId);
       return CertificateErrors.NotFound();
+    }
 
     foreach (var cert in certificates)
     {

@@ -11,8 +11,7 @@ internal interface IChatHandler
 {
   /// <summary>
   /// Streams a chat response from the AI assistant in real-time as
-  /// it's generated. This is useful for providing faster feedback
-  /// to the user and improving perceived responsiveness.
+  /// it's generated.
   /// </summary>
   IAsyncEnumerable<string> StreamChatAsync(
     ChatRequest request,
@@ -35,6 +34,10 @@ internal class ChatHandler(
     - GetAgentInstructions: Get a list of all instructions for a specific agent
     - GetInstructionById: Get detailed information about a specific instruction by its ID
     - GetAllAgents: Get a list of all agents in the system
+    - GetAgentById: Get detailed information about a specific agent by its ID
+
+    When user ask about instruction, explain the instruction status, type, parameters, output,
+    and error messages if any. Give advice on how to resolve failed instructions.
    """;
 
   public async IAsyncEnumerable<string> StreamChatAsync(

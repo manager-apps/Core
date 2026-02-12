@@ -30,12 +30,16 @@ internal class AgentConfigUpdateHandler(
     ConfigUpdateRequest request,
     CancellationToken cancellationToken)
   {
+    logger.LogInformation("Updating config for agent ID: {AgentId}", agentId);
     var agent = await dbContext.Agents
       .Include(a => a.Config)
       .FirstOrDefaultAsync(a => a.Id == agentId, cancellationToken);
 
     if (agent is null)
+    {
+      logger.LogWarning("Config update attempt for non-existent agent ID: {AgentId}", agentId);
       return AgentErrors.NotFound();
+    }
 
     if (agent.Config is null)
       return ConfigErrors.NotFound();

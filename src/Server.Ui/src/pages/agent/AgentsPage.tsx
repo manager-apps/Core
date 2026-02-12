@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Box, Typography, Avatar, Card, CardContent, Button } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {Box, Typography, Avatar, Card, CardContent, Button, Chip} from "@mui/material";
 import { type AgentResponse } from "../../types/agent";
 import { fetchAgents } from "../../api/agent";
 import FetchContentWrapper from "../../components/wrappers/FetchContentWrapper";
@@ -8,10 +8,37 @@ import { useNavigate } from "react-router-dom";
 import ComputerIcon from "@mui/icons-material/Computer";
 import AddIcon from "@mui/icons-material/Add";
 import { CreateEnrollmentTokenDialog } from "./components/CreateEnrollmentTokenDialog";
+import UpdateIcon from "@mui/icons-material/Update";
+import LabelIcon from "@mui/icons-material/Label";
 
-const columns: StyledTableColumn<AgentResponse>[] = [
-    { id: "id", label: "ID", minWidth: 80 },
-    { id: "name", label: "Name", minWidth: 150 },
+const columns: StyledTableColumn<AgentResponse>[] =
+[
+  { id: "id", label: "ID", minWidth: 80 },
+  { id: "name", label: "Name", minWidth: 150 },
+  {
+    id: "version",
+    label: "Version",
+    minWidth: 150,
+    render: (value) => (
+      <Chip icon={<UpdateIcon />} label={`v${value.version}`} size="small" color="primary" variant="outlined" />
+    )
+  },
+  {
+    id: "sourceTag",
+    label: "Source Tag",
+    minWidth: 150,
+    render: (value) => (
+      <Chip icon={<LabelIcon />} label={value.sourceTag} size="small" variant="outlined" />
+    )
+  },
+  {
+    id: "currentTag",
+    label: "Current Tag",
+    minWidth: 150,
+    render: (value) => (
+      <Chip icon={<LabelIcon />} label={value.currentTag} size="small" variant="outlined" />
+    )
+  },
 ];
 
 export function AgentsPage() {
@@ -45,7 +72,6 @@ export function AgentsPage() {
     return (
         <FetchContentWrapper loading={loading} error={error} onRetry={loadAgents}>
             <Box sx={{ p: 2 }}>
-                {/* Header Card */}
                 <Card
                     elevation={0}
                     sx={{

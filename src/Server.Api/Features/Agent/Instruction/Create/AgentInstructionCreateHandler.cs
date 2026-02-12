@@ -32,6 +32,11 @@ internal class AgentInstructionCreateHandler (
     CreateShellCommandRequest request,
     CancellationToken cancellationToken)
   {
+    logger.LogInformation(
+      "Creating shell command instruction for agent {AgentId} with command: {Command}",
+      agentId,
+      request.Command);
+
     var instruction = request.ToDomain(agentId);
 
     dbContext.Instructions.Add(instruction);
@@ -50,6 +55,10 @@ internal class AgentInstructionCreateHandler (
     CreateGpoSetRequest request,
     CancellationToken cancellationToken)
   {
+    logger.LogInformation(
+      "Creating GPO set instruction for agent {AgentId} with GPO",
+      agentId);
+
     var instruction = request.ToDomain(agentId);
 
     dbContext.Instructions.Add(instruction);

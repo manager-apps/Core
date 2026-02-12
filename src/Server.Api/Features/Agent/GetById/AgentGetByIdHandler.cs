@@ -22,6 +22,8 @@ internal class AgentGetByIdHandler (
     long agentId,
     CancellationToken cancellationToken)
   {
+    logger.LogInformation("Retrieving agent with ID: {AgentId}", agentId);
+
     var agent = await dbContext.Agents
       .AsNoTracking()
       .Include(a => a.Config)
@@ -29,7 +31,10 @@ internal class AgentGetByIdHandler (
       .FirstOrDefaultAsync(a => a.Id == agentId, cancellationToken);
 
     if (agent == null)
+    {
+      logger.LogWarning("Agent with ID {AgentId} not found", agentId);
       return AgentErrors.NotFound();
+    }
 
     logger.LogInformation("Retrieved agent with ID {AgentId}", agentId);
     return agent.ToDetailResponse();

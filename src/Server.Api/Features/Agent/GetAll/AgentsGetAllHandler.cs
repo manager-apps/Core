@@ -19,6 +19,8 @@ internal class AgentGetAllHandler (
   public async Task<IEnumerable<AgentResponse>> HandleAsync(
     CancellationToken cancellationToken)
   {
+    logger.LogInformation("Retrieving all agents from the database");
+
     var agents = await dbContext.Agents
       .AsNoTracking()
       .ToListAsync(cancellationToken);

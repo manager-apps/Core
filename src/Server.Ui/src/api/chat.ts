@@ -1,17 +1,11 @@
 import axios, { getApiBaseUrl } from "./axios";
 import type { ChatRequest, ChatResponse } from "../types/chat";
 
-export const sendChatMessage = async (request: ChatRequest): Promise<ChatResponse> => {
-    const response = await axios.post<ChatResponse>("/chat", request);
-    return response.data;
-};
-
 export const streamChatMessage = async (
     request: ChatRequest,
     onChunk: (chunk: string) => void,
     signal?: AbortSignal
 ): Promise<void> => {
-    // Get the base URL and construct the full URL
     const baseUrl = getApiBaseUrl();
     const url = `${baseUrl}/chat/stream`;
 
