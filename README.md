@@ -4,11 +4,33 @@
 - [Built With](#built-with)
 
 # About the project
+
+This project is a monitoring agent based system that collects various system metrics such as
+CPU usage, memory usage, disk usage, and network activity. The agent is designed to run as Windows
+service, allowing it to operate in the background and start automatically when the system boots up.
+The collected metrics are then sent to a central server for analysis and visualization. The agent
+can retrieve instructions from the server, allowing for dynamic configuration and control. The client
+integrated with AI assistant describe instruction problem and solution.
+
 # Built With
+
+- C# .Net 10
+- Grafana
+- ClickHouse
+- PostgreSQL
+- ReactJS Typescript
+
 # Architectural design
 
+<img width="1780" height="885" alt="image" src="https://github.com/user-attachments/assets/2c5782f0-2a19-4463-bfb9-34dcbb956bfc" />
 
+#### Agent design
+Agent is designed to run as a Windows service, allowing it to operate in the background and start automatically when the system boots up.
+Communication between the agent and the server is established via mTLS, ensuring secure data transmission. When there is no connection with server,
+the agent will store the collected metrics locally and send them to the server once the connection is re-established.
+The response for metric request is instructions to execute, which can be used to dynamically configure the agent's behavior and control its operations
 
+<img width="1402" height="924" alt="image" src="https://github.com/user-attachments/assets/378ed85a-0e8b-40ee-a5ee-b698fac34b54" />
 
 <img width="1850" height="1054" alt="image" src="https://github.com/user-attachments/assets/a647b98a-cc76-4907-9c74-5104dbe8e927" />
 <img width="1866" height="1049" alt="image" src="https://github.com/user-attachments/assets/9aa6839a-ad61-42d7-ad06-bccb68396108" />
@@ -17,7 +39,6 @@
 <img width="1852" height="1050" alt="image" src="https://github.com/user-attachments/assets/6918d5ad-83c6-44da-b96a-3297b906f754" />
 <img width="2559" height="1271" alt="image" src="https://github.com/user-attachments/assets/a366bad9-630e-43ce-b39c-e72661287096" />
 <img width="1402" height="924" alt="image" src="https://github.com/user-attachments/assets/378ed85a-0e8b-40ee-a5ee-b698fac34b54" />
-<img width="1780" height="885" alt="image" src="https://github.com/user-attachments/assets/2c5782f0-2a19-4463-bfb9-34dcbb956bfc" />
 <img width="597" height="463" alt="image" src="https://github.com/user-attachments/assets/73cc1277-a602-46de-926d-d60bd3e6bb7e" />
 <img width="600" height="467" alt="image" src="https://github.com/user-attachments/assets/d21e3275-5079-41b0-839f-204da21936dd" />
 <img width="601" height="465" alt="image" src="https://github.com/user-attachments/assets/1ac9023b-262e-44fd-95c9-393e079071ce" />
