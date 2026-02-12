@@ -35,14 +35,21 @@ The response for metric request is instructions to execute, which can be used to
 After the tls connection is established, the agent will synchronize the hardware and config information with the server, allowing the server to have
 an up-to-date view of the agent's environment and capabilities.
 
-sync will be added here
+<img width="1524" height="618" alt="image" src="https://github.com/user-attachments/assets/e06d6dc4-04d0-4f51-a468-bfb9754505a0" />
+
 
 The agent can execute custom instructions:
+<img width="1508" height="885" alt="image" src="https://github.com/user-attachments/assets/3a5758f7-9975-4301-83ac-f8ed1f4c22be" />
+
+Instruction types:
 - Shell command: execute shell command and return the result to server.
+<img width="1484" height="763" alt="image" src="https://github.com/user-attachments/assets/69ac93f6-609b-42e3-b408-1fa4533832b9" />
 
 - Config update: update the agent's configuration, can configure metric collectors, instruction executors, and other settings.
+<img width="1513" height="840" alt="image" src="https://github.com/user-attachments/assets/cf0f92be-12b1-4ee3-b8eb-da9bef313c0d" />
 
 - GPO update: update the agent's Windows Group Policy Object (GPO)
+<img width="1515" height="736" alt="image" src="https://github.com/user-attachments/assets/57379cd1-f84f-4e41-a8b4-b99f9eb90404" />
 
 <img width="1850" height="1054" alt="image" src="https://github.com/user-attachments/assets/a647b98a-cc76-4907-9c74-5104dbe8e927" />
 <img width="1866" height="1049" alt="image" src="https://github.com/user-attachments/assets/9aa6839a-ad61-42d7-ad06-bccb68396108" />
