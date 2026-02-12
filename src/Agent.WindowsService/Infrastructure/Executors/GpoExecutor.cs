@@ -9,9 +9,11 @@ namespace Agent.WindowsService.Infrastructure.Executors;
 
 public class GpoExecutor(IValidator<Instruction> validator) : IInstructionExecutor
 {
-  public bool CanExecute(InstructionType type) => type == InstructionType.GpoSet;
+  public bool CanExecute(InstructionType type) => type == InstructionType.Gpo;
 
-  public async Task<InstructionResult> ExecuteAsync(Instruction instruction, CancellationToken cancellationToken = default)
+  public async Task<InstructionResult> ExecuteAsync(
+    Instruction instruction,
+    CancellationToken cancellationToken = default)
   {
     var validationResult = await validator.ValidateAsync(instruction, cancellationToken);
     if (!validationResult.IsValid)
@@ -25,7 +27,6 @@ public class GpoExecutor(IValidator<Instruction> validator) : IInstructionExecut
       };
     }
 
-    // Type-safe payload extraction
     if (instruction.Payload is not GpoSetPayload gpoPayload)
     {
       return new InstructionResult

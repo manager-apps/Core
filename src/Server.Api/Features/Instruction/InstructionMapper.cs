@@ -1,10 +1,14 @@
+using System.Text.Json;
+using Common.Messages;
+using Common;
+
 namespace Server.Api.Features.Instruction;
 
-public static class InstructionMapper
+internal static class InstructionMapper
 {
   extension(Server.Domain.Instruction instruction)
   {
-    public InstructionResponse ToResponse() =>
+    internal InstructionResponse ToResponse() =>
       new(
         Id: instruction.Id,
         AgentId: instruction.AgentId,
@@ -17,21 +21,31 @@ public static class InstructionMapper
         UpdatedAt: instruction.UpdatedAt);
   }
 
-  extension(CreateInstructionRequest request)
+  extension(CreateShellCommandRequest request)
   {
-    public Server.Domain.Instruction ToDomain() =>
-      Server.Domain.Instruction.Create(
-        agentId: request.AgentId,
-        type: request.Type,
-        payloadJson: request.PayloadJson);
+    internal Server.Domain.Instruction ToDomain(long agentId)
+    {
+      var payload = new ShellCommandPayload(request.Command, request.Timeout);
+      var payloadJson = JsonSerializer
+        .Serialize<InstructionPayload>(payload, JsonOptions.Default);
+      return Domain.Instruction.Create(
+        agentId: agentId,
+        type: Domain.InstructionType.Shell,
+        payloadJson: payloadJson);
+    }
   }
 
-  extension(CreateAgentInstructionRequest request)
+  extension(CreateGpoSetRequest request)
   {
-    public Server.Domain.Instruction ToDomain(long agentId) =>
-      Server.Domain.Instruction.Create(
+    internal Server.Domain.Instruction ToDomain(long agentId)
+    {
+      var payload = new GpoSetPayload(request.Name, request.Value);
+      var payloadJson = JsonSerializer
+        .Serialize<InstructionPayload>(payload, JsonOptions.Default);
+      return Domain.Instruction.Create(
         agentId: agentId,
-        type: request.Type,
-        payloadJson: request.PayloadJson);
+        type: Domain.InstructionType.Gpo,
+        payloadJson: payloadJson);
+    }
   }
 }

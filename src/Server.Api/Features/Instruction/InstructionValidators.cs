@@ -1,5 +1,5 @@
 namespace Server.Api.Features.Instruction;
 
-public class InstructionValidators
+internal class InstructionValidators
 {
 }

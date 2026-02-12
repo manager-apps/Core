@@ -1,23 +1,19 @@
-using Server.Api.Features.Instruction.Create;
-using Server.Api.Features.Instruction.GetAll;
+using Server.Api.Features.Instruction.GetById;
 
 namespace Server.Api.Features.Instruction;
 
-public static class InstructionExtension
+internal static class InstructionExtension
 {
-  public static void AddInstructionServices(this IServiceCollection services)
+  internal static void AddInstructionServices(this IServiceCollection services)
   {
-    services.AddScoped<ICreateInstructionHandler, CreateInstructionHandler>();
-    services.AddScoped<IGetAllInstructionsHandler, GetAllInstructionsHandler>();
+    services.AddScoped<IInstructionGetByIdHandler, InstructionGetByIdHandler>();
   }
 
-  public static void MapInstructionEndpoints(this IEndpointRouteBuilder app)
+  internal static void MapInstructionEndpoints(this IEndpointRouteBuilder app)
   {
     var group = app
-      .MapGroup("/instructions")
-      .WithTags("Instruction");
+      .MapGroup("/instructions");
 
-    group.MapCreateInstructionEndpoint();
-    group.MapGetAllInstructionsEndpoint();
+    group.MapInstructionGetByIdEndpoint();
   }
 }

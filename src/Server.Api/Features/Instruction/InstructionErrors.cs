@@ -2,8 +2,8 @@ using Server.Api.Common.Result;
 
 namespace Server.Api.Features.Instruction;
 
-public class InstructionErrors
+internal static class InstructionErrors
 {
-  public static Error NotFound()
-    => Error.NotFound("Instruction not found.");
+  internal static Error NotFound()
+    => Error.NotFound($"Instruction was not found.");
 }

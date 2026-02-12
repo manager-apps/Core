@@ -1,3 +1,5 @@
+using Microsoft.OpenApi;
+
 namespace Server.Api.Common.Extensions;
 
 public static class SwaggerExtension
@@ -7,7 +9,15 @@ public static class SwaggerExtension
     public void AddSwagger(IConfiguration configuration)
     {
       services.AddEndpointsApiExplorer();
-      services.AddSwaggerGen();
+      services.AddSwaggerGen(options =>
+      {
+        options.SwaggerDoc("v1", new OpenApiInfo
+        {
+          Title = "Manager API",
+          Version = "v1",
+          Description = "API for managing agents, instructions, and configurations"
+        });
+      });
     }
   }
 
@@ -15,14 +25,11 @@ public static class SwaggerExtension
   {
     public void UseSwaggerDocs()
     {
-      if (!app.Environment.IsDevelopment())
-        return;
-
-      app.UseSwagger();
       app.UseSwagger();
       app.UseSwaggerUI(options =>
       {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Manager API V1");
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "Manager API V2");
         options.RoutePrefix = string.Empty;
       });
     }

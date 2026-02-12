@@ -8,31 +8,25 @@ public record InstructionResultMessage(
   string? Output,
   string? Error);
 
-/// <summary>
-/// Base class for instruction payloads using discriminated union pattern.
-/// </summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(ShellCommandPayload), "shell")]
 [JsonDerivedType(typeof(GpoSetPayload), "gpo")]
+[JsonDerivedType(typeof(ConfigPayload), "config")]
 public abstract record InstructionPayload;
 
-/// <summary>
-/// Payload for shell command execution.
-/// </summary>
 public record ShellCommandPayload(
   string Command,
   int Timeout = 5000) : InstructionPayload;
 
-/// <summary>
-/// Payload for GPO (Group Policy Object) settings.
-/// </summary>
 public record GpoSetPayload(
   string Name,
-  string Value) : InstructionPayload;
+  string Value
+) : InstructionPayload;
 
-/// <summary>
-/// Message representing an instruction sent to an agent.
-/// </summary>
+public record ConfigPayload(
+  ConfigMessage Config
+) : InstructionPayload;
+
 public record InstructionMessage(
   long AssociatedId,
   int Type,

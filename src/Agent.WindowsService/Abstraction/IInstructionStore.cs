@@ -7,30 +7,45 @@ public interface IInstructionStore
   /// <summary>
   /// Save instruction
   /// </summary>
-  Task SaveAsync(IEnumerable<Instruction> instruction, CancellationToken cancellationToken);
+  Task SaveAsync(
+    IEnumerable<Instruction> instruction,
+    CancellationToken cancellationToken);
 
   /// <summary>
   /// Get all instructions
   /// </summary>
-  Task<IReadOnlyList<Instruction>> GetAllAsync(CancellationToken cancellationToken);
-
-  /// <summary>
-  /// Save multiple instruction results
-  /// </summary>
-  Task SaveResultsAsync(IEnumerable<InstructionResult> results, CancellationToken cancellationToken);
-
-  /// <summary>
-  /// Get all instruction results
-  /// </summary>
-  Task<IReadOnlyList<InstructionResult>> GetAllResultsAsync(CancellationToken cancellationToken);
-
-  /// <summary>
-  /// Remove all instruction results
-  /// </summary>
-  Task RemoveAllResultsAsync(CancellationToken cancellationToken);
+  Task<IReadOnlyList<Instruction>> GetAsync(
+    CancellationToken cancellationToken,
+    int limit = 50);
 
   /// <summary>
   /// Remove all instructions
   /// </summary>
-  Task RemoveAllAsync(CancellationToken cancellationToken);
+  Task RemoveAsync(
+    IEnumerable<long> associativeIds,
+    CancellationToken cancellationToken);
+
+  #region Results
+  /// <summary>
+  /// Save multiple instruction results
+  /// </summary>
+  Task SaveResultsAsync(
+    IEnumerable<InstructionResult> results,
+    CancellationToken cancellationToken);
+
+  /// <summary>
+  /// Get all instruction results
+  /// </summary>
+  Task<IReadOnlyList<InstructionResult>> GetResultsAsync(
+    CancellationToken cancellationToken,
+    int limit = 50);
+
+  /// <summary>
+  /// Remove all instruction results
+  /// </summary>
+  Task RemoveResultsAsync(
+    IEnumerable<long> associativeIds,
+    CancellationToken cancellationToken);
+
+  #endregion
 }

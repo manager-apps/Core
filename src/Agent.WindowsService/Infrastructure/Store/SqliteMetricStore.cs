@@ -15,7 +15,6 @@ public class SqliteMetricStore : IMetricStore, IDisposable
   private readonly ILogger<SqliteMetricStore> _logger;
   private bool _disposed;
 
-
   public SqliteMetricStore(ILogger<SqliteMetricStore> logger)
   {
     _logger = logger;
@@ -111,7 +110,9 @@ public class SqliteMetricStore : IMetricStore, IDisposable
     }
   }
 
-  public async Task<IReadOnlyList<Domain.Metric>> GetAllAsync(CancellationToken cancellationToken)
+  public async Task<IReadOnlyList<Domain.Metric>> GetAsync(
+    CancellationToken cancellationToken,
+    int limit = 20)
   {
     ObjectDisposedException.ThrowIf(_disposed, this);
 
@@ -121,8 +122,9 @@ public class SqliteMetricStore : IMetricStore, IDisposable
     var command = connection.CreateCommand();
     command.CommandText =
     """
-    SELECT Type, Name, Value, Unit, TimestampUtc, Metadata FROM Metrics ORDER BY TimestampUtc
+    SELECT Type, Name, Value, Unit, TimestampUtc, Metadata FROM Metrics ORDER BY TimestampUtc LIMIT @limit
     """;
+    command.Parameters.AddWithValue("@limit", limit);
 
     var metrics = new List<Domain.Metric>();
 
@@ -154,23 +156,33 @@ public class SqliteMetricStore : IMetricStore, IDisposable
     }
   }
 
-  public async Task RemoveAllAsync(CancellationToken cancellationToken)
+  public async Task RemoveAsync(
+    IEnumerable<long> ids,
+    CancellationToken cancellationToken)
   {
     ObjectDisposedException.ThrowIf(_disposed, this);
 
     await using var connection = new SqliteConnection(_connectionString);
     await connection.OpenAsync(cancellationToken);
 
-    var command = connection.CreateCommand();
-    command.CommandText = "DELETE FROM Metrics";
+    await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
     try
     {
-      var deleted = await command.ExecuteNonQueryAsync(cancellationToken);
-      _logger.LogInformation("Deleted {Count} metrics from SQLite", deleted);
+      foreach (var id in ids)
+      {
+        var command = connection.CreateCommand();
+        command.CommandText = "DELETE FROM Metrics WHERE Id = @id";
+        command.Parameters.AddWithValue("@id", id);
+        await command.ExecuteNonQueryAsync(cancellationToken);
+      }
+
+      await transaction.CommitAsync(cancellationToken);
+      _logger.LogInformation("Deleted {Count} metrics from SQLite", ids.Count());
     }
     catch (Exception ex)
     {
+      await transaction.RollbackAsync(cancellationToken);
       _logger.LogError(ex, "Failed to delete metrics");
       throw;
     }

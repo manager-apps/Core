@@ -2,6 +2,7 @@
 
 public class RedisOption
 {
-  public string InstanceName { get; set; } = string.Empty;
-  public string ConnectionString { get; set; } = string.Empty;
+  public const string SectionName = "Cache:Redis";
+  public string InstanceName { get; init; } = string.Empty;
+  public string ConnectionString { get; init; } = string.Empty;
 }

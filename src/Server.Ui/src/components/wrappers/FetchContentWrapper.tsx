@@ -1,4 +1,3 @@
-// components/loader/FetchContentWrapper.tsx
 import React from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
@@ -20,7 +19,6 @@ const FetchContentWrapper: React.FC<FetchContentWrapperProps> = ({
     return (
         <>
             <LoadingOverlay open={loading} />
-
             {error && (
                 <Alert
                     severity="error"
@@ -36,7 +34,6 @@ const FetchContentWrapper: React.FC<FetchContentWrapperProps> = ({
                     {error}
                 </Alert>
             )}
-
             {!loading && !error && children}
         </>
     );

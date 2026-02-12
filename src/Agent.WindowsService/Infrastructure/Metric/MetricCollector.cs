@@ -4,25 +4,36 @@ namespace Agent.WindowsService.Infrastructure.Metric;
 
 public partial class MetricCollector : IMetricCollector
 {
-  public Task<IReadOnlyList<Domain.Metric>> CollectAsync(CancellationToken cancellationToken)
+  public Task<IReadOnlyList<Domain.Metric>> CollectAsync(
+    CancellationToken cancellationToken,
+    IEnumerable<string> allowedCollectors)
   {
     var metrics = new List<Domain.Metric>();
+    var allowed = allowedCollectors.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    if (allowed.Count == 0)
+      return Task.FromResult<IReadOnlyList<Domain.Metric>>(metrics);
 
     InitializeCpuCounter();
     InitializeMemoryCounter();
     InitializeDiskIoCounters();
 
-    // _cpuCounter?.NextValue();
+    _cpuCounter?.NextValue();
 
-    metrics.Add(CollectCpu());
-    metrics.Add(CollectDisk());
-    metrics.Add(CollectMemory());
+    if (allowed.Contains("cpu_usage"))
+      metrics.Add(CollectCpu());
+
+    if (allowed.Contains("disk_usage"))
+      metrics.Add(CollectDisk());
+
+    if (allowed.Contains("memory_usage"))
+      metrics.Add(CollectMemory());
 
     // metrics.Add(CollectDiskReadSpeed());
     // metrics.Add(CollectDiskWriteSpeed());
     // metrics.AddRange(CollectDiskSpacePerDrive());
     //
-    metrics.AddRange(CollectNetwork());
+    //metrics.AddRange(CollectNetwork());
     //
     // metrics.Add(CollectProcessCount());
     // metrics.Add(CollectTotalHandleCount());
@@ -31,7 +42,7 @@ public partial class MetricCollector : IMetricCollector
     // metrics.AddRange(CollectTopProcessesByMemory(5));
     //
     // metrics.Add(CollectSystemUptime());
-    metrics.Add(CollectAvailablePhysicalMemory());
+    //metrics.Add(CollectAvailablePhysicalMemory());
     // metrics.Add(CollectSystemTimestamp());
     //
     // metrics.Add(CollectTotalTcpConnections());

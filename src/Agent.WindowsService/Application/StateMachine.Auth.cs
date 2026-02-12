@@ -1,7 +1,4 @@
-using System.Text;
-using Agent.WindowsService.Config;
 using Agent.WindowsService.Domain;
-using Common.Messages;
 
 namespace Agent.WindowsService.Application;
 
@@ -12,33 +9,73 @@ public partial class StateMachine
     _logger.LogInformation("Entering Authentication state");
     try
     {
-      var config = await _configStore.GetAsync(CancellationToken.None);
-      var clientSecret = await _secretStore.GetAsync(SecretConfig.ClientSecretKey, Encoding.UTF8);
+      var config = await _configStore.GetAsync(Token);
+      if (_certificateStore.HasValidCertificate())
+      {
+        if (await _icaEnrollmentService.IsCertificateRevokedAsync(config.ServerNotCertificatedUrl, Token))
+        {
+          _logger.LogWarning("Certificate is revoked. Transitioning to re-enrollment state.");
+          await ReEnrollCertificateAsync(config);
+          return;
+        }
 
-      var authResponse = await _serverClient.Post<AuthMessageResponse, AuthMessageRequest>(
-        url: UrlConfig.PostAuthUrl(config.ServerUrl),
-        data: new AuthMessageRequest(
-          AgentName: config.AgentName,
-          SecretKey: clientSecret),
-        metadata: new RequestMetadata(),
-        cancellationToken: CancellationToken.None);
+        if (_certificateStore.NeedsRenewal())
+        {
+          _logger.LogInformation("Certificate expires soon, initiating renewal");
+          await RenewCertificateAsync(config);
+        }
+        else
+        {
+          var expiry = _certificateStore.GetCertificateExpiry();
+          _logger.LogInformation("Valid certificate found, expires: {Expiry}", expiry);
+        }
 
-      if (authResponse == null || string.IsNullOrWhiteSpace(authResponse.AuthToken) || string.IsNullOrWhiteSpace(authResponse.RefreshToken))
-        throw new InvalidOperationException("Authentication failed: Invalid response from server");
+        _logger.LogInformation("Authentication state completed successfully (mTLS)");
+        await _machine.FireAsync(Triggers.AuthSuccess);
+        return;
+      }
 
-      await _secretStore.SetAsync(SecretConfig.AuthTokenKey, Encoding.UTF8.GetBytes(authResponse.AuthToken));
-      await _secretStore.SetAsync(SecretConfig.RefreshTokenKey, Encoding.UTF8.GetBytes(authResponse.RefreshToken));
+      _logger.LogInformation("No valid certificate found, initiating enrollment");
+      if (string.IsNullOrEmpty(config.EnrollmentToken))
+      {
+        _logger.LogError("Enrollment token is missing. Cannot proceed with enrollment.");
+        await _machine.FireAsync(Triggers.AuthFailure);
+        return;
+      }
 
+      var enrollmentSuccess = await _icaEnrollmentService.EnrollWithTokenAsync(
+        config.ServerNotCertificatedUrl,
+        config.AgentName,
+        config.EnrollmentToken,
+        Token);
+      if (!enrollmentSuccess)
+      {
+        _logger.LogError("Certificate enrollment failed");
+        await _machine.FireAsync(Triggers.AuthFailure);
+        return;
+      }
+
+      _logger.LogInformation("Certificate enrollment completed successfully");
+
+      var updatedConfig = config with { EnrollmentToken = null };
+      await _configStore.SaveAsync(updatedConfig, Token);
+      if (!_certificateStore.HasValidCertificate())
+      {
+        _logger.LogError("No valid certificate after enrollment attempt");
+        await _machine.FireAsync(Triggers.AuthFailure);
+        return;
+      }
+
+      _logger.LogInformation("Authentication state completed successfully (mTLS)");
       await _machine.FireAsync(Triggers.AuthSuccess);
     }
-    catch (HttpRequestException httpEx) when (httpEx.StatusCode is System.Net.HttpStatusCode.Forbidden or System.Net.HttpStatusCode.Unauthorized)
+    catch (OperationCanceledException)
     {
-      _logger.LogWarning("Authentication failed: {Message}", httpEx.Message);
-      await _machine.FireAsync(Triggers.AuthFailure);
+      _logger.LogInformation("Authentication state cancelled");
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Error in Authentication");
+      _logger.LogError(ex, "Authentication state failed");
       await _machine.FireAsync(Triggers.AuthFailure);
     }
   }
@@ -46,8 +83,74 @@ public partial class StateMachine
   private async Task HandleAuthenticationExitAsync()
   {
     _logger.LogInformation("Exiting Authentication state");
+    try
+    {
+      var config = await _configStore.GetAsync(Token);
+      await Task.Delay(TimeSpan.FromSeconds(config.AuthenticationExitIntervalSeconds), Token);
+    }
+    catch (OperationCanceledException)
+    {
+      _logger.LogInformation("Authentication state exit delay cancelled");
+    }
+  }
 
-    // Delaying, will be configurable later
-    await Task.Delay(5000);
+  private async Task RenewCertificateAsync(Configuration config)
+  {
+    try
+    {
+      var success = await _icaEnrollmentService.RenewAsync(
+        config.ServerNotCertificatedUrl,
+        Token);
+      if (success)
+      {
+        _logger.LogInformation("Certificate renewal completed successfully");
+      }
+      else
+      {
+        _logger.LogWarning("Certificate renewal failed, will retry later");
+      }
+    }
+    catch (Exception ex)
+    {
+      _logger.LogWarning(ex, "Certificate renewal failed");
+    }
+  }
+
+  private async Task ReEnrollCertificateAsync(Configuration config)
+  {
+    try
+    {
+      _logger.LogInformation("Re-enrolling certificate for agent: {AgentName}", config.AgentName);
+      if (string.IsNullOrEmpty(config.EnrollmentToken))
+      {
+        _logger.LogError("Cannot re-enroll: enrollment token is missing");
+        await _machine.FireAsync(Triggers.AuthFailure);
+        return;
+      }
+
+      await _certificateStore.DeleteCertificateAsync(Token);
+
+      var enrollmentSuccess = await _icaEnrollmentService.EnrollWithTokenAsync(
+        config.ServerNotCertificatedUrl,
+        config.AgentName,
+        config.EnrollmentToken,
+        Token);
+
+      if (enrollmentSuccess)
+      {
+        _logger.LogInformation("Re-enrollment completed successfully");
+        await _machine.FireAsync(Triggers.AuthSuccess);
+      }
+      else
+      {
+        _logger.LogError("Re-enrollment failed");
+        await _machine.FireAsync(Triggers.AuthFailure);
+      }
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Re-enrollment process failed");
+      await _machine.FireAsync(Triggers.AuthFailure);
+    }
   }
 }

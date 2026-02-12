@@ -2,14 +2,13 @@ using Server.Domain;
 
 namespace Server.Api.Features.Instruction;
 
-public record CreateInstructionRequest(
-  long AgentId,
-  InstructionType Type,
-  string PayloadJson);
+public record CreateShellCommandRequest(
+  string Command,
+  int Timeout = 5000);
 
-public record CreateAgentInstructionRequest(
-  InstructionType Type,
-  string PayloadJson);
+public record CreateGpoSetRequest(
+  string Name,
+  string Value);
 
 public record InstructionResponse(
   long Id,
@@ -19,5 +18,5 @@ public record InstructionResponse(
   InstructionState State,
   string? Output,
   string? Error,
-  DateTime CreatedAt,
-  DateTime? UpdatedAt);
+  DateTimeOffset CreatedAt,
+  DateTimeOffset? UpdatedAt);

@@ -1,6 +1,5 @@
 using Agent.WindowsService.Abstraction;
 using Agent.WindowsService.Config;
-using Agent.WindowsService.Domain;
 
 namespace Agent.WindowsService.Infrastructure.Metric;
 

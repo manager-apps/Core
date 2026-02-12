@@ -75,7 +75,7 @@ public sealed class JsonConfigurationStore : IConfigurationStore
     var defaultConfig = new Configuration
     {
       AgentName = $"{Environment.MachineName}_{Guid.NewGuid()}",
-      ServerUrl = "http://147.232.52.190:5000",
+      ServerCertificatedUrl = "http://localhost:5140",
     };
 
     var path = PathConfig.ConfigFilePath;

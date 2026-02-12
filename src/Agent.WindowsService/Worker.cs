@@ -8,8 +8,8 @@ public class Worker(IStateMachine stateMachine) : BackgroundService
     => await Task.Delay(Timeout.Infinite, stoppingToken);
 
   public override async Task StartAsync(CancellationToken cancellationToken)
-    => await stateMachine.StartAsync();
+    => await stateMachine.StartAsync(cancellationToken);
 
   public override async Task StopAsync(CancellationToken cancellationToken)
-    => await stateMachine.StopAsync();
+    => await stateMachine.StopAsync(cancellationToken);
 }

@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Common.Messages;
 
 namespace Agent.WindowsService.Domain;
@@ -8,21 +7,21 @@ public enum InstructionType
   /// <summary>
   /// Group Policy Object setting instruction
   /// </summary>
-  GpoSet = 1,
+  Gpo = 1,
 
   /// <summary>
   /// Shell command execution instruction
   /// </summary>
-  ShellCommand = 2,
+  Shell = 2,
+
+  /// <summary>
+  /// Update configuration instruction
+  /// </summary>
+  Config = 3
 }
 
 public class Instruction
 {
-  /// <summary>
-  /// Database identifier
-  /// </summary>
-  public long Id { get; set; }
-
   /// <summary>
   /// Unique identifier for the instruction
   /// </summary>

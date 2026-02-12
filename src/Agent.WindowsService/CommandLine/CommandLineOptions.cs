@@ -1,0 +1,67 @@
+﻿namespace Agent.WindowsService.CommandLine;
+
+/// <summary>
+/// Represents parsed command line options for the agent.
+/// </summary>
+public class CommandLineOptions
+{
+    /// <summary>
+    /// Initialize default configuration file.
+    /// </summary>
+    public bool InitConfig { get; set; }
+
+    /// <summary>
+    /// Indicates whether to set the agent version during configuration.
+    /// </summary>
+    public bool SetVersion { get; set; }
+
+    /// <summary>
+    /// Version of the agent software to configure.
+    /// </summary>
+    public string Version { get; set; } = "1.0.0";
+
+    /// <summary>
+    /// Server URL with certificate to configure (for secured requests).
+    /// </summary>
+    public string? ServerCertificatedUrl { get; set; }
+
+    /// <summary>
+    /// Server URL without certificate to configure (for non-secured requests).
+    /// </summary>
+    public string? ServerNotCertificatedUrl { get; set; }
+
+    /// <summary>
+    /// Agent name to configure.
+    /// </summary>
+    public string? AgentName { get; set; }
+
+    /// <summary>
+    /// Tag to configure.
+    /// </summary>
+    public string? Tag { get; set; }
+
+    /// <summary>
+    /// Enrollment token for certificate provisioning.
+    /// </summary>
+    public string? EnrollmentToken { get; set; }
+
+    /// <summary>
+    /// Path to pre-provisioned PFX certificate file.
+    /// </summary>
+    public string? CertificatePath { get; set; }
+
+    /// <summary>
+    /// Password for the PFX certificate file.
+    /// </summary>
+    public string? CertificatePassword { get; set; }
+
+    /// <summary>
+    /// Initialize certificate from file.
+    /// </summary>
+    public bool InitCertificate { get; set; }
+
+    /// <summary>
+    /// Run the service normally after configuration.
+    /// </summary>
+    public bool RunService { get; set; } = true;
+}

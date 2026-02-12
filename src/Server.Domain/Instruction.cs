@@ -5,11 +5,9 @@ namespace Server.Domain;
 
 public enum InstructionType
 {
-  GpoSet = 1,
-
-  ShellCommand,
-
-  ConfigUpdate,
+  Gpo = 1,
+  Shell,
+  Config,
 }
 
 public enum InstructionState
@@ -43,15 +41,15 @@ public class Instruction
 
   [MaxLength(4000)]
   public string? Error { get; private set; }
-  public DateTime CreatedAt { get; private init; }
-  public DateTime? UpdatedAt { get; private set; }
+  public DateTimeOffset CreatedAt { get; private init; }
+  public DateTimeOffset? UpdatedAt { get; private set; }
 
   #region Navigation properties
 
   /// <summary>
   /// The agent associated with this instruction.
   /// </summary>
-  public virtual Agent Agent { get; set; } = null!;
+  public virtual Agent Agent { get; init; } = null!;
 
   #endregion
 
@@ -71,7 +69,7 @@ public class Instruction
       Type = type,
       PayloadJson = payloadJson,
       State = InstructionState.Pending,
-      CreatedAt = DateTime.UtcNow
+      CreatedAt = DateTimeOffset.UtcNow
     };
   }
 
@@ -85,7 +83,7 @@ public class Instruction
   public void MarkAsDispatched()
   {
     State = InstructionState.Dispatched;
-    UpdatedAt = DateTime.UtcNow;
+    UpdatedAt = DateTimeOffset.UtcNow;
   }
 
   /// <summary>
@@ -95,7 +93,7 @@ public class Instruction
   {
     State = InstructionState.Completed;
     Output = output;
-    UpdatedAt = DateTime.UtcNow;
+    UpdatedAt = DateTimeOffset.UtcNow;
   }
 
   /// <summary>
@@ -105,7 +103,7 @@ public class Instruction
   {
     State = InstructionState.Failed;
     Error = error;
-    UpdatedAt = DateTime.UtcNow;
+    UpdatedAt = DateTimeOffset.UtcNow;
   }
 
   #endregion

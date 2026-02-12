@@ -15,23 +15,23 @@ public class InstructionValidator : AbstractValidator<Instruction>
     RuleFor(instruction => instruction.Payload)
       .Must((instruction, _) => instruction.Payload is ShellCommandPayload)
       .WithMessage("Payload must be ShellCommandPayload for ShellCommand instructions.")
-      .When(instruction => instruction.Type == InstructionType.ShellCommand);
+      .When(instruction => instruction.Type == InstructionType.Shell);
 
     RuleFor(instruction => instruction.Payload)
-      .Must((instruction, _) => 
+      .Must((instruction, _) =>
       {
         if (instruction.Payload is not ShellCommandPayload shellPayload)
           return false;
-        
+
         return !string.IsNullOrWhiteSpace(shellPayload.Command);
       })
       .WithMessage("The 'Command' field must be a non-empty string.")
-      .When(instruction => instruction.Type == InstructionType.ShellCommand);
+      .When(instruction => instruction.Type == InstructionType.Shell);
 
     RuleFor(instruction => instruction.Payload)
       .Must((instruction, _) => instruction.Payload is GpoSetPayload)
       .WithMessage("Payload must be GpoSetPayload for GpoSet instructions.")
-      .When(instruction => instruction.Type == InstructionType.GpoSet);
+      .When(instruction => instruction.Type == InstructionType.Gpo);
 
     RuleFor(instruction => instruction.Payload)
       .Must((instruction, _) =>
@@ -43,6 +43,6 @@ public class InstructionValidator : AbstractValidator<Instruction>
                !string.IsNullOrWhiteSpace(gpoPayload.Value);
       })
       .WithMessage("The 'Name' and 'Value' fields must be non-empty strings.")
-      .When(instruction => instruction.Type == InstructionType.GpoSet);
+      .When(instruction => instruction.Type == InstructionType.Gpo);
   }
 }

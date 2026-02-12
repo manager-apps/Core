@@ -40,8 +40,8 @@ public class OutboxMessage
 
   [MaxLength(2000)]
   public string? Error { get; private set; }
-  public DateTime OccurredAt { get; private init; }
-  public DateTime? UpdatedAt { get; private set; }
+  public DateTimeOffset OccurredAt { get; private init; }
+  public DateTimeOffset? UpdatedAt { get; private set; }
 
   #region Factory Methods
 
@@ -57,7 +57,7 @@ public class OutboxMessage
       Type = type,
       PayloadJson = payloadJson,
       State = OutboxMessageState.InProcess,
-      OccurredAt = DateTime.UtcNow
+      OccurredAt = DateTimeOffset.UtcNow
     };
   }
 
@@ -68,7 +68,7 @@ public class OutboxMessage
   public void MarkAsProcessed()
   {
     State = OutboxMessageState.Processed;
-    UpdatedAt = DateTime.UtcNow;
+    UpdatedAt = DateTimeOffset.UtcNow;
   }
 
   public void MarkAsFailed(string errorMessage)
@@ -76,7 +76,7 @@ public class OutboxMessage
     State = OutboxMessageState.Failed;
     Error = errorMessage;
     RetryCount++;
-    UpdatedAt = DateTime.UtcNow;
+    UpdatedAt = DateTimeOffset.UtcNow;
   }
 
   #endregion
