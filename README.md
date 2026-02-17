@@ -67,7 +67,7 @@ is integrated with an AI assistant to describe instruction problems and solution
 
 ## Agent Installation
 
-### Option 1: Manual Installation (Windows)
+### Option 1: Manual Installation (Windows) (SILIENT or Installer)
 
 1. **Build the agent installer**:
    ```powershell
@@ -87,6 +87,7 @@ is integrated with an AI assistant to describe instruction problems and solution
    - Copy the generated token
 
 3. **Install the agent**:
+   Via powershell
    ```powershell
    .\DciAgentService-1.0.0-Setup.exe `
      /VERYSILENT /NORESTART /SUPPRESSMSGBOXES `
@@ -95,11 +96,16 @@ is integrated with an AI assistant to describe instruction problems and solution
      /AGENTNAME="windows-server-01" `
      /ENROLLMENTTOKEN="<your-token-here>"
    ```
+   or installer
+   <img width="596" height="467" alt="image" src="https://github.com/user-attachments/assets/60650fc5-0216-4ef6-bb22-92e4e25ae68e" />
 
-4. **Verify installation**:
+
+5. **Verify installation**:
    - Check Windows Services for "DciAgentService"
    - Check logs in `C:\Program Files\Manager\logs\`
    - Verify agent appears in UI
+   
+  <img width="601" height="467" alt="image" src="https://github.com/user-attachments/assets/88161ce1-d121-440a-bd98-98b2e3b90051" />
 
 ### Option 2: Automated Installation (Ansible)
 
