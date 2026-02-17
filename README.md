@@ -305,6 +305,11 @@ The UI includes an AI-powered assistant to help troubleshoot instruction failure
 
 <img width="2559" height="1271" alt="AI Assistant" src="https://github.com/user-attachments/assets/a366bad9-630e-43ce-b39c-e72661287096" />
 
+### Metrics visualization
+
+The server integrates with Grafana to provide real-time visualization of collected metrics. Users can create
+custom dashboards to monitor CPU usage, memory usage, disk activity, and network performance across all agents. Example:
+
 
 
 
