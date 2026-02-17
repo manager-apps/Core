@@ -51,6 +51,8 @@ The response to metric requests includes instructions to execute, which can be u
 
 The system uses mutual TLS (mTLS) authentication to establish secure communication between agents and the server. This ensures that both the agent and server verify each other's identity before exchanging data.
 
+<img width="910" height="1289" alt="image" src="https://github.com/user-attachments/assets/5773647f-18a7-47a2-bc44-4c96cb5e8731" />
+
 **Communication Flow:**
 
 1. **Enrollment** - Admin creates a one-time enrollment token via UI, which is used by the agent to obtain a client certificate:
