@@ -9,6 +9,7 @@
     - [Option 1: Manual Installation (Windows)](#option-1-manual-installation-windows)
     - [Option 2: Automated Installation (Ansible)](#option-2-automated-installation-ansible)
 - [Architectural design](#architectural-design)
+  - [Current Architecture](#current-architecture)
   - [Server design](#server-design)
   - [Agent design](#agent-design)
 - [Connection and communication](#connection-and-communication)
@@ -17,6 +18,7 @@
     - [Instruction Types](#instruction-types)
     - [AI Assistant Integration](#ai-assistant-integration)
     - [Metrics visualization](#metrics-visualization)
+- [Performance Testing](#performance-testing)
 
 # About the project
 
@@ -138,6 +140,30 @@ is integrated with an AI assistant to describe instruction problems and solution
 # Architectural design
 
 This section describes the architectural design of the monitoring agent system, including the server and agent components, their interactions, and the overall system architecture.
+
+## Current Architecture
+
+The system is built as a modular monolith with separation of concerns, running as containerized services using Docker Compose. This architecture provides a balance between simplicity and scalability.
+
+**Architecture Diagram:**
+
+[Add your current architecture image here]
+
+**Components:**
+
+1. **API Server** - Admin API and web UI backend (REST + GraphQL)
+2. **Ingest Server** - Agent communication endpoint with mTLS authentication
+3. **Worker Services** - Background processing (Instruction Worker, Metric Worker)
+4. **Databases** - PostgreSQL (relational), ClickHouse (time-series), Redis (cache)
+5. **UI** - React SPA for agent management and monitoring
+6. **Grafana** - Metrics visualization and dashboards
+7. **Agent** - Windows Service on client machines
+
+**Communication Flow:**
+- Admin → UI → API Server → PostgreSQL
+- Agent → Ingest Server (mTLS) → PostgreSQL (via Outbox Pattern)
+- Workers → PostgreSQL (Outbox) → ClickHouse (metrics) / PostgreSQL (instructions)
+- UI → Grafana → ClickHouse (metrics queries)
 
 #### Server design
 
@@ -315,7 +341,16 @@ custom dashboards to monitor CPU usage, memory usage, disk activity, and network
 
 <img width="2553" height="1265" alt="image" src="https://github.com/user-attachments/assets/5481cb21-26d6-429b-97d9-538ef7a96d59" />
 
+# Performance Testing
+
+The system includes performance testing using Locust to validate scalability and identify bottlenecks under load.
+It tests full flow with authentication, synchronization, metric reporting, and instruction execution with multiple concurrent agents. Example results:
+
+# Monolithic architecture
+
+# Current architecture
 
 
+---
 
-
+**Contributor:** Vitalii Priadilia
