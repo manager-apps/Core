@@ -2,10 +2,18 @@
 
 - [About the project](#about-the-project)
 - [Built With](#built-with)
+- [Features](#features)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Server Deployment](#server-deployment)
+  - [Agent Installation](#agent-installation)
 - [Architectural design](#architectural-design)
   - [Server design](#server-design)
   - [Agent design](#agent-design)
 - [Connection and communication](#connection-and-communication)
+  - [mTLS Authentication](#mtls-authentication)
+  - [Agent State Machine](#agent-state-machine)
+- [Configuration](#configuration)
 
 # About the project
 
@@ -23,6 +31,106 @@ is integrated with an AI assistant to describe instruction problems and solution
 - ClickHouse
 - PostgreSQL
 - ReactJS Typescript
+
+# Features
+
+- **Secure mTLS Authentication** - Mutual TLS with internal CA and certificate management
+- **Real-time Monitoring** - CPU, memory, disk, and network metrics collection
+- **Remote Instruction Execution** - Execute shell commands, apply GPO policies, update configurations
+- **Multi-agent Management** - Centralized management of multiple Windows agents
+- **Offline Resilience** - Local SQLite storage when server is unreachable
+- **Automatic Certificate Lifecycle** - Enrollment, renewal, and revocation handling
+- **Outbox Pattern** - Reliable message processing and delivery
+- **Time-series Analytics** - ClickHouse integration for high-performance metrics storage
+- **Custom Dashboards** - Grafana integration for visualization
+- **AI-powered Assistance** - Integrated AI assistant for troubleshooting
+- **RESTful API** - Full API for automation and integration
+- **Docker Deployment** - Easy deployment with Docker Compose
+- **Ansible Automation** - Automated agent installation and configuration
+
+# Getting Started
+
+## Prerequisites
+
+- **For Server**:
+  - Docker and Docker Compose
+  - Certificates for mTLS (can be generated using provided PowerShell script)
+
+- **For Agent**:
+  - Windows OS (tested on Windows Server 2016+, Windows 10+)
+  - .NET 10 Runtime (included in installer)
+
+## Agent Installation
+
+### Option 1: Manual Installation (Windows)
+
+1. **Build the agent installer**:
+   ```powershell
+   cd Core
+   dotnet publish src/Agent.WindowsService/Agent.WindowsService.csproj `
+     -c Release -r win-x64 --self-contained true `
+     /p:PublishSingleFile=true -o publish
+
+   # Build installer with Inno Setup
+   "C:\Program Files (x86)\Inno Setup 6\iscc.exe" src/Agent.WindowsService/Agent.WindowsService.iss
+   ```
+
+2. **Create enrollment token** via UI:
+   - Navigate to `http://localhost:3001`
+   - Go to Agents → Create Enrollment Token
+   - Specify agent name and validity period
+   - Copy the generated token
+
+3. **Install the agent**:
+   ```powershell
+   .\DciAgentService-1.0.0-Setup.exe `
+     /VERYSILENT /NORESTART /SUPPRESSMSGBOXES `
+     /SERVERURL="http://your-server-ip:5140" `
+     /TAG="production" `
+     /AGENTNAME="windows-server-01" `
+     /ENROLLMENTTOKEN="<your-token-here>"
+   ```
+
+4. **Verify installation**:
+   - Check Windows Services for "DciAgentService"
+   - Check logs in `C:\Program Files\Manager\logs\`
+   - Verify agent appears in UI
+
+### Option 2: Automated Installation (Ansible)
+
+1. **Configure Ansible inventory**:
+   ```ini
+   # Deploy/ansible/inventory.ini
+   [windows_agents]
+   server1 ansible_host=192.168.1.10
+   server2 ansible_host=192.168.1.11
+
+   [windows_agents:vars]
+   ansible_user=Administrator
+   ansible_password=YourPassword
+   ansible_connection=winrm
+   ansible_winrm_server_cert_validation=ignore
+   ```
+
+2. **Run installation playbook**:
+   ```bash
+   cd Deploy/ansible
+   ansible-playbook -i inventory.ini install_agent.yml \
+     -e agent_tag=production \
+     -e enrollment_token=<your-token>
+   ```
+
+**Configuration Override** (upgrade without losing config):
+```powershell
+# Upgrade existing installation, keep configuration
+.\DciAgentService-1.0.1-Setup.exe /VERYSILENT /NORESTART
+
+# Upgrade and reconfigure
+.\DciAgentService-1.0.1-Setup.exe /VERYSILENT /NORESTART `
+  /OVERWRITECONFIG=1 `
+  /SERVERURL="http://new-server:5140" `
+  /TAG="staging"
+```
 
 # Architectural design
 
@@ -146,4 +254,64 @@ The agent operates using a state machine pattern to manage its lifecycle and ens
 - `Retry`: Automatic retry from Error state
 
 The state machine ensures that the agent always recovers from errors and maintains a consistent operational flow. All state transitions are logged for monitoring and debugging purposes.
+
+## Agent Instructions
+
+The agent can execute custom instructions sent from the server, allowing for remote management and control.
+
+<img width="1508" height="885" alt="Agent Instructions UI" src="https://github.com/user-attachments/assets/3a5758f7-9975-4301-83ac-f8ed1f4c22be" />
+
+### Instruction Types
+
+#### 1. Shell Command
+Execute PowerShell or CMD commands and return the results to the server.
+
+<img width="1484" height="763" alt="Shell Command Instruction" src="https://github.com/user-attachments/assets/69ac93f6-609b-42e3-b408-1fa4533832b9" />
+
+**Use cases:**
+- Run diagnostic scripts
+- Execute system maintenance tasks
+- Collect custom information
+- Perform automated remediation
+
+#### 2. Config Update
+Update the agent's configuration dynamically, including metric collectors, instruction executors, intervals, and limits.
+
+<img width="1513" height="840" alt="Config Update Instruction" src="https://github.com/user-attachments/assets/cf0f92be-12b1-4ee3-b8eb-da9bef313c0d" />
+
+**Configurable parameters:**
+- Heartbeat intervals
+- Execution limits
+- Enabled collectors
+- Enabled instruction types
+- Retry intervals
+
+#### 3. GPO Update
+Apply Windows Group Policy Object (GPO) settings to the agent machine.
+
+<img width="1515" height="736" alt="GPO Update Instruction" src="https://github.com/user-attachments/assets/57379cd1-f84f-4e41-a8b4-b99f9eb90404" />
+
+**Capabilities:**
+- Apply security policies
+- Configure system settings
+- Enforce organizational standards
+- Manage Windows features
+
+### Instruction States
+
+- **Pending**: Created but not yet dispatched to agent
+- **Dispatched**: Sent to agent, awaiting execution
+- **Completed**: Successfully executed by agent
+- **Failed**: Execution failed (error details in result)
+
+### AI Assistant Integration
+
+The UI includes an AI-powered assistant to help troubleshoot instruction failures and suggest solutions.
+
+<img width="2559" height="1271" alt="AI Assistant" src="https://github.com/user-attachments/assets/a366bad9-630e-43ce-b39c-e72661287096" />
+
+## UI Screenshots
+
+
+
 
