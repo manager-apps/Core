@@ -85,3 +85,94 @@ The system uses mutual TLS (mTLS) authentication to establish secure communicati
    - Revoked agents can re-enroll using a new enrollment token
 
 All communication after initial enrollment is secured with mTLS, ensuring end-to-end encryption and mutual authentication. When offline, the agent stores metrics locally (SQLite) and syncs when connection is restored.
+
+## Agent State Machine
+
+The agent operates using a state machine pattern to manage its lifecycle and ensure reliable operation. The state machine handles authentication, synchronization, metric collection, instruction execution, and error recovery.
+
+```plantuml
+@startuml
+title Agent State Machine
+
+[*] --> Idle
+
+Idle --> Authentication : Start
+
+Authentication --> Synchronization : AuthSuccess
+Authentication --> Error : AuthFailure
+Authentication --> Idle : Stop
+
+Synchronization --> Running : SyncSuccess
+Synchronization --> Error : SyncFailure
+Synchronization --> Idle : Stop
+
+Running --> Authentication : AuthFailure
+Running --> Execution : RunSuccess
+Running --> Error : RunFailure
+Running --> Idle : Stop
+
+Execution --> Running : ExecutionSuccess
+Execution --> Error : ExecutionFailure
+Execution --> Idle : Stop
+
+Error --> Authentication : Retry
+Error --> Idle : Stop
+
+@enduml
+```
+
+**State Descriptions:**
+
+- **Idle**: Initial state when the agent service starts. Waits for the start trigger.
+
+- **Authentication**: Validates or obtains mTLS certificate:
+  - Checks if valid certificate exists in Windows Certificate Store
+  - If no certificate exists, performs enrollment using enrollment token
+  - If certificate is expiring soon, performs renewal via mTLS
+  - If certificate is revoked, attempts re-enrollment
+  - Transitions to Synchronization on success, or Error on failure
+
+- **Synchronization**: Initial handshake with server after authentication:
+  - Sends hardware information (OS version, machine name, processors, memory)
+  - Sends current agent configuration
+  - Receives server configuration settings
+  - Updates agent state with server response
+  - Transitions to Running on success, or Error on failure
+
+- **Running**: Main operational state with heartbeat loop:
+  - Collects system metrics (CPU, memory, disk, network) via configured collectors
+  - Retrieves stored instruction results from local database
+  - Sends metrics and instruction results to server via POST /report
+  - Receives pending instructions from server
+  - Stores instructions in local database for execution
+  - Waits for configured interval (RunningExitIntervalSeconds)
+  - Transitions to Execution if instructions exist, or loops back to Running
+
+- **Execution**: Executes pending instructions from the server:
+  - Retrieves pending instructions from local database (up to configured limit)
+  - Executes instructions based on type:
+    - **Shell Command**: Executes PowerShell/CMD commands and captures output
+    - **GPO Update**: Applies Windows Group Policy changes
+    - **Config Update**: Modifies agent configuration (collectors, executors, intervals)
+  - Stores execution results in local database
+  - Waits for configured interval (ExecutionExitIntervalSeconds)
+  - Transitions back to Running to report results
+
+- **Error**: Error recovery state with exponential backoff:
+  - Logs error details for debugging
+  - Waits for configured interval (AuthenticationExitIntervalSeconds)
+  - Automatically retries by transitioning to Authentication
+  - Can be stopped manually via service control
+
+**Triggers:**
+
+- `Start`: Service starts → moves from Idle to Authentication
+- `Stop`: Service stops → returns to Idle from any state
+- `AuthSuccess` / `AuthFailure`: Authentication result
+- `SyncSuccess` / `SyncFailure`: Synchronization result
+- `RunSuccess` / `RunFailure`: Running state result (has instructions or error)
+- `ExecutionSuccess` / `ExecutionFailure`: Instruction execution result
+- `Retry`: Automatic retry from Error state
+
+The state machine ensures that the agent always recovers from errors and maintains a consistent operational flow. All state transitions are logged for monitoring and debugging purposes.
+
