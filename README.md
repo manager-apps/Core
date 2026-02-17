@@ -347,8 +347,10 @@ The system includes performance testing using Locust to validate scalability and
 It tests full flow with authentication, synchronization, metric reporting, and instruction execution with multiple concurrent agents. Example results:
 
 # Monolithic architecture
+<img width="1273" height="1001" alt="image" src="https://github.com/user-attachments/assets/fb95c361-7e2c-44ae-8ca7-cb2fa096931a" />
 
 # Current architecture
+<img width="948" height="734" alt="image" src="https://github.com/user-attachments/assets/2c2833d6-693c-41da-9528-395a90fecffd" />
 
 
 ---
