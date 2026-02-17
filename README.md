@@ -146,8 +146,7 @@ This section describes the architectural design of the monitoring agent system, 
 The system is built as a modular monolith with separation of concerns, running as containerized services using Docker Compose. This architecture provides a balance between simplicity and scalability.
 
 **Architecture Diagram:**
-
-[Add your current architecture image here]
+<img width="1780" height="885" alt="image" src="https://github.com/user-attachments/assets/2c5782f0-2a19-4463-bfb9-34dcbb956bfc" />
 
 **Components:**
 
@@ -164,25 +163,6 @@ The system is built as a modular monolith with separation of concerns, running a
 - Agent → Ingest Server (mTLS) → PostgreSQL (via Outbox Pattern)
 - Workers → PostgreSQL (Outbox) → ClickHouse (metrics) / PostgreSQL (instructions)
 - UI → Grafana → ClickHouse (metrics queries)
-
-#### Server design
-
-<img width="1780" height="885" alt="image" src="https://github.com/user-attachments/assets/2c5782f0-2a19-4463-bfb9-34dcbb956bfc" />
-
-The server is designed to handle incoming data from multiple agents. It uses the outbox message pattern to ensure reliable data processing and delivery.
-The server stores the collected metrics and instruction results in a database, then instruction and metric workers process the
-data and store the processed data in ClickHouse or PostgreSQL for analysis and visualization. The server also provides a web interface for users
-to view the collected metrics via Grafana iframe, and a custom UI for agent management and instruction execution.
-
-#### Agent design
-
-foto here
-
-The agent is designed to run as a Windows service, allowing it to operate in the background and start automatically when the system boots up.
-Communication between the agent and the server is established via mTLS, ensuring secure data transmission. When there is no connection with the server,
-the agent will store the collected metrics locally and send them to the server once the connection is re-established.
-The response to metric requests includes instructions to execute, which can be used to dynamically configure the agent's behavior and control its operations.
-
 
 # Connection and communication
 
