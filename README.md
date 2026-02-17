@@ -97,6 +97,7 @@ is integrated with an AI assistant to describe instruction problems and solution
      /ENROLLMENTTOKEN="<your-token-here>"
    ```
    or installer
+   
    <img width="596" height="467" alt="image" src="https://github.com/user-attachments/assets/60650fc5-0216-4ef6-bb22-92e4e25ae68e" />
 
 
