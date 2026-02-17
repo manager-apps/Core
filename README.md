@@ -299,20 +299,12 @@ Apply Windows Group Policy Object (GPO) settings to the agent machine.
 - Enforce organizational standards
 - Manage Windows features
 
-### Instruction States
-
-- **Pending**: Created but not yet dispatched to agent
-- **Dispatched**: Sent to agent, awaiting execution
-- **Completed**: Successfully executed by agent
-- **Failed**: Execution failed (error details in result)
-
 ### AI Assistant Integration
 
-The UI includes an AI-powered assistant to help troubleshoot instruction failures and suggest solutions.
+The UI includes an AI-powered assistant to help troubleshoot instruction failures and suggest solutions. Example:
 
 <img width="2559" height="1271" alt="AI Assistant" src="https://github.com/user-attachments/assets/a366bad9-630e-43ce-b39c-e72661287096" />
 
-## UI Screenshots
 
 
 
