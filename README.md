@@ -16,8 +16,8 @@
   - [Agent State Machine](#agent-state-machine)
   - [Agent Instructions](#agent-instructions)
     - [Instruction Types](#instruction-types)
-    - [AI Assistant Integration](#ai-assistant-integration)
-    - [Metrics visualization](#metrics-visualization)
+  - [AI Assistant Integration](#ai-assistant-integration)
+  - [Metrics visualization](#metrics-visualization)
 - [Performance Testing](#performance-testing)
 
 # About the project
@@ -97,7 +97,7 @@ is integrated with an AI assistant to describe instruction problems and solution
      /ENROLLMENTTOKEN="<your-token-here>"
    ```
    or installer
-   
+
    <img width="596" height="467" alt="image" src="https://github.com/user-attachments/assets/60650fc5-0216-4ef6-bb22-92e4e25ae68e" />
 
 
@@ -105,7 +105,7 @@ is integrated with an AI assistant to describe instruction problems and solution
    - Check Windows Services for "DciAgentService"
    - Check logs in `C:\Program Files\Manager\logs\`
    - Verify agent appears in UI
-   
+
   <img width="601" height="467" alt="image" src="https://github.com/user-attachments/assets/88161ce1-d121-440a-bd98-98b2e3b90051" />
 
 ### Option 2: Automated Installation (Ansible)
@@ -315,13 +315,13 @@ Apply Windows Group Policy Object (GPO) settings to the agent machine.
 - Enforce organizational standards
 - Manage Windows features
 
-### AI Assistant Integration
+## AI Assistant Integration
 
 The UI includes an AI-powered assistant to help troubleshoot instruction failures and suggest solutions. Example:
 
 <img width="2559" height="1271" alt="AI Assistant" src="https://github.com/user-attachments/assets/a366bad9-630e-43ce-b39c-e72661287096" />
 
-### Metrics visualization
+## Metrics visualization
 
 The server integrates with Grafana to provide real-time visualization of collected metrics. Users can create
 custom dashboards to monitor CPU usage, memory usage, disk activity, and network performance across all agents. Example:
