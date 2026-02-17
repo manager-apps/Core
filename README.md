@@ -310,6 +310,8 @@ The UI includes an AI-powered assistant to help troubleshoot instruction failure
 The server integrates with Grafana to provide real-time visualization of collected metrics. Users can create
 custom dashboards to monitor CPU usage, memory usage, disk activity, and network performance across all agents. Example:
 
+<img width="2553" height="1265" alt="image" src="https://github.com/user-attachments/assets/5481cb21-26d6-429b-97d9-538ef7a96d59" />
+
 
 
 
