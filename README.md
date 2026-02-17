@@ -286,6 +286,8 @@ Update the agent's configuration dynamically, including metric collectors, instr
 - Enabled instruction types
 - Retry intervals
 
+The instruction is created automatically when the configuration for the current agent has been changed.
+
 #### 3. GPO Update
 Apply Windows Group Policy Object (GPO) settings to the agent machine.
 
