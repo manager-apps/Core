@@ -90,36 +90,7 @@ All communication after initial enrollment is secured with mTLS, ensuring end-to
 
 The agent operates using a state machine pattern to manage its lifecycle and ensure reliable operation. The state machine handles authentication, synchronization, metric collection, instruction execution, and error recovery.
 
-```plantuml
-@startuml
-title Agent State Machine
-
-[*] --> Idle
-
-Idle --> Authentication : Start
-
-Authentication --> Synchronization : AuthSuccess
-Authentication --> Error : AuthFailure
-Authentication --> Idle : Stop
-
-Synchronization --> Running : SyncSuccess
-Synchronization --> Error : SyncFailure
-Synchronization --> Idle : Stop
-
-Running --> Authentication : AuthFailure
-Running --> Execution : RunSuccess
-Running --> Error : RunFailure
-Running --> Idle : Stop
-
-Execution --> Running : ExecutionSuccess
-Execution --> Error : ExecutionFailure
-Execution --> Idle : Stop
-
-Error --> Authentication : Retry
-Error --> Idle : Stop
-
-@enduml
-```
+<img width="798" height="814" alt="image" src="https://github.com/user-attachments/assets/dda09966-4452-4e61-af27-c743539aed3c" />
 
 **State Descriptions:**
 
