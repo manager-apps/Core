@@ -5,15 +5,18 @@
 - [Features](#features)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
-  - [Server Deployment](#server-deployment)
   - [Agent Installation](#agent-installation)
+    - [Option 1: Manual Installation (Windows)](#option-1-manual-installation-windows)
+    - [Option 2: Automated Installation (Ansible)](#option-2-automated-installation-ansible)
 - [Architectural design](#architectural-design)
   - [Server design](#server-design)
   - [Agent design](#agent-design)
 - [Connection and communication](#connection-and-communication)
-  - [mTLS Authentication](#mtls-authentication)
   - [Agent State Machine](#agent-state-machine)
-- [Configuration](#configuration)
+  - [Agent Instructions](#agent-instructions)
+    - [Instruction Types](#instruction-types)
+    - [AI Assistant Integration](#ai-assistant-integration)
+    - [Metrics visualization](#metrics-visualization)
 
 # About the project
 
