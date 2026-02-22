@@ -153,7 +153,7 @@ This section describes the architectural design of the monitoring agent system, 
 The system is built as a modular monolith with separation of concerns, running as containerized services using Docker Compose. This architecture provides a balance between simplicity and scalability.
 
 **Architecture Diagram:**
-<img width="1780" height="885" alt="image" src="https://github.com/user-attachments/assets/2c5782f0-2a19-4463-bfb9-34dcbb956bfc" />
+<img width="1124" height="568" alt="image" src="https://github.com/user-attachments/assets/45e920e1-a77f-4848-b79d-76c07cec0cef" />
 
 **Components:**
 
