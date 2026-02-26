@@ -15,6 +15,7 @@ public sealed record CertEnrollResponse(
 /// </summary>
 public sealed record TokenEnrollRequest(
   string AgentName,
+  string SourceTag,
   string CsrPem,
   string EnrollmentToken);
 

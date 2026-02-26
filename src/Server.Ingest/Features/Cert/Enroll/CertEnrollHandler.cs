@@ -40,6 +40,7 @@ internal sealed class CertEnrollHandler(
 
     var agent = await GetOrCreateAgentAsync(
       request.AgentName,
+      request.SourceTag,
       cancellationToken);
 
     validToken.MarkAsUsed(agent.Id);
@@ -61,6 +62,7 @@ internal sealed class CertEnrollHandler(
 
   private async Task<Agent> GetOrCreateAgentAsync(
     string agentName,
+    string sourceTag,
     CancellationToken cancellationToken)
   {
     logger.LogInformation("Looking up agent for enrollment: {AgentName}", agentName);
@@ -75,7 +77,7 @@ internal sealed class CertEnrollHandler(
 
     agent = Agent.Create(
       name: agentName,
-      sourceTag: "empty_for_now");
+      sourceTag: sourceTag);
 
     dbContext.Agents.Add(agent);
     await dbContext.SaveChangesAsync(cancellationToken);

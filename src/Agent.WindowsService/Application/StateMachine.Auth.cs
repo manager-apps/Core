@@ -46,6 +46,7 @@ public partial class StateMachine
       var enrollmentSuccess = await _icaEnrollmentService.EnrollWithTokenAsync(
         config.ServerNotCertificatedUrl,
         config.AgentName,
+        config.Tag,
         config.EnrollmentToken,
         Token);
       if (!enrollmentSuccess)
@@ -133,9 +134,9 @@ public partial class StateMachine
       var enrollmentSuccess = await _icaEnrollmentService.EnrollWithTokenAsync(
         config.ServerNotCertificatedUrl,
         config.AgentName,
+        config.Tag,
         config.EnrollmentToken,
         Token);
-
       if (enrollmentSuccess)
       {
         _logger.LogInformation("Re-enrollment completed successfully");

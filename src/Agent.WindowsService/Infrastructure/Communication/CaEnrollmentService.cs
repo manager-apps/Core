@@ -16,6 +16,7 @@ public class CaEnrollmentService(
   public async Task<bool> EnrollWithTokenAsync(
     string serverUrl,
     string agentName,
+    string sourceTag,
     string enrollmentToken,
     CancellationToken cancellationToken)
   {
@@ -28,6 +29,7 @@ public class CaEnrollmentService(
         var request = new
         {
           AgentName = agentName,
+          SourceTag = sourceTag,
           EnrollmentToken = enrollmentToken,
           CsrPem = csrPem
         };

@@ -7,7 +7,6 @@
 
 & "C:\Program Files (x86)\Inno Setup 6\iscc.exe" src/Agent.WindowsService/Agent.WindowsService.iss
 
-.\installer-output\DciAgentService-1.0.0-Setup.exe /VERYSILENT /NORESTART /SUPPRESSMSGBOXES
 
 ## Installing
 Overwrite flag is by default false, so the newer version will be installed
@@ -26,3 +25,20 @@ DciAgentService-1.0.1-Setup.exe
   /TAG="A"
   /AGENTNAME="X"
   /CLIENTSECRET="S"
+
+.\DciAgentService-1.0.0-Setup.exe  `
+  /VERYSILENT `
+  /NORESTART `
+  /OVERWRITECONFIG=1 `
+  /SERVERCERTURL="https://147.232.52.190:8443" `
+  /SERVERNOTCERTURL="http://147.232.52.190:6000" `
+  /TAG="Endor" `
+  /AGENTNAME="PC1" `
+  /ENROLLMENTTOKEN="M9gRwFzKib/rZpIFRWzA0fMGMSPn7GiGzcBzHdDxWsI="
+
+
+.\DciAgentService-1.0.0-Setup.exe  `
+  /VERYSILENT `
+  /NORESTART `
+  /OVERWRITECONFIG=1 `
+  /TAG="Another_tag" `

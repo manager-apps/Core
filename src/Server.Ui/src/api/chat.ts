@@ -1,5 +1,5 @@
-import axios, { getApiBaseUrl } from "./axios";
-import type { ChatRequest, ChatResponse } from "../types/chat";
+import { getApiBaseUrl } from "./axios";
+import type { ChatRequest } from "../types/chat";
 
 export const streamChatMessage = async (
     request: ChatRequest,

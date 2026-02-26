@@ -15,6 +15,8 @@ public interface ISyncHandler
   Task<Result<SyncMessageResponse>> HandleAsync(
     ClaimsPrincipal agent,
     SyncMessageRequest request,
+    string currentTag,
+    string currentVersion,
     CancellationToken cancellationToken);
 }
 
@@ -25,6 +27,8 @@ internal sealed class SyncHandler(
   public async Task<Result<SyncMessageResponse>> HandleAsync(
     ClaimsPrincipal agent,
     SyncMessageRequest request,
+    string currentTag,
+    string currentVersion,
     CancellationToken cancellationToken)
   {
     logger.LogInformation("Received sync message from agent: {AgentName}", agent.Identity?.Name);
@@ -96,8 +100,8 @@ internal sealed class SyncHandler(
     }
 
     agentEntity.UpdateLastSeen(
-      currentTag: agentEntity.CurrentTag,
-      version: "1.0.0");
+      currentTag: currentTag,
+      version: currentVersion);
 
     await dbContext.SaveChangesAsync(cancellationToken);
 

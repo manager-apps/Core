@@ -69,7 +69,7 @@ var
   ConfigExists: Boolean;
 
 const
-  ConfigFilePath = '{commonappdata}\Manager\config.json';
+  ConfigFilePath = '{commonappdata}\DCIAgent\config.json';
 
 function ServiceExists(const ServiceName: string): Boolean;
 var

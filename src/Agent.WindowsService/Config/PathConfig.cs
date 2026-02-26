@@ -6,7 +6,7 @@ public static class PathConfig
   /// Base directory in the common application data directory.
   /// </summary>
   public static readonly string BaseDirectory
-    = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Manager");
+    = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DCIAgent");
 
   /// <summary>
   /// Metrics directory in the common application data directory.

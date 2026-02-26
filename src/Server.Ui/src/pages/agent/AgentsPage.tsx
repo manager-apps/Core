@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {Box, Typography, Avatar, Card, CardContent, Button, Chip} from "@mui/material";
 import { type AgentResponse } from "../../types/agent";
 import { fetchAgents } from "../../api/agent";

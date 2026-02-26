@@ -8,6 +8,7 @@ public interface ICaEnrollmentService
   Task<bool> EnrollWithTokenAsync(
     string serverUrl,
     string agentName,
+    string sourceTag,
     string enrollmentToken,
     CancellationToken cancellationToken);
 
