@@ -1,8 +1,5 @@
-using System.Text.Json;
-using Common;
 using Common.Events;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Hybrid;
 using Server.Domain;
 using Server.MetricWorker.Infrastructure;
 using Server.MetricWorker.Interfaces;
@@ -11,14 +8,12 @@ namespace Server.MetricWorker;
 
 public class Worker(
   IServiceScopeFactory scopeFactory,
-  HybridCache cache,
+  IMetricEventProcessor processor,
   ILogger<Worker> logger) : BackgroundService
 {
   private static readonly TimeSpan PollingInterval = TimeSpan.FromSeconds(10);
   private const int BatchSize = 20;
   private const int MaxRetryCount = 3;
-
-  private static string AgentCacheKey(string name) => $"agent:{name}";
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
@@ -49,7 +44,7 @@ public class Worker(
       var successCount = 0;
       foreach (var message in messages)
       {
-        if (await TryProcessMessageAsync(message, dbContext, metricStorage, ct))
+        if (await processor.ProcessAsync(message, dbContext, metricStorage, ct))
           successCount++;
       }
 
@@ -83,52 +78,4 @@ public class Worker(
         nameof(AgentMetricsEvent),
         BatchSize)
       .ToListAsync(ct);
-
-  private async Task<bool> TryProcessMessageAsync(
-    OutboxMessage message,
-    AppDbContext dbContext,
-    IMetricStorage metricStorage,
-    CancellationToken ct)
-  {
-    try
-    {
-      var @event = JsonSerializer.Deserialize<AgentMetricsEvent>(
-        message.PayloadJson,
-        JsonOptions.Default);
-
-      if (@event is null)
-      {
-        message.MarkAsFailed("Failed to deserialize AgentMetricsEvent");
-        return false;
-      }
-
-      var agent = await cache.GetOrCreateAsync(
-        AgentCacheKey(@event.AgentName),
-        async token => await dbContext.Agents
-          .AsNoTracking()
-          .FirstOrDefaultAsync(a => a.Name == @event.AgentName, token),
-        cancellationToken: ct);
-      if (agent is null)
-      {
-        logger.LogWarning("Agent {AgentName} not found", @event.AgentName);
-        message.MarkAsFailed($"Agent {@event.AgentName} not found");
-        return false;
-      }
-
-      await metricStorage.StoreAsync(@event.AgentName, @event.Metric, ct);
-      message.MarkAsProcessed();
-
-      logger.LogDebug("Processed metric {MetricType} for agent {AgentName}",
-        @event.Metric.Type, @event.AgentName);
-
-      return true;
-    }
-    catch (Exception ex) when (ex is not OperationCanceledException)
-    {
-      logger.LogWarning(ex, "Failed to process metric message, retry {RetryCount}",
-        message.RetryCount + 1);
-      message.MarkAsFailed(ex.Message);
-      return false;
-    }
-  }
 }

@@ -1,5 +1,3 @@
-using System.Text.Json;
-using Common;
 using Common.Events;
 using Microsoft.EntityFrameworkCore;
 using Server.Domain;
@@ -9,6 +7,7 @@ namespace Server.InstructionWorker;
 
 public class Worker(
   IServiceScopeFactory scopeFactory,
+  IInstructionResultProcessor processor,
   ILogger<Worker> logger) : BackgroundService
 {
   private static readonly TimeSpan PollingInterval = TimeSpan.FromSeconds(10);
@@ -43,7 +42,7 @@ public class Worker(
       var successCount = 0;
       foreach (var message in messages)
       {
-        if (await TryProcessMessageAsync(message, dbContext, ct))
+        if (await processor.ProcessAsync(message, dbContext, ct))
           successCount++;
       }
 
@@ -77,53 +76,4 @@ public class Worker(
         nameof(AgentInstructionResultEvent),
         BatchSize)
       .ToListAsync(ct);
-
-  private async Task<bool> TryProcessMessageAsync(
-    OutboxMessage message,
-    AppDbContext dbContext,
-    CancellationToken ct)
-  {
-    try
-    {
-      var @event = JsonSerializer.Deserialize<AgentInstructionResultEvent>(
-        message.PayloadJson,
-        JsonOptions.Default);
-
-      if (@event is null)
-      {
-        message.MarkAsFailed("Failed to deserialize AgentInstructionResultEvent");
-        return false;
-      }
-
-      var instruction = await dbContext.Instructions
-        .FirstOrDefaultAsync(i => i.Id == @event.InstructionResult.AssociatedId, ct);
-
-      if (instruction is null)
-      {
-        logger.LogWarning("Instruction {InstructionId} not found",
-          @event.InstructionResult.AssociatedId);
-        message.MarkAsFailed($"Instruction {@event.InstructionResult.AssociatedId} not found");
-        return false;
-      }
-
-      if (@event.InstructionResult.Success)
-        instruction.MarkAsCompleted(@event.InstructionResult.Output ?? string.Empty);
-      else
-        instruction.MarkAsFailed(@event.InstructionResult.Error ?? "Unknown error");
-
-      message.MarkAsProcessed();
-
-      logger.LogDebug("Processed instruction {InstructionId} result: {Success}",
-        instruction.Id, @event.InstructionResult.Success);
-
-      return true;
-    }
-    catch (Exception ex) when (ex is not OperationCanceledException)
-    {
-      logger.LogWarning(ex, "Failed to process instruction message, retry {RetryCount}",
-        message.RetryCount + 1);
-      message.MarkAsFailed(ex.Message);
-      return false;
-    }
-  }
 }

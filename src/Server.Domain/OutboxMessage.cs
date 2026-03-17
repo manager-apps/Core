@@ -32,7 +32,7 @@ public class OutboxMessage
   public string Type { get; private init; } = null!;
 
   [Required]
-  [MaxLength(8000)]
+  [MaxLength(100_000)]
   public string PayloadJson { get; private init; } = null!;
 
   [Required]

@@ -5,6 +5,7 @@ using Server.InstructionWorker.Options;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddHostedService<Worker>();
+builder.Services.AddSingleton<IInstructionResultProcessor, InstructionResultProcessor>();
 
 builder.Services.Configure<WorkerOption>(
   builder.Configuration.GetSection("Worker"));

@@ -32,4 +32,10 @@
         <Link>.dockerignore</Link>
       </Content>
     </ItemGroup>
+
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+        <_Parameter1>Server.InstructionWorker.Tests</_Parameter1>
+      </AssemblyAttribute>
+    </ItemGroup>
 </Project>

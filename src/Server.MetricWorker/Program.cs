@@ -7,6 +7,7 @@ using Server.MetricWorker.Options;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddHostedService<Worker>();
+builder.Services.AddSingleton<IMetricEventProcessor, MetricEventProcessor>();
 
 builder.Services.Configure<WorkerOption>(
   builder.Configuration.GetSection("Worker"));
