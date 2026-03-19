@@ -1,5 +1,6 @@
 using Server.Api.Common.Extensions;
 using Server.Api.Features.Agent;
+using Server.Api.Features.Auth;
 using Server.Api.Features.Cert;
 using Server.Api.Features.Chat;
 using Server.Api.Features.Instruction;
@@ -13,6 +14,7 @@ builder.Services.AddClickHouseDatabase(builder.Configuration);
 builder.Services.AddCors(builder.Configuration);
 builder.Services.AddHybridCache(builder.Configuration);
 builder.Services.AddOpenAi(builder.Configuration);
+builder.Services.AddJwtAuth(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
@@ -20,21 +22,26 @@ builder.Services.AddAgentServices();
 builder.Services.AddInstructionServices();
 builder.Services.AddCertServices();
 builder.Services.AddChatServices();
+builder.Services.AddAuthServices();
 
 var app = builder.Build();
 await app.ApplyMigrationsAsync();
 
 app.UseSwaggerDocs();
 app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
 
 var group = app
   .MapGroup("/api/v{version:apiVersion}")
-  .WithApiVersionSet(app.CreateVersionSet());
+  .WithApiVersionSet(app.CreateVersionSet())
+  .RequireAuthorization();
 
 group.MapAgentEndpoints();
 group.MapInstructionEndpoints();
 group.MapCertEndpoints();
 group.MapChatEndpoints();
+group.MapAuthEndpoints();
 
 app.MapGet("/health",
   () => Results.Ok(new { status = "Healthy" }));

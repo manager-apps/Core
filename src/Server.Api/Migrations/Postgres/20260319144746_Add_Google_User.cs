@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Server.Api.Migrations.Postgres
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Add_Google_User : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,9 +22,6 @@ namespace Server.Api.Migrations.Postgres
                     SourceTag = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     CurrentTag = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Version = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    SecretKeyHash = table.Column<byte[]>(type: "bytea", nullable: false),
-                    SecretKeySalt = table.Column<byte[]>(type: "bytea", nullable: false),
-                    State = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     LastSeenAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
@@ -41,7 +38,7 @@ namespace Server.Api.Migrations.Postgres
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     State = table.Column<int>(type: "integer", nullable: false),
                     Type = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    PayloadJson = table.Column<string>(type: "character varying(8000)", maxLength: 8000, nullable: false),
+                    PayloadJson = table.Column<string>(type: "character varying(100000)", maxLength: 100000, nullable: false),
                     RetryCount = table.Column<int>(type: "integer", nullable: false),
                     Error = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
                     OccurredAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -50,6 +47,23 @@ namespace Server.Api.Migrations.Postgres
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OutboxMessages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    GoogleId = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Email = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    AvatarUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -117,7 +131,7 @@ namespace Server.Api.Migrations.Postgres
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     TokenHash = table.Column<byte[]>(type: "bytea", nullable: false),
                     TokenSalt = table.Column<byte[]>(type: "bytea", nullable: false),
-                    AgentName = table.Column<string>(type: "text", nullable: false),
+                    AgentName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     ExpiresAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     IsUsed = table.Column<bool>(type: "boolean", nullable: false),
                     UsedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
@@ -220,6 +234,17 @@ namespace Server.Api.Migrations.Postgres
                 column: "AgentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_EnrollmentTokens_AgentName",
+                table: "EnrollmentTokens",
+                column: "AgentName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EnrollmentTokens_TokenHash",
+                table: "EnrollmentTokens",
+                column: "TokenHash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Hardwares_AgentId",
                 table: "Hardwares",
                 column: "AgentId",
@@ -234,6 +259,12 @@ namespace Server.Api.Migrations.Postgres
                 name: "IX_Instructions_State",
                 table: "Instructions",
                 column: "State");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_GoogleId",
+                table: "Users",
+                column: "GoogleId",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -256,6 +287,9 @@ namespace Server.Api.Migrations.Postgres
 
             migrationBuilder.DropTable(
                 name: "OutboxMessages");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Agents");

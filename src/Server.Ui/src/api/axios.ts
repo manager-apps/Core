@@ -22,6 +22,17 @@ const api = axios.create({
   }
 });
 
+api.interceptors.request.use(config => {
+  try {
+    const stored = localStorage.getItem('manager_auth');
+    if (stored) {
+      const { token } = JSON.parse(stored);
+      if (token) config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch { /* ignore */ }
+  return config;
+});
+
 api.interceptors.response.use(
   response => response,
   error => {

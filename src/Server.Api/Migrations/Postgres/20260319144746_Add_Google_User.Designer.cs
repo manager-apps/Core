@@ -12,8 +12,8 @@ using Server.Api.Infrastructure;
 namespace Server.Api.Migrations.Postgres
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260209141615_agent_modify_2")]
-    partial class agent_modify_2
+    [Migration("20260319144746_Add_Google_User")]
+    partial class Add_Google_User
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -193,7 +193,8 @@ namespace Server.Api.Migrations.Postgres
 
                     b.Property<string>("AgentName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -218,6 +219,11 @@ namespace Server.Api.Migrations.Postgres
                     b.HasKey("Id");
 
                     b.HasIndex("AgentId");
+
+                    b.HasIndex("AgentName");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
 
                     b.ToTable("EnrollmentTokens");
                 });
@@ -321,8 +327,8 @@ namespace Server.Api.Migrations.Postgres
 
                     b.Property<string>("PayloadJson")
                         .IsRequired()
-                        .HasMaxLength(8000)
-                        .HasColumnType("character varying(8000)");
+                        .HasMaxLength(100000)
+                        .HasColumnType("character varying(100000)");
 
                     b.Property<int>("RetryCount")
                         .HasColumnType("integer");
@@ -341,6 +347,44 @@ namespace Server.Api.Migrations.Postgres
                     b.HasKey("Id");
 
                     b.ToTable("OutboxMessages");
+                });
+
+            modelBuilder.Entity("Server.Domain.User", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("GoogleId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GoogleId")
+                        .IsUnique();
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Server.Domain.Certificate", b =>
